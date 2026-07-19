@@ -4,7 +4,9 @@ const API_BASE =
     : window.location.origin;
 
 /** GitHub Pages veya statik barındırma — veriler tarayıcıda saklanır */
-const USE_LOCAL_STORAGE = /\.github\.io$/i.test(window.location.hostname);
+const USE_LOCAL_STORAGE =
+  /\.github\.io$/i.test(window.location.hostname) ||
+  (window.location.port !== "8000" && window.location.protocol !== "file:");
 
 const CODE_BLOCKED_PATTERNS = [
   /\bimport\s+os\b/i,
