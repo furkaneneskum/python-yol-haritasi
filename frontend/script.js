@@ -1,12 +1,4 @@
-const API_BASE =
-  window.location.protocol === "file:"
-    ? "http://127.0.0.1:8000"
-    : window.location.origin;
-
-/** GitHub Pages veya statik barındırma — veriler tarayıcıda saklanır */
-const USE_LOCAL_STORAGE =
-  /\.github\.io$/i.test(window.location.hostname) ||
-  (window.location.port !== "8000" && window.location.protocol !== "file:");
+const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/";
 
 const CODE_BLOCKED_PATTERNS = [
   /\bimport\s+os\b/i,
@@ -22,46 +14,243 @@ const CODE_BLOCKED_PATTERNS = [
   /\bsubprocess\./i,
 ];
 
-let pyodidePromise = null;
+/* ── Varsayılan konu verisi ── */
+const DEFAULT_TOPICS = [
+  { title: "Bölüm 1: Temel Python Objeleri ve Veri Yapıları", duration: "2 Saat 12 Dk" },
+  { title: "Bölüm 2: Koşullu Durumlar", duration: "55 Dk" },
+  { title: "Bölüm 3: Pythonda Döngü Yapıları", duration: "1 Saat 33 Dk" },
+  { title: "Bölüm 4: Fonksiyonlar", duration: "1 Saat 11 Dk" },
+  { title: "Bölüm 5: Modüller", duration: "32 Dk" },
+  { title: "Bölüm 6: Nesne Tabanlı Programlama", duration: "1 Saat 24 Dk" },
+  { title: "Bölüm 7: Hatalar ve İstisnalar", duration: "20 Dk" },
+  { title: "Bölüm 8: Dosya İşlemleri", duration: "55 Dk" },
+  { title: "Bölüm 9: Pythondaki Gömülü Fonksiyonlar", duration: "38 Dk" },
+  { title: "Bölüm 10: İleri Seviye Veri Yapıları ve Objeler", duration: "58 Dk" },
+  { title: "Bölüm 11: Sqlite Veritabanı", duration: "1 Saat 14 Dk" },
+  { title: "Bölüm 12: Fonksiyonların İleri Seviye Özellikleri ve Decoratorlar", duration: "37 Dk" },
+  { title: "Bölüm 13: Pythondaki Iteratorlar ve Generatorlar", duration: "33 Dk" },
+  { title: "Bölüm 14: Pythondaki İleri Seviye Modüller", duration: "45 Dk" },
+  { title: "Bölüm 15: PyQt5 - Arayüz Geliştirme", duration: "2 Saat" },
+  { title: "Bölüm 16: Python Kursu 2. Seviye Başlıyor!", duration: "5 Dk" },
+  { title: "Bölüm 17: Flask Framework ile Web Geliştirme Temelleri", duration: "1 Saat 30 Dk" },
+  { title: "Bölüm 18: Flask, ORM ve SqlAlchemy ile Todo App", duration: "1 Saat 15 Dk" },
+  { title: "Bölüm 19: Django Framework ile Web Geliştirme Temelleri", duration: "2 Saat" },
+  { title: "Bölüm 20: Flask Websitesinin Yayına Alınması", duration: "45 Dk" },
+  { title: "Bölüm 21: Django Websitesinin Yayına Alınması", duration: "45 Dk" },
+  { title: "Bölüm 22: Selenium ve Ekşi Sözlük", duration: "34 Dk" },
+  { title: "Bölüm 23: Selenium ve Twitter", duration: "34 Dk" },
+  { title: "Bölüm 24: Selenium ve Instagram", duration: "34 Dk" },
+  { title: "Bölüm 25: Flask ve Fixer.io ile Döviz Çevirici", duration: "38 Dk" },
+  { title: "Bölüm 26: Github Rest Api ile Github Finder", duration: "36 Dk" },
+  { title: "Bölüm 27: Scrapy Framework ve kitapyurdu.com Projesi", duration: "1 Saat 36 Dk" },
+  { title: "Bölüm 28: Veri Analizi - Numpy", duration: "38 Dk" },
+  { title: "Bölüm 29: Veri Analizi - Pandas", duration: "2 Saat 13 Dk" },
+  { title: "Bölüm 30: U.S Soccer Leauge Salaries Analizi", duration: "18 Dk" },
+  { title: "Bölüm 31: Youtube Video İstatistikleri Analizi", duration: "29 Dk" },
+  { title: "Bölüm 32: Veri Görselleştirme - Matplotlib", duration: "1 Saat" },
+];
 
-async function loadPyodideRuntime() {
-  if (!window.loadPyodide) {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("Pyodide yüklenemedi"));
-      document.head.appendChild(script);
-    });
+const UDEMY_COURSE_URL = "https://www.udemy.com/course/sifirdan-ileri-seviyeye-python/";
+
+const TOPIC_DOC_URLS = [
+  "https://docs.python.org/tr/3/tutorial/datastructures.html",
+  "https://docs.python.org/tr/3/tutorial/controlflow.html",
+  "https://docs.python.org/tr/3/tutorial/controlflow.html#for-statements",
+  "https://docs.python.org/tr/3/tutorial/controlflow.html#defining-functions",
+  "https://docs.python.org/tr/3/tutorial/modules.html",
+  "https://docs.python.org/tr/3/tutorial/classes.html",
+  "https://docs.python.org/tr/3/tutorial/errors.html",
+  "https://docs.python.org/tr/3/tutorial/inputoutput.html",
+  "https://docs.python.org/tr/3/library/functions.html",
+  "https://docs.python.org/tr/3/library/collections.html",
+  "https://docs.python.org/tr/3/library/sqlite3.html",
+  "https://docs.python.org/tr/3/glossary.html#term-decorator",
+  "https://docs.python.org/tr/3/tutorial/classes.html#generators",
+  "https://docs.python.org/tr/3/py-modindex.html",
+  "https://www.riverbankcomputing.com/static/Docs/PyQt5/",
+  "https://docs.python.org/tr/3/",
+  "https://flask.palletsprojects.com/",
+  "https://www.sqlalchemy.org/",
+  "https://docs.djangoproject.com/tr/5.0/",
+  "https://flask.palletsprojects.com/en/latest/deploying/",
+  "https://docs.djangoproject.com/en/stable/howto/deployment/",
+  "https://selenium-python.readthedocs.io/",
+  "https://selenium-python.readthedocs.io/getting-started.html",
+  "https://developers.facebook.com/docs/instagram-api/",
+  "https://flask.palletsprojects.com/en/latest/quickstart/",
+  "https://docs.github.com/en/rest",
+  "https://docs.scrapy.org/",
+  "https://numpy.org/doc/stable/user/quickstart.html",
+  "https://pandas.pydata.org/docs/getting_started/index.html",
+  "https://www.kaggle.com/learn/pandas",
+  "https://developers.google.com/youtube/v3",
+  "https://matplotlib.org/stable/gallery/index.html",
+];
+
+const STORAGE_KEY = "python_yol_data_v1";
+
+function topicSectionTitle(title) {
+  return title.includes(": ") ? title.split(": ", 2)[1] : title;
+}
+
+function resourcesForIndex(index) {
+  const section = topicSectionTitle(DEFAULT_TOPICS[index].title);
+  const docUrl =
+    index < TOPIC_DOC_URLS.length
+      ? TOPIC_DOC_URLS[index]
+      : "https://docs.python.org/tr/3/";
+  return [
+    { title: `▶ Udemy — ${section}`, url: `${UDEMY_COURSE_URL}learn/` },
+    { title: `🐍 Dokümantasyon — ${section}`, url: docUrl },
+  ];
+}
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function yesterdayIso() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function getRankTitle(xp) {
+  if (xp >= 1500) return "Usta Yazılımcı 👑";
+  if (xp >= 500) return "Gelişen Yazılımcı 📘";
+  return "Yeni Başlayan 🐍";
+}
+
+function statsToDict(stats) {
+  const xp = stats.total_xp;
+  return {
+    streak_count: stats.streak_count,
+    last_active_date: stats.last_active_date,
+    total_xp: xp,
+    user_level: stats.user_level,
+    rank_title: getRankTitle(xp),
+    xp_to_next_level: xp % 500 !== 0 ? 500 - (xp % 500) : 500,
+    level_progress_pct: (xp % 500) / 5,
+  };
+}
+
+function createInitialState() {
+  return {
+    topics: DEFAULT_TOPICS.map((topic, index) => ({
+      id: index + 1,
+      title: topic.title,
+      duration: topic.duration,
+      is_completed: false,
+      notes: "",
+      time_spent: 0,
+      resources: resourcesForIndex(index),
+    })),
+    stats: {
+      streak_count: 0,
+      last_active_date: "",
+      total_xp: 0,
+      user_level: 1,
+    },
+    activity: {},
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return createInitialState();
+    const parsed = JSON.parse(raw);
+    if (!parsed?.topics?.length) return createInitialState();
+    return parsed;
+  } catch {
+    return createInitialState();
   }
-  return loadPyodide({
-    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",
-  });
 }
 
-async function getPyodide() {
-  if (!pyodidePromise) pyodidePromise = loadPyodideRuntime();
-  return pyodidePromise;
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function isCodeBlocked(code) {
-  return CODE_BLOCKED_PATTERNS.some((pattern) => pattern.test(code));
-}
+function updateStreak(state) {
+  const today = todayIso();
+  const stats = state.stats;
+  if (stats.last_active_date === today) return;
 
-async function runCodeInBrowser(code) {
-  const trimmed = code.trim();
-  if (!trimmed) throw new Error("Kod boş olamaz");
-  if (isCodeBlocked(trimmed)) {
-    throw new Error("Güvenlik: Bu kod güvenlik nedeniyle çalıştırılamaz.");
+  if (stats.last_active_date === yesterdayIso()) {
+    stats.streak_count += 1;
+  } else {
+    stats.streak_count = 1;
   }
+  stats.last_active_date = today;
+}
 
-  const pyodide = await getPyodide();
+function addXp(state, amount) {
+  if (amount <= 0) return statsToDict(state.stats);
+  updateStreak(state);
+  const stats = state.stats;
+  stats.total_xp += amount;
+  stats.user_level = Math.floor(stats.total_xp / 500) + 1;
+  return statsToDict(stats);
+}
+
+function addDailyMinutes(state, minutes) {
+  if (minutes <= 0) return;
+  const today = todayIso();
+  state.activity[today] = (state.activity[today] || 0) + minutes;
+}
+
+function getActivityMap(state, days = 30) {
+  const result = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    result.push({ date: key, minutes: state.activity[key] || 0 });
+  }
+  return result;
+}
+
+function findTopic(state, topicId) {
+  return state.topics.find((t) => t.id === topicId) || null;
+}
+
+/* ── Pyodide (tarayıcıda Python) ── */
+let pyodideReady = null;
+
+function initPyodide() {
+  if (!pyodideReady) {
+    if (typeof loadPyodide !== "function") {
+      pyodideReady = Promise.reject(new Error("Pyodide kütüphanesi yüklenemedi"));
+    } else {
+      pyodideReady = loadPyodide({ indexURL: PYODIDE_INDEX_URL });
+    }
+  }
+  return pyodideReady;
+}
+
+function resetPyodideIO(pyodide) {
   pyodide.runPython(`
 import sys
 from io import StringIO
 sys.stdout = StringIO()
 sys.stderr = StringIO()
 `);
+}
+
+function isCodeBlocked(code) {
+  return CODE_BLOCKED_PATTERNS.some((pattern) => pattern.test(code));
+}
+
+async function runCode(code) {
+  const trimmed = code.trim();
+  if (!trimmed) throw new Error("Kod boş olamaz");
+  if (isCodeBlocked(trimmed)) {
+    throw new Error("Güvenlik: Bu kod güvenlik nedeniyle çalıştırılamaz.");
+  }
+
+  const pyodide = await initPyodide();
+  resetPyodideIO(pyodide);
 
   try {
     await pyodide.runPythonAsync(trimmed);
@@ -150,7 +339,7 @@ const KEYBOARD_SHORTCUTS = [
 const BOOT_LINES = [
   { text: "SYS://PYTHON_YOL v3.0 — Boot sequence başlatıldı", cls: "dim boot" },
   { text: "▸ Kernel ..................... [OK]", cls: "dim boot" },
-  { text: "▸ SQLite veritabanı .......... [OK]", cls: "dim boot" },
+  { text: "▸ localStorage veritabanı .... [OK]", cls: "dim boot" },
   { text: "▸ 32 eğitim modülü ........... [YÜKLENDİ]", cls: "success boot" },
   { text: "▸ XP motoru .................. [AKTİF]", cls: "success boot" },
   { text: "▸ Kod sandbox ................ [HAZIR]", cls: "success boot" },
@@ -231,73 +420,78 @@ function safeOn(target, event, handler, options) {
   if (target) target.addEventListener(event, handler, options);
 }
 
-/* ── API ── */
-async function fetchTopics() {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.listTopics();
-  const res = await fetch(`${API_BASE}/api/topics`);
-  if (!res.ok) throw new Error("Konular yüklenemedi");
-  return res.json();
+/* ── Veri katmanı (localStorage) ── */
+function fetchTopics() {
+  const state = loadState();
+  return state.topics.map((t) => ({ ...t }));
 }
 
-async function updateCompletion(topicId, isCompleted) {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.updateCompletion(topicId, isCompleted);
-  const res = await fetch(`${API_BASE}/api/topics/${topicId}/completion`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ is_completed: isCompleted }),
-  });
-  if (!res.ok) throw new Error("Güncelleme başarısız");
-  return res.json();
-}
+function updateCompletion(topicId, isCompleted) {
+  const state = loadState();
+  const topic = findTopic(state, topicId);
+  if (!topic) throw new Error("Konu bulunamadı");
 
-async function updateNotes(topicId, notes) {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.updateNotes(topicId, notes);
-  const res = await fetch(`${API_BASE}/api/topics/${topicId}/notes`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ notes }),
-  });
-  if (!res.ok) throw new Error("Not kaydedilemedi");
-  return res.json();
-}
+  const wasCompleted = topic.is_completed;
+  topic.is_completed = Boolean(isCompleted);
 
-async function updateTime(topicId, seconds, mode = "add") {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.updateTime(topicId, seconds, mode);
-  const res = await fetch(`${API_BASE}/api/topics/${topicId}/time`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ seconds, mode }),
-  });
-  if (!res.ok) throw new Error("Süre kaydedilemedi");
-  return res.json();
-}
-
-async function fetchStats() {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.getStats();
-  const res = await fetch(`${API_BASE}/api/stats`);
-  if (!res.ok) throw new Error("İstatistikler yüklenemedi");
-  return res.json();
-}
-
-async function fetchActivity() {
-  if (USE_LOCAL_STORAGE) return RoadmapStorage.getActivity();
-  const res = await fetch(`${API_BASE}/api/activity`);
-  if (!res.ok) throw new Error("Aktivite yüklenemedi");
-  return res.json();
-}
-
-async function runCode(code) {
-  if (USE_LOCAL_STORAGE) return runCodeInBrowser(code);
-  const res = await fetch(`${API_BASE}/api/run-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Kod çalıştırılamadı");
+  let xpGained = 0;
+  let stats;
+  if (isCompleted && !wasCompleted) {
+    stats = addXp(state, 100);
+    xpGained = 100;
+  } else {
+    stats = statsToDict(state.stats);
   }
-  return res.json();
+
+  saveState(state);
+  return { ...topic, xp_gained: xpGained, stats };
+}
+
+function updateNotes(topicId, notes) {
+  const state = loadState();
+  const topic = findTopic(state, topicId);
+  if (!topic) throw new Error("Konu bulunamadı");
+  topic.notes = notes;
+  saveState(state);
+  return { ...topic };
+}
+
+function updateTime(topicId, seconds, mode = "add") {
+  const state = loadState();
+  const topic = findTopic(state, topicId);
+  if (!topic) throw new Error("Konu bulunamadı");
+
+  if (mode === "add") {
+    topic.time_spent += seconds;
+  } else if (mode === "set") {
+    topic.time_spent = seconds;
+  } else {
+    throw new Error("mode 'add' veya 'set' olmalı");
+  }
+
+  let xpGained = 0;
+  if (mode === "add" && seconds > 0) {
+    const minutes = Math.floor(seconds / 60);
+    if (minutes > 0) {
+      xpGained = minutes * 10;
+      addXp(state, xpGained);
+      addDailyMinutes(state, minutes);
+    } else if (seconds >= 30) {
+      addDailyMinutes(state, 1);
+    }
+  }
+
+  const stats = statsToDict(state.stats);
+  saveState(state);
+  return { ...topic, xp_gained: xpGained, stats };
+}
+
+function fetchStats() {
+  return statsToDict(loadState().stats);
+}
+
+function fetchActivity() {
+  return getActivityMap(loadState(), 30);
 }
 
 /* ── RPG & Kozmik Harita ── */
@@ -1076,19 +1270,16 @@ async function saveTimer(e) {
     if (result.xp_gained) showXpToast(result.xp_gained);
 
     const wasGoalComplete = getTodayMinutes() >= getDailyGoalMinutes();
-    fetchActivity()
-      .then((data) => {
-        renderCosmicMap(data);
-        maybeCelebrateDailyGoal(wasGoalComplete);
-      })
-      .catch(() => {});
+    activityData = fetchActivity();
+    renderCosmicMap(activityData);
+    maybeCelebrateDailyGoal(wasGoalComplete);
 
     refreshTimerUI(topicId);
     renderStaircase();
     updateHudActiveTimer();
   } catch {
     if (el.timerStatus) {
-      el.timerStatus.textContent = "Kayıt hatası! Backend çalışıyor mu?";
+      el.timerStatus.textContent = "Kayıt hatası! Tekrar dene.";
       el.timerStatus.className = "timer-status error";
     }
   } finally {
@@ -2091,30 +2282,19 @@ function handleNotesInput() {
 
 /* ── Init ── */
 async function loadTopics() {
-  const results = await Promise.allSettled([
-    fetchTopics(),
-    fetchStats(),
-    fetchActivity(),
-  ]);
+  try {
+    topics = fetchTopics();
+    activityData = fetchActivity();
 
-  if (results[0].status === "fulfilled") {
-    topics = results[0].value;
     if (el.loading) el.loading.remove();
     renderStaircase();
-  } else if (el.loading) {
-    el.loading.textContent =
-      window.location.protocol === "file:"
-        ? "Backend'e bağlanılamadı. http://127.0.0.1:8000 adresini kullanın."
-        : "Konular yüklenemedi. Backend çalışıyor mu?";
-    el.loading.classList.add("error");
-  }
-
-  if (results[1].status === "fulfilled") {
-    renderRpgHud(results[1].value);
-  }
-
-  if (results[2].status === "fulfilled") {
-    renderCosmicMap(results[2].value);
+    renderRpgHud(fetchStats());
+    renderCosmicMap(activityData);
+  } catch {
+    if (el.loading) {
+      el.loading.textContent = "Veriler yüklenemedi. Sayfayı yenileyin.";
+      el.loading.classList.add("error");
+    }
   }
 
   if (!resizeBound) {
@@ -2292,6 +2472,7 @@ function initApp() {
   bindEvents();
   initParticlesBackground();
   initLanding();
+  initPyodide().catch(() => {});
 }
 
 if (document.readyState === "loading") {
