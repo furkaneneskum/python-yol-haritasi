@@ -4,16 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 Python Öğrenme Yol Haritası</title>
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="style.css?v=26">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem("python_yol_theme") === "light") {
+          document.documentElement.dataset.theme = "light";
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
 </head>
 <body>
   <div id="particles-js" aria-hidden="true"></div>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="grid-bg" aria-hidden="true"></div>
+
+  <button type="button" class="theme-toggle" id="themeToggle" aria-label="Açık temaya geç" title="Açık tema">
+    <span class="theme-toggle-icon theme-icon-dark" aria-hidden="true">🌙</span>
+    <span class="theme-toggle-icon theme-icon-light hidden" aria-hidden="true">☀️</span>
+  </button>
 
   <!-- Landing Screen -->
   <section class="landing" id="landing">
@@ -618,6 +632,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=25"></script>
+  <script src="script.js?v=26"></script>
 </body>
 </html>

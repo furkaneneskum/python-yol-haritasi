@@ -279,6 +279,7 @@ const TYPEWRITER_LINES = [
 ];
 
 const OPERATOR_KEY = "python_yol_operator";
+const THEME_KEY = "python_yol_theme";
 const DAILY_GOAL_KEY = "python_yol_daily_goal";
 const DAILY_GOAL_DONE_KEY = "python_yol_daily_goal_done";
 const DEFAULT_DAILY_GOAL = 30;
@@ -388,7 +389,7 @@ function cacheElements() {
     "enterSystemBtn", "welcomeOverlay", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
-    "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
+    "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn", "themeToggle",
     "shortcutsModal", "shortcutsFrame", "shortcutsBody", "shortcutsClose",
     "hudUsername", "hudUserChip",
     "devPanel", "devAvatar", "devAvatarName", "devLevelBadge", "devRingFill",
@@ -1752,21 +1753,26 @@ function runWelcomeReveal(name) {
   welcomeRevealId = requestAnimationFrame(tick);
 }
 
-function initParticlesBackground() {
+function initParticlesBackground(theme = getStoredTheme()) {
   if (typeof particlesJS === "undefined") return;
 
+  const isLight = theme === "light";
   particlesJS("particles-js", {
     particles: {
       number: { value: 58, density: { enable: true, value_area: 950 } },
-      color: { value: ["#306998", "#4a6fa5", "#8899aa", "#6366f1"] },
+      color: {
+        value: isLight
+          ? ["#306998", "#4a8bc2", "#7eb5ff", "#6366f1"]
+          : ["#306998", "#4a6fa5", "#8899aa", "#6366f1"],
+      },
       shape: { type: "circle" },
-      opacity: { value: 0.12, random: true, anim: { enable: true, speed: 0.4, opacity_min: 0.04 } },
+      opacity: { value: isLight ? 0.2 : 0.12, random: true, anim: { enable: true, speed: 0.4, opacity_min: isLight ? 0.08 : 0.04 } },
       size: { value: 2, random: true },
       line_linked: {
         enable: true,
         distance: 130,
         color: "#306998",
-        opacity: 0.07,
+        opacity: isLight ? 0.14 : 0.07,
         width: 1,
       },
       move: {
@@ -1788,6 +1794,52 @@ function initParticlesBackground() {
     },
     retina_detect: true,
   });
+}
+
+function getStoredTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+  } catch { /* ignore */ }
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
+function updateThemeToggleUI(theme) {
+  if (!el.themeToggle) return;
+  const darkIcon = el.themeToggle.querySelector(".theme-icon-dark");
+  const lightIcon = el.themeToggle.querySelector(".theme-icon-light");
+  if (darkIcon) darkIcon.classList.toggle("hidden", theme === "light");
+  if (lightIcon) lightIcon.classList.toggle("hidden", theme !== "light");
+  const label = theme === "light" ? "Koyu temaya geç" : "Açık temaya geç";
+  el.themeToggle.setAttribute("aria-label", label);
+  el.themeToggle.title = theme === "light" ? "Koyu tema" : "Açık tema";
+}
+
+function refreshParticlesForTheme(theme) {
+  const container = document.getElementById("particles-js");
+  if (!container) return;
+  container.innerHTML = "";
+  initParticlesBackground(theme);
+}
+
+function applyTheme(theme, { persist = true, refreshParticles = true } = {}) {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme === "light" ? "light" : "";
+  if (persist) {
+    try {
+      localStorage.setItem(THEME_KEY, nextTheme);
+    } catch { /* ignore */ }
+  }
+  updateThemeToggleUI(nextTheme);
+  if (refreshParticles) refreshParticlesForTheme(nextTheme);
+}
+
+function toggleTheme() {
+  applyTheme(getStoredTheme() === "light" ? "dark" : "light");
+}
+
+function initTheme() {
+  applyTheme(getStoredTheme(), { persist: false, refreshParticles: false });
 }
 
 function getStepTiltBase(stepEl) {
@@ -2330,6 +2382,11 @@ function bindEvents() {
     setDailyGoalMinutes(Number(btn.dataset.minutes));
   });
 
+  safeOn(el.themeToggle, "click", (e) => {
+    e.preventDefault();
+    toggleTheme();
+  });
+
   /* Giriş & navigasyon */
   safeOn(el.enterSystemBtn, "click", (e) => {
     e.preventDefault();
@@ -2469,8 +2526,9 @@ function bindEvents() {
 
 function initApp() {
   cacheElements();
+  initTheme();
   bindEvents();
-  initParticlesBackground();
+  initParticlesBackground(getStoredTheme());
   initLanding();
   initPyodide().catch(() => {});
 }
