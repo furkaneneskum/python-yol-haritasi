@@ -50,59 +50,10 @@ const DEFAULT_TOPICS = [
   { title: "Bölüm 32: Veri Görselleştirme - Matplotlib", duration: "1 Saat" },
 ];
 
-const UDEMY_COURSE_URL = "https://www.udemy.com/course/sifirdan-ileri-seviyeye-python/";
-
-const TOPIC_DOC_URLS = [
-  "https://docs.python.org/tr/3/tutorial/datastructures.html",
-  "https://docs.python.org/tr/3/tutorial/controlflow.html",
-  "https://docs.python.org/tr/3/tutorial/controlflow.html#for-statements",
-  "https://docs.python.org/tr/3/tutorial/controlflow.html#defining-functions",
-  "https://docs.python.org/tr/3/tutorial/modules.html",
-  "https://docs.python.org/tr/3/tutorial/classes.html",
-  "https://docs.python.org/tr/3/tutorial/errors.html",
-  "https://docs.python.org/tr/3/tutorial/inputoutput.html",
-  "https://docs.python.org/tr/3/library/functions.html",
-  "https://docs.python.org/tr/3/library/collections.html",
-  "https://docs.python.org/tr/3/library/sqlite3.html",
-  "https://docs.python.org/tr/3/glossary.html#term-decorator",
-  "https://docs.python.org/tr/3/tutorial/classes.html#generators",
-  "https://docs.python.org/tr/3/py-modindex.html",
-  "https://www.riverbankcomputing.com/static/Docs/PyQt5/",
-  "https://docs.python.org/tr/3/",
-  "https://flask.palletsprojects.com/",
-  "https://www.sqlalchemy.org/",
-  "https://docs.djangoproject.com/tr/5.0/",
-  "https://flask.palletsprojects.com/en/latest/deploying/",
-  "https://docs.djangoproject.com/en/stable/howto/deployment/",
-  "https://selenium-python.readthedocs.io/",
-  "https://selenium-python.readthedocs.io/getting-started.html",
-  "https://developers.facebook.com/docs/instagram-api/",
-  "https://flask.palletsprojects.com/en/latest/quickstart/",
-  "https://docs.github.com/en/rest",
-  "https://docs.scrapy.org/",
-  "https://numpy.org/doc/stable/user/quickstart.html",
-  "https://pandas.pydata.org/docs/getting_started/index.html",
-  "https://www.kaggle.com/learn/pandas",
-  "https://developers.google.com/youtube/v3",
-  "https://matplotlib.org/stable/gallery/index.html",
-];
-
 const STORAGE_KEY = "python_yol_data_v1";
 
 function topicSectionTitle(title) {
   return title.includes(": ") ? title.split(": ", 2)[1] : title;
-}
-
-function resourcesForIndex(index) {
-  const section = topicSectionTitle(DEFAULT_TOPICS[index].title);
-  const docUrl =
-    index < TOPIC_DOC_URLS.length
-      ? TOPIC_DOC_URLS[index]
-      : "https://docs.python.org/tr/3/";
-  return [
-    { title: `▶ Udemy — ${section}`, url: `${UDEMY_COURSE_URL}learn/` },
-    { title: `🐍 Dokümantasyon — ${section}`, url: docUrl },
-  ];
 }
 
 function todayIso() {
@@ -143,7 +94,6 @@ function createInitialState() {
       is_completed: false,
       notes: "",
       time_spent: 0,
-      resources: resourcesForIndex(index),
     })),
     stats: {
       streak_count: 0,
@@ -152,6 +102,7 @@ function createInitialState() {
       user_level: 1,
     },
     activity: {},
+    learning: { flashcards: {}, quizzes: {} },
   };
 }
 
@@ -161,6 +112,11 @@ function loadState() {
     if (!raw) return createInitialState();
     const parsed = JSON.parse(raw);
     if (!parsed?.topics?.length) return createInitialState();
+    if (!parsed.learning) parsed.learning = { flashcards: {}, quizzes: {} };
+    if (!parsed.activity) parsed.activity = {};
+    parsed.topics.forEach((t) => {
+      if (t.resources) delete t.resources;
+    });
     return parsed;
   } catch {
     return createInitialState();
@@ -214,6 +170,530 @@ function getActivityMap(state, days = 30) {
 function findTopic(state, topicId) {
   return state.topics.find((t) => t.id === topicId) || null;
 }
+
+/* ═══ İNTERAKTİF PYTHON AKADEMİSİ — İÇERİK & ÖĞRENME MOTORU ═══ */
+
+const MODULE_KEYS = [
+  "data", "conditionals", "loops", "functions", "modules", "oop", "errors", "files",
+  "builtins", "collections", "sqlite", "decorators", "iterators", "adv_modules",
+  "pyqt", "level2", "flask", "sqlalchemy", "django", "deploy_flask", "deploy_django",
+  "selenium", "selenium2", "selenium3", "flask_api", "github_api", "scrapy",
+  "numpy", "pandas", "pandas_proj", "api_proj", "matplotlib",
+];
+
+function mkCards(items) {
+  return items.map(([front, back, code]) => ({ front, back, code }));
+}
+
+function mkQuiz(items) {
+  return items.map(([q, options, correct, explain]) => ({ q, options, correct, explain }));
+}
+
+const ACADEMY_BANK = {
+  data: {
+    lesson: `<h3>Temel Python Objeleri</h3>
+<p>Python'da <strong>her şey bir nesnedir</strong>. En sık kullandığımız koleksiyonlar <code>list</code>, <code>tuple</code>, <code>dict</code> ve <code>set</code>'tir.</p>
+<h4>List vs Tuple</h4>
+<p><strong>List</strong> değiştirilebilir (mutable), <strong>tuple</strong> değiştirilemez (immutable). Performans kritik sabit veriler için tuple tercih edilir.</p>
+<pre><code class="language-python">meyveler = ["elma", "armut"]
+meyveler.append("kiraz")  # OK
+
+koordinat = (41.0, 29.0)
+# koordinat[0] = 42  # HATA!</code></pre>
+<h4>Sözlük (dict)</h4>
+<p>Anahtar-değer çiftleri ile O(1) erişim sağlar. JSON benzeri veri yapılarında idealdir.</p>
+<pre><code class="language-python">kullanici = {"ad": "Ayşe", "xp": 120}
+print(kullanici["ad"])</code></pre>`,
+    flashcards: mkCards([
+      ["List ile Tuple arasındaki temel fark?", "List mutable, tuple immutable'dır.", "lst = [1,2]\ntpl = (1,2)"],
+      ["dict['anahtar'] ne döndürür?", "İlgili anahtarın değerini.", "d = {'a': 1}\nprint(d['a'])"],
+      ["Set neden tekrarsız?", "Küme matematik modelini takip eder.", "print({1,1,2})  # {1,2}"],
+    ]),
+    quiz: mkQuiz([
+      ["Hangisi değiştirilebilir?", ["tuple", "list", "str", "int"], 1, "Listeler append/extend ile güncellenir."],
+      ["len([10,20,30]) sonucu?", ["1", "2", "3", "30"], 2, "len eleman sayısını verir."],
+      ["Boş sözlük nasıl oluşturulur?", ["[]", "{}", "()", "set()"], 1, "Süslü parantez dict oluşturur."],
+    ]),
+    starter: "meyveler = ['elma', 'armut', 'kiraz']\nfor m in meyveler:\n    print(m.upper())",
+  },
+  conditionals: {
+    lesson: `<h3>Koşullu Durumlar</h3>
+<p><strong>if / elif / else</strong> blokları program akışını dallandırır. Python girintileme (indentation) sözdiziminin parçasıdır.</p>
+<pre><code class="language-python">puan = 85
+if puan >= 90:
+    notu = "AA"
+elif puan >= 70:
+    notu = "BB"
+else:
+    notu = "CC"
+print(notu)</code></pre>
+<p>Karşılaştırma operatörleri: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>and</code>, <code>or</code>, <code>not</code>.</p>`,
+    flashcards: mkCards([
+      ["elif ne zaman kullanılır?", "Birden fazla koşul sırasıyla test edilirken.", "if x>0: ...\nelif x==0: ..."],
+      ["Truthiness nedir?", "Boş koleksiyon/0/None False sayılır.", "if []: print('hayır')"],
+      ["Ternary if sözdizimi?", "deger if kosul else diger", "maxi = a if a>b else b"],
+    ]),
+    quiz: mkQuiz([
+      ["if bloğu hangi karakterle biter?", [";", "}", "Girinti değişince", "end"], 2, "Python blokları girinti ile belirlenir."],
+      ["not True sonucu?", ["True", "False", "None", "0"], 1, "not mantıksal değil tersler."],
+      ["Hangisi eşitlik kontrolü?", ["=", "==", "===", ":="], 1, "== karşılaştırma operatörüdür."],
+    ]),
+    starter: "yas = 20\nif yas >= 18:\n    print('Ehliyet alabilir')\nelse:\n    print('Bekle')",
+  },
+  loops: {
+    lesson: `<h3>Döngü Yapıları</h3>
+<p><strong>for</strong> iterable üzerinde, <strong>while</strong> koşul doğru olduğu sürece çalışır.</p>
+<pre><code class="language-python">for i in range(5):
+    print(i * i)
+
+sayac = 3
+while sayac > 0:
+    print(sayac)
+    sayac -= 1</code></pre>
+<p><code>break</code> döngüyü, <code>continue</code> o turu atlar.</p>`,
+    flashcards: mkCards([
+      ["range(3) ne üretir?", "0, 1, 2", "list(range(3))"],
+      ["enumerate ne sağlar?", "İndeks + değer çifti.", "for i,v in enumerate(a):"],
+      ["while sonsuz döngüden kaçın?", "Koşulun bir noktada False olmasını sağla.", "while True: break"],
+    ]),
+    quiz: mkQuiz([
+      ["range(2,5) son eleman?", ["5", "4", "3", "2"], 1, "Üst sınır dahil değildir."],
+      ["for x in 'py': kaç iterasyon?", ["1", "2", "3", "0"], 1, "İki karakter iki tur."],
+      ["continue ne yapar?", ["Döngüyü bitirir", "Sonraki tura geçer", "Fonksiyondan çıkar", "Hata verir"], 1, "continue o iterasyonu atlar."],
+    ]),
+    starter: "toplam = 0\nfor n in range(1, 6):\n    toplam += n\nprint(toplam)",
+  },
+  functions: {
+    lesson: `<h3>Fonksiyonlar</h3>
+<p><strong>def</strong> ile tanımlanır. Parametreler, varsayılan değerler ve <code>return</code> ile sonuç döndürülür.</p>
+<pre><code class="language-python">def selam(isim, n=1):
+    return (f"Merhaba {isim}! " * n).strip()
+
+print(selam("Python", 2))</code></pre>
+<p>*args ve **kwargs ileri seviye esneklik sağlar.</p>`,
+    flashcards: mkCards([
+      ["return olmadan fonksiyon?", "None döner.", "def f(): pass"],
+      ["Varsayılan parametre tuzağı?", "Mutable default paylaşılır — dikkat!", "def f(a=[]):\n    a.append(1)"],
+      ["Lambda ne için?", "Tek satırlık anonim fonksiyon.", "sq = lambda x: x*x"],
+    ]),
+    quiz: mkQuiz([
+      ["Fonksiyon tanım anahtar kelimesi?", ["func", "def", "fn", "function"], 1, "def Python sözdizimidir."],
+      ["return tipi belirtmek zorunlu mu?", ["Evet", "Hayır", "Sadece async", "Sadece class"], 1, "Python dinamik tipli."],
+      ["*args ne toplar?", ["Sözlük", "Konum argümanları", "Anahtar kelimeler", "Sınıf"], 1, "*args tuple benzeri toplar."],
+    ]),
+    starter: "def alan_genislik(g, u):\n    return g * u\nprint(alan_genislik(4, 5))",
+  },
+  modules: {
+    lesson: `<h3>Modüller ve Paketler</h3>
+<p>Kod organizasyonu için modüller kullanılır. <code>import math</code> veya <code>from math import sqrt</code>.</p>
+<pre><code class="language-python">import math
+print(math.sqrt(16))
+
+from datetime import date
+print(date.today())</code></pre>
+<p><code>if __name__ == "__main__":</code> doğrudan çalıştırma koruması sağlar.</p>`,
+    flashcards: mkCards([
+      ["import math vs from math import pi?", "İkincisi doğrudan pi adını getirir.", "import math\nmath.pi"],
+      ["__name__ == '__main__' ne?", "Dosya doğrudan çalıştırıldı.", "if __name__=='__main__':"],
+      ["pip ne yapar?", "Paket yöneticisi — kütüphane kurar.", "# pip install requests"],
+    ]),
+    quiz: mkQuiz([
+      ["Standart kütüphane örneği?", ["react", "math", "lodash", "jquery"], 1, "math Python ile gelir."],
+      ["Modül dosya uzantısı?", [".mod", ".py", ".python", ".pkg"], 1, "Kaynak .py dosyalarıdır."],
+      ["Paket klasöründe zorunlu dosya?", ["setup.py", "__init__.py", "main.py", "README"], 1, "__init__.py paketi tanımlar."],
+    ]),
+    starter: "import math\nprint('Pi:', round(math.pi, 4))",
+  },
+  oop: {
+    lesson: `<h3>Nesne Tabanlı Programlama</h3>
+<p><strong>class</strong> şablon, <strong>instance</strong> nesnedir. <code>__init__</code> yapıcı metottur.</p>
+<pre><code class="language-python">class Kahraman:
+    def __init__(self, ad, xp=0):
+        self.ad = ad
+        self.xp = xp
+    def seviye_atla(self, miktar):
+        self.xp += miktar
+
+k = Kahraman("Coder", 100)
+k.seviye_atla(50)
+print(k.xp)</code></pre>`,
+    flashcards: mkCards([
+      ["self ne?", "Nesnenin kendisine referans.", "def metot(self):"],
+      ["Kalıtım (inheritance)?", "Alt sınıf üst sınıfı genişletir.", "class B(A): pass"],
+      ["Encapsulation?", "Veriyi metotlarla koruma.", "self._gizli = 1"],
+    ]),
+    quiz: mkQuiz([
+      ["Yapıcı metot adı?", ["__new__", "__init__", "__call__", "constructor"], 1, "__init__ instance oluşturur."],
+      ["Instance attribute erişimi?", ["Class.attr", "self.attr", "this.attr", "obj->attr"], 1, "self üzerinden erişilir."],
+      ["super() ne için?", ["Üst sınıf metodunu çağırır", "Modül import", "Static metot", "Destructor"], 0, "super() parent class'a erişir."],
+    ]),
+    starter: "class Oyuncu:\n    def __init__(self, ad):\n        self.ad = ad\np = Oyuncu('Ali')\nprint(p.ad)",
+  },
+  errors: {
+    lesson: `<h3>Hatalar ve İstisnalar</h3>
+<p><strong>try / except / finally</strong> ile kontrollü hata yönetimi.</p>
+<pre><code class="language-python">try:
+    sonuc = 10 / int(input("Bölüm: "))
+except ZeroDivisionError:
+    print("Sıfıra bölünemez")
+except ValueError:
+    print("Sayı girin")
+finally:
+    print("Temizlik tamam")</code></pre>`,
+    flashcards: mkCards([
+      ["raise ne yapar?", "Manuel istisna fırlatır.", "raise ValueError('hata')"],
+      ["else bloğu try'da?", "Hata olmadan try biterse çalışır.", "try: ...\nelse: ..."],
+      ["Exception base class?", "Tüm istisnalar bundan türer.", "except Exception:"],
+    ]),
+    quiz: mkQuiz([
+      ["ZeroDivisionError ne zaman?", ["Dosya yok", "Sıfıra bölme", "Syntax", "Import"], 1, "0'a bölünce oluşur."],
+      ["finally her zaman?", ["Sadece hata varsa", "Evet, her durumda", "Hayır", "Sadece return"], 1, "finally her koşulda çalışır."],
+      ["pass ifadesi?", ["Döngü atla", "Boş blok placeholder", "Return None", "Import"], 1, "pass yer tutucudur."],
+    ]),
+    starter: "try:\n    print(int('42'))\nexcept ValueError:\n    print('Geçersiz sayı')",
+  },
+  files: {
+    lesson: `<h3>Dosya İşlemleri</h3>
+<p><code>with open(...)</code> bağlam yöneticisi dosyayı güvenle kapatır.</p>
+<pre><code class="language-python">with open("notlar.txt", "w", encoding="utf-8") as f:
+    f.write("Python Akademisi\\n")
+
+with open("notlar.txt", "r", encoding="utf-8") as f:
+    print(f.read())</code></pre>`,
+    flashcards: mkCards([
+      ["with open avantajı?", "Otomatik close — kaynak sızıntısı önlenir.", "with open('a.txt') as f:"],
+      ["'r' modu?", "Okuma (read).", "open('f.txt','r')"],
+      ["encoding neden önemli?", "Türkçe karakterler için utf-8.", "encoding='utf-8'"],
+    ]),
+    quiz: mkQuiz([
+      ["Yazma modu harfi?", ["r", "w", "x", "a only"], 1, "'w' write/truncate."],
+      ["readlines() ne döner?", ["Tek string", "Satır listesi", "Bytes", "Dict"], 1, "Her satır bir liste elemanı."],
+      ["Dosya kapatılmazsa?", ["Sorun olmaz", "Kaynak sızıntısı riski", "Syntax error", "Otomatik silinir"], 1, "Descriptor limit aşılabilir."],
+    ]),
+    starter: "# Dosya simülasyonu\nveri = 'Merhaba Akademi'\nprint(len(veri))",
+  },
+};
+
+function buildGenericModule(topicId, section) {
+  return {
+    lesson: `<h3>${section}</h3>
+<p>Bu modülde <strong>${section}</strong> konusunu derinlemesine işliyoruz. Aşağıdaki örnekleri laboratuvar sekmesinde deneyebilirsin.</p>
+<h4>Temel Kavramlar</h4>
+<p>Python'da pratik yapmak en hızlı öğrenme yoludur. Kod laboratuvarında Pyodide ile anında çalıştır.</p>
+<pre><code class="language-python"># Modül ${topicId}: ${section}
+print("Merhaba Python Akademisi!")
+print("Konu:", "${section}")</code></pre>
+<h4>İpucu</h4>
+<p>Bilgi kartlarını çevir, ardından modül testini %70+ ile geçerek <strong>+100 XP</strong> kazan.</p>`,
+    flashcards: mkCards([
+      [`${section} modülünün amacı?`, `${section} becerilerini pekiştirmek.`, `# Modül ${topicId}\nprint('OK')`],
+      ["XP nasıl kazanılır?", "Kart (+10), quiz geçme (+100), süre kaydı.", "print(10+100)"],
+      ["Pyodide ne yapar?", "Python'u tarayıcıda çalıştırır.", "print(2+2)"],
+    ]),
+    quiz: mkQuiz([
+      [`${section} ile ilgili doğru print?`, ["echo hi", "print('hi')", "Console.log", "printf"], 1, "Python'da print() kullanılır."],
+      ["Python yorum satırı?", ["//", "#", "--", "/*"], 1, "# tek satır yorum."],
+      ["len('abc')?", ["2", "3", "4", "abc"], 1, "3 karakter."],
+    ]),
+    starter: `print("Modül ${topicId}: ${section}")\nfor i in range(3):\n    print(i)`,
+  };
+}
+
+function getAcademyModule(topicId) {
+  const key = MODULE_KEYS[topicId - 1] || "data";
+  const bank = ACADEMY_BANK[key];
+  if (bank) return bank;
+  const section = topicSectionTitle(DEFAULT_TOPICS[topicId - 1]?.title || `Modül ${topicId}`);
+  return buildGenericModule(topicId, section);
+}
+
+function ensureLearningState(state) {
+  if (!state.learning) state.learning = { flashcards: {}, quizzes: {} };
+  return state.learning;
+}
+
+function isFlashcardDone(topicId, cardIdx) {
+  const learning = loadState().learning;
+  return !!learning?.flashcards?.[`${topicId}-${cardIdx}`];
+}
+
+function markFlashcardDone(topicId, cardIdx) {
+  const state = loadState();
+  const learning = ensureLearningState(state);
+  const key = `${topicId}-${cardIdx}`;
+  if (learning.flashcards[key]) return null;
+  learning.flashcards[key] = true;
+  const stats = addXp(state, 10);
+  saveState(state);
+  return stats;
+}
+
+function getQuizRecord(topicId) {
+  return loadState().learning?.quizzes?.[topicId] || null;
+}
+
+function saveQuizResult(topicId, score, total) {
+  const state = loadState();
+  const learning = ensureLearningState(state);
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 70;
+  const prev = learning.quizzes[topicId];
+  learning.quizzes[topicId] = {
+    score, total, pct, passed,
+    completedAt: new Date().toISOString(),
+    bestPct: Math.max(prev?.bestPct || 0, pct),
+  };
+  let xpGained = 0;
+  let stats = statsToDict(state.stats);
+  let firstPass = passed && !prev?.passed;
+  if (firstPass) {
+    const topic = findTopic(state, topicId);
+    if (topic && !topic.is_completed) {
+      topic.is_completed = true;
+      stats = addXp(state, 100);
+      xpGained = 100;
+    }
+  }
+  saveState(state);
+  return { pct, passed, xpGained, stats, firstPass };
+}
+
+let quizState = { topicId: null, index: 0, score: 0, total: 0, answered: false };
+let flashcardIndex = 0;
+let flashcardFlipped = false;
+
+function switchModalTab(tabName) {
+  document.querySelectorAll(".modal-tab").forEach((btn) => {
+    const active = btn.dataset.tab === tabName;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  document.querySelectorAll(".modal-tab-panel").forEach((panel) => {
+    const active = panel.dataset.panel === tabName;
+    panel.classList.toggle("active", active);
+    panel.hidden = !active;
+  });
+}
+
+function launchConfetti() {
+  const colors = ["#00f0ff", "#ffe873", "#a855f7", "#39ff14", "#306998"];
+  for (let i = 0; i < 55; i++) {
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = `${Math.random() * 100}vw`;
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = `${1.8 + Math.random() * 1.5}s`;
+    p.style.animationDelay = `${Math.random() * 0.4}s`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+
+function renderLessonPanel(topicId) {
+  const container = document.getElementById("lessonContent");
+  if (!container) return;
+  const mod = getAcademyModule(topicId);
+  container.innerHTML = mod.lesson;
+  container.querySelectorAll("pre code").forEach((block) => {
+    if (window.Prism) Prism.highlightElement(block);
+  });
+}
+
+function renderFlashcards(topicId) {
+  const container = document.getElementById("flashcardsContainer");
+  if (!container) return;
+  const mod = getAcademyModule(topicId);
+  const cards = mod.flashcards;
+  if (!cards.length) {
+    container.innerHTML = '<p class="learning-placeholder">Kart bulunamadı.</p>';
+    return;
+  }
+  flashcardIndex = Math.min(flashcardIndex, cards.length - 1);
+  flashcardFlipped = false;
+  const card = cards[flashcardIndex];
+  const done = isFlashcardDone(topicId, flashcardIndex);
+  container.innerHTML = `
+    <p class="flashcards-progress">Kart ${flashcardIndex + 1} / ${cards.length}</p>
+    <div class="flashcard-scene">
+      <div class="flashcard ${done ? "is-done" : ""}" id="activeFlashcard">
+        <div class="flashcard-face flashcard-front">
+          <span class="flashcard-label">Soru</span>
+          <p class="flashcard-question">${escapeHtml(card.front)}</p>
+          <span class="flashcard-hint">Tıkla · kartı çevir</span>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <span class="flashcard-label">Cevap</span>
+          <p class="flashcard-answer">${escapeHtml(card.back)}</p>
+          <pre class="flashcard-code">${escapeHtml(card.code)}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="flashcard-actions">
+      <button type="button" class="flashcard-btn" id="flashRetryBtn">Tekrar Et</button>
+      <button type="button" class="flashcard-btn primary" id="flashGotItBtn" ${done ? "disabled" : ""}>
+        ${done ? "✓ Anlaşıldı" : "Anladım (+10 XP)"}
+      </button>
+    </div>`;
+  const fc = document.getElementById("activeFlashcard");
+  fc?.addEventListener("click", () => {
+    flashcardFlipped = !flashcardFlipped;
+    fc.classList.toggle("is-flipped", flashcardFlipped);
+  });
+  document.getElementById("flashRetryBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    flashcardFlipped = false;
+    fc?.classList.remove("is-flipped");
+  });
+  document.getElementById("flashGotItBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const stats = markFlashcardDone(topicId, flashcardIndex);
+    if (stats) {
+      showXpToast(10);
+      renderRpgHud(stats);
+      renderDevPanel();
+    }
+    if (flashcardIndex < cards.length - 1) {
+      flashcardIndex += 1;
+      renderFlashcards(topicId);
+    } else {
+      renderFlashcards(topicId);
+    }
+  });
+}
+
+function renderQuizQuestion(topicId) {
+  const container = document.getElementById("quizContainer");
+  if (!container) return;
+  const mod = getAcademyModule(topicId);
+  const questions = mod.quiz;
+  quizState.total = questions.length;
+  if (quizState.index >= questions.length) {
+    renderQuizResult(topicId);
+    return;
+  }
+  const q = questions[quizState.index];
+  const pct = Math.round((quizState.index / questions.length) * 100);
+  container.innerHTML = `
+    <div class="quiz-progress-wrap">
+      <span class="quiz-progress-label">Soru ${quizState.index + 1} / ${questions.length}</span>
+      <div class="quiz-progress-track"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <p class="quiz-question">${escapeHtml(q.q)}</p>
+    <div class="quiz-options" id="quizOptions">
+      ${q.options.map((opt, i) => `<button type="button" class="quiz-option" data-idx="${i}">${escapeHtml(opt)}</button>`).join("")}
+    </div>
+    <div id="quizFeedback"></div>`;
+  container.querySelectorAll(".quiz-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (quizState.answered) return;
+      quizState.answered = true;
+      const idx = Number(btn.dataset.idx);
+      const correct = idx === q.correct;
+      if (correct) quizState.score += 1;
+      container.querySelectorAll(".quiz-option").forEach((b, i) => {
+        b.disabled = true;
+        if (i === q.correct) b.classList.add("correct");
+        else if (i === idx) b.classList.add("wrong");
+      });
+      const fb = document.getElementById("quizFeedback");
+      if (fb) {
+        fb.className = `quiz-feedback ${correct ? "correct" : "wrong"}`;
+        fb.textContent = (correct ? "✓ Doğru! " : "✗ Yanlış. ") + q.explain;
+      }
+      const next = document.createElement("button");
+      next.type = "button";
+      next.className = "quiz-next-btn";
+      next.textContent = quizState.index + 1 >= questions.length ? "Sonuçları Gör" : "Sonraki Soru →";
+      next.addEventListener("click", () => {
+        quizState.index += 1;
+        quizState.answered = false;
+        renderQuizQuestion(topicId);
+      });
+      container.appendChild(next);
+    });
+  });
+}
+
+function renderQuizResult(topicId) {
+  const container = document.getElementById("quizContainer");
+  if (!container) return;
+  const pct = Math.round((quizState.score / quizState.total) * 100);
+  const result = saveQuizResult(topicId, quizState.score, quizState.total);
+  const passed = result.passed;
+  if (passed && result.firstPass) {
+    launchConfetti();
+    showXpToast(result.xpGained || 100);
+    if (result.stats) renderRpgHud(result.stats);
+    const idx = topics.findIndex((t) => t.id === topicId);
+    if (idx !== -1) topics[idx].is_completed = true;
+    renderStaircase();
+    renderDevPanel();
+  }
+  container.innerHTML = `
+    <div class="quiz-result">
+      <p class="quiz-result-score">%${pct} ${passed ? "Başarı!" : "Tekrar Dene"}</p>
+      <p class="quiz-result-msg">${quizState.score} / ${quizState.total} doğru cevap.
+        ${passed ? "Modül tamamlandı olarak işaretlendi!" : "%70 ve üzeri için tekrar dene."}</p>
+      <button type="button" class="quiz-retry-btn" id="quizRetryBtn">🔄 Testi Yeniden Başlat</button>
+    </div>`;
+  document.getElementById("quizRetryBtn")?.addEventListener("click", () => {
+    quizState = { topicId, index: 0, score: 0, total: 0, answered: false };
+    renderQuizQuestion(topicId);
+  });
+}
+
+function startQuiz(topicId) {
+  quizState = { topicId, index: 0, score: 0, total: 0, answered: false };
+  renderQuizQuestion(topicId);
+}
+
+function renderAcademyTabs(topicId) {
+  renderLessonPanel(topicId);
+  flashcardIndex = 0;
+  renderFlashcards(topicId);
+  startQuiz(topicId);
+  const mod = getAcademyModule(topicId);
+  if (el.codeEditor && mod.starter) el.codeEditor.value = mod.starter;
+}
+
+function getAllFlashcardsFlat() {
+  const all = [];
+  for (let i = 1; i <= DEFAULT_TOPICS.length; i++) {
+    getAcademyModule(i).flashcards.forEach((c) => all.push({ ...c, topicId: i }));
+  }
+  return all;
+}
+
+function refreshDevTip() {
+  const all = getAllFlashcardsFlat();
+  if (!all.length) return;
+  const pick = all[Math.floor(Math.random() * all.length)];
+  if (el.devTipFront) el.devTipFront.textContent = pick.front;
+  if (el.devTipBack) el.devTipBack.textContent = pick.code;
+  if (el.devTipAnswer) el.devTipAnswer.textContent = pick.back;
+  if (el.devTipFlipInner) el.devTipFlipInner.classList.remove("is-flipped");
+}
+
+function initDevTip() {
+  refreshDevTip();
+}
+
+function bindLearningEvents() {
+  document.querySelectorAll(".modal-tab").forEach((btn) => {
+    safeOn(btn, "click", (e) => {
+      e.preventDefault();
+      switchModalTab(btn.dataset.tab);
+    });
+  });
+  safeOn(el.devTipFlipBtn, "click", () => {
+    el.devTipFlipInner?.classList.toggle("is-flipped");
+  });
+  safeOn(el.devTipRefresh, "click", (e) => {
+    e.preventDefault();
+    refreshDevTip();
+  });
+}
+
 
 /* ── Pyodide (tarayıcıda Python) ── */
 let pyodideReady = null;
@@ -274,7 +754,7 @@ async function runCode(code) {
 }
 
 const TYPEWRITER_LINES = [
-  "Merhaba, Yazılımcı...",
+  "İnteraktif Python Akademisi...",
   "Sistem hazır. Bağlanıyorsun...",
 ];
 
@@ -313,13 +793,13 @@ const KEYBOARD_SHORTCUTS = [
     items: [
       { keys: ["?"], desc: "Kısayollar panelini aç" },
       { keys: ["Esc"], desc: "Açık modalı kapat veya giriş ekranına dön" },
-      { keys: ["Alt", "N"], desc: "Sıradaki hedefe git ve kod odasını aç" },
+      { keys: ["Alt", "N"], desc: "Sıradaki hedefe git ve akademi modülünü aç" },
     ],
   },
   {
-    title: "Kod odası",
+    title: "Akademi modülü",
     items: [
-      { keys: ["Ctrl", "Enter"], desc: "Kodu çalıştır (kod editöründeyken)" },
+      { keys: ["Ctrl", "Enter"], desc: "Kodu çalıştır (laboratuvar sekmesindeyken)" },
     ],
   },
   {
@@ -331,14 +811,14 @@ const KEYBOARD_SHORTCUTS = [
   {
     title: "Python merdiveni",
     items: [
-      { keys: ["Enter"], desc: "Konu başlığına odaklanınca kod odasını aç" },
-      { keys: ["Space"], desc: "Konu başlığına odaklanınca kod odasını aç" },
+      { keys: ["Enter"], desc: "Konu başlığına odaklanınca akademi modülünü aç" },
+      { keys: ["Space"], desc: "Konu başlığına odaklanınca akademi modülünü aç" },
     ],
   },
 ];
 
 const BOOT_LINES = [
-  { text: "SYS://PYTHON_YOL v3.0 — Boot sequence başlatıldı", cls: "dim boot" },
+  { text: "SYS://PYTHON_AKADEMI v4.0 — Boot sequence başlatıldı", cls: "dim boot" },
   { text: "▸ Kernel ..................... [OK]", cls: "dim boot" },
   { text: "▸ localStorage veritabanı .... [OK]", cls: "dim boot" },
   { text: "▸ 32 eğitim modülü ........... [YÜKLENDİ]", cls: "success boot" },
@@ -408,8 +888,9 @@ function cacheElements() {
     "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill",
     "timerRing", "hudActiveTimer", "hudTimerLabel", "hudTimerClock",
     "rpgStreak", "rpgLevel", "rpgRank", "rpgXpText", "rpgXpFill", "cosmicGrid",
-    "codeEditor", "runCodeBtn", "codeOutput", "markdownPreview",
-    "resourcesModal", "resourcesFrame", "resourcesList", "resourcesTitle", "resourcesClose",
+    "codeEditor", "runCodeBtn", "codeOutput", "markdownPreview", "lessonContent",
+    "flashcardsContainer", "quizContainer",
+    "devTipFront", "devTipBack", "devTipAnswer", "devTipFlipBtn", "devTipFlipInner", "devTipRefresh",
     "xpToast", "xpToastIcon", "xpToastText",
   ];
   ids.forEach((id) => {
@@ -945,33 +1426,6 @@ function showOverlay(overlayEl) {
   document.body.appendChild(overlayEl);
 }
 
-function openResourcesModal(topic) {
-  if (!el.resourcesModal || !el.resourcesTitle || !el.resourcesList) return;
-  el.resourcesTitle.textContent = getShortTitle(topic.title);
-  el.resourcesList.innerHTML = "";
-  const links = topic.resources || [];
-  if (links.length === 0) {
-    el.resourcesList.innerHTML = "<li><span style='color:var(--text-dim)'>Kaynak bulunamadı.</span></li>";
-  } else {
-    links.forEach((link) => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = link.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = link.title;
-      if (link.url?.includes("udemy.com")) {
-        a.classList.add("resource-udemy");
-      } else {
-        a.classList.add("resource-docs");
-      }
-      li.appendChild(a);
-      el.resourcesList.appendChild(li);
-    });
-  }
-  showOverlay(el.resourcesModal);
-}
-
 function getTopicFromStep(stepEl) {
   if (!stepEl?.dataset?.topicId) return null;
   const topicId = Number(stepEl.dataset.topicId);
@@ -980,15 +1434,6 @@ function getTopicFromStep(stepEl) {
 
 function handleStaircaseClick(e) {
   if (e.target.closest(".cyber-check")) return;
-
-  const resBtn = e.target.closest(".resources-btn");
-  if (resBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    const topic = getTopicFromStep(resBtn.closest(".step"));
-    if (topic) openResourcesModal(topic);
-    return;
-  }
 
   const step = e.target.closest(".step");
   if (!step) return;
@@ -1450,7 +1895,6 @@ function validateOperatorName() {
 
 function closeAllModals() {
   el.notesModal?.classList.add("hidden");
-  el.resourcesModal?.classList.add("hidden");
   el.shortcutsModal?.classList.add("hidden");
   el.celebrationOverlay?.classList.add("hidden");
   activeTopicId = null;
@@ -2142,25 +2586,18 @@ function createStep(topic, index) {
   titleEl.textContent = getShortTitle(topic.title);
   titleEl.setAttribute("role", "button");
   titleEl.setAttribute("tabindex", "0");
-  titleEl.setAttribute("aria-label", `${getShortTitle(topic.title)} kod odasını aç`);
+  titleEl.setAttribute("aria-label", `${getShortTitle(topic.title)} akademi modülünü aç`);
 
   const openBtn = document.createElement("button");
   openBtn.type = "button";
   openBtn.className = "open-modal-btn";
-  openBtn.textContent = "📝 Aç";
-  openBtn.setAttribute("aria-label", `${getShortTitle(topic.title)} kod odasını aç`);
-
-  const resBtn = document.createElement("button");
-  resBtn.type = "button";
-  resBtn.className = "resources-btn";
-  resBtn.textContent = "📚 Kaynak";
-  resBtn.setAttribute("aria-label", `${getShortTitle(topic.title)} kaynaklarını aç`);
+  openBtn.textContent = "📖 Akademi";
+  openBtn.setAttribute("aria-label", `${getShortTitle(topic.title)} akademi modülünü aç`);
 
   inner.appendChild(checkLabel);
   inner.appendChild(number);
   inner.appendChild(titleEl);
   inner.appendChild(openBtn);
-  inner.appendChild(resBtn);
 
   platform.appendChild(inner);
   step.appendChild(platform);
@@ -2234,14 +2671,16 @@ function openNotesModal(topic) {
   if (el.codeOutput) {
     el.codeOutput.innerHTML = '<p class="output-line dim">// Çıktı burada görünecek...</p>';
   }
-  if (el.codeEditor) {
-    el.codeEditor.value = "# Python kodunuzu deneyin\nprint('Merhaba Python!')";
-  }
 
+  renderAcademyTabs(topic.id);
+  switchModalTab("notes");
   renderMarkdownPreview();
   initTimerForTopic(topic);
   showOverlay(el.notesModal);
-  setTimeout(() => el.modalNotes?.focus(), 150);
+  setTimeout(() => {
+    const lessonEl = document.getElementById("lessonContent");
+    if (lessonEl) lessonEl.scrollTop = 0;
+  }, 150);
 }
 
 function tryCloseNotesModal() {
@@ -2427,12 +2866,7 @@ function bindEvents() {
   });
   safeOn(el.modalNotes, "input", handleNotesInput);
 
-  /* Kaynaklar modal */
-  safeOn(el.resourcesClose, "click", () => el.resourcesModal?.classList.add("hidden"));
-  safeOn(el.resourcesFrame, "click", (e) => e.stopPropagation());
-  safeOn(el.resourcesModal, "click", (e) => {
-    if (e.target === el.resourcesModal) el.resourcesModal.classList.add("hidden");
-  });
+  bindLearningEvents();
 
   /* Kısayollar modal */
   safeOn(el.shortcutsClose, "click", closeShortcutsModal);
@@ -2482,10 +2916,6 @@ function bindEvents() {
         closeShortcutsModal();
         return;
       }
-      if (el.resourcesModal && !el.resourcesModal.classList.contains("hidden")) {
-        el.resourcesModal.classList.add("hidden");
-        return;
-      }
       if (el.notesModal && !el.notesModal.classList.contains("hidden")) {
         closeNotesModal();
         return;
@@ -2514,7 +2944,6 @@ function bindEvents() {
 
     if (e.altKey && e.key.toLowerCase() === "n" && appInitialized && el.app && !el.app.classList.contains("hidden")) {
       const modalOpen = notesOpen
-        || (el.resourcesModal && !el.resourcesModal.classList.contains("hidden"))
         || (el.shortcutsModal && !el.shortcutsModal.classList.contains("hidden"));
       if (!modalOpen && findNextTopic()) {
         e.preventDefault();
@@ -2528,6 +2957,7 @@ function initApp() {
   cacheElements();
   initTheme();
   bindEvents();
+  initDevTip();
   initParticlesBackground(getStoredTheme());
   initLanding();
   initPyodide().catch(() => {});

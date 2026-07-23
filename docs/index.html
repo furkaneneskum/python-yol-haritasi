@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>🐍 Python Öğrenme Yol Haritası</title>
-  <link rel="stylesheet" href="style.css?v=27">
+  <title>🐍 İnteraktif Python Akademisi</title>
+  <link rel="stylesheet" href="style.css?v=29">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
 
     <header class="landing-status-bar">
       <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
-      <span class="lsb-item"><span class="lsb-label">SİSTEM</span> PYTHON_YOL v3.0</span>
+      <span class="lsb-item"><span class="lsb-label">SİSTEM</span> PYTHON_AKADEMI v4.0</span>
       <span class="lsb-item lsb-online"><span class="status-dot"></span> BAĞLANTI AKTİF</span>
       <button type="button" class="theme-switch" data-theme-switch aria-checked="false" role="switch" aria-label="Açık moda geç">
         <span class="theme-switch-track">
@@ -62,7 +62,7 @@
         <p class="typewriter" id="typewriter"></p>
         <span class="typewriter-cursor" id="typewriterCursor">|</span>
       </div>
-      <p class="landing-sub" id="landingSub">Python öğrenme yolculuğuna hoş geldin.</p>
+      <p class="landing-sub" id="landingSub">İnteraktif Python Akademisi'ne hoş geldin — dış kaynak yok, tamamen tarayıcında.</p>
 
       <div class="landing-grid">
         <div class="landing-panel landing-brief">
@@ -72,7 +72,7 @@
           </div>
 
           <p class="brief-lead">👋 <strong>Merhaba!</strong> Python yolculuğun burada başlıyor.</p>
-          <p class="brief-text">32 bölümlük dijital merdiveni tırman, XP kazan, kodunu canlı terminalde dene ve ilerlemeni aktivite haritanda izle. Her basamak seni bir üst seviye yazılımcıya taşır.</p>
+          <p class="brief-text">32 modüllük dijital merdiveni tırman, ders notlarını oku, Pyodide ile kodunu canlı çalıştır, bilgi kartları ve quizlerle pekiştir. XP kazan, serini koru — hepsi sunucusuz, tamamen senin tarayıcında.</p>
 
           <div class="landing-modules" id="landingModules">
             <article class="module-card">
@@ -90,10 +90,17 @@
               </div>
             </article>
             <article class="module-card">
+              <span class="module-icon">📖</span>
+              <div class="module-body">
+                <strong>Ders Notları</strong>
+                <span>Profesyonel mini-makaleler · 4 sekme</span>
+              </div>
+            </article>
+            <article class="module-card">
               <span class="module-icon">💻</span>
               <div class="module-body">
-                <strong>Kod Odası</strong>
-                <span>Canlı Python · Markdown notlar</span>
+                <strong>Kod Laboratuvarı</strong>
+                <span>Pyodide · tarayıcıda Python</span>
               </div>
             </article>
             <article class="module-card">
@@ -177,7 +184,7 @@
     </div>
 
     <footer class="landing-footer">
-      <span>MODÜL: FASTAPI + SQLITE</span>
+      <span>MODÜL: SUNUCUSUZ · PYODIDE + localStorage</span>
       <button type="button" class="landing-footer-link" id="landingShortcutsBtn">⌨ Kısayollar</button>
       <span id="landingBootStatus">Sistem hazır — Giriş bekleniyor</span>
       <span class="blink">ONLINE</span>
@@ -311,8 +318,8 @@
     <div class="app-body">
     <main class="staircase-wrapper">
       <div class="staircase-title">
-        <h1>🐍 PYTHON MERDİVENİ</h1>
-        <p>Basamak basamak ilerle — Python Öğrenme Yol Haritası</p>
+        <h1>🐍 PYTHON AKADEMİSİ</h1>
+        <p>Basamak basamak ilerle — İnteraktif Python Öğrenme Merdiveni</p>
       </div>
 
       <!-- Aktivite Haritası -->
@@ -422,7 +429,7 @@
             <span class="dev-level-badge" id="devLevelBadge">1</span>
           </div>
           <p class="dev-avatar-name" id="devAvatarName">Yazılımcı</p>
-          <p class="dev-avatar-role">Python Öğrenme Yolculuğu</p>
+          <p class="dev-avatar-role">İnteraktif Python Akademisi</p>
           <p class="dev-progress-label" id="devProgressLabel">0 / 32 bölüm tamamlandı</p>
 
           <div class="dev-quick-stats">
@@ -492,7 +499,7 @@
           <p class="dev-current-label">📍 Şu An Buradasın</p>
           <span class="dev-current-chapter" id="devCurrentChapter">BÖLÜM 1</span>
           <p class="dev-current-topic" id="devCurrentTopic">—</p>
-          <button type="button" class="dev-current-btn" id="devCurrentOpenBtn">Kod Odasını Aç</button>
+          <button type="button" class="dev-current-btn" id="devCurrentOpenBtn">Akademiyi Aç</button>
         </section>
 
         <section class="dev-goal" id="devGoalCard">
@@ -507,6 +514,23 @@
           </div>
         </section>
 
+        <section class="dev-tip-card" id="devTipCard" aria-label="Günün Python ipucu">
+          <h3 class="dev-tip-title">💡 Günün Python İpucu</h3>
+          <button type="button" class="dev-tip-flip-btn" id="devTipFlipBtn" aria-label="İpucu kartını çevir">
+            <div class="dev-tip-flip-inner" id="devTipFlipInner">
+              <div class="dev-tip-face dev-tip-front">
+                <span class="dev-tip-kicker">Tıkla · kartı çevir</span>
+                <p class="dev-tip-question" id="devTipFront">Yükleniyor...</p>
+              </div>
+              <div class="dev-tip-face dev-tip-back">
+                <pre class="dev-tip-code" id="devTipBack"></pre>
+                <p class="dev-tip-answer" id="devTipAnswer"></p>
+              </div>
+            </div>
+          </button>
+          <button type="button" class="dev-tip-refresh" id="devTipRefresh">🔄 Yeni İpucu</button>
+        </section>
+
         <section class="dev-week" aria-label="Son 7 gün özeti">
           <p class="dev-week-title">📅 Son 7 Gün</p>
           <div class="dev-week-bars" id="devWeekBars"></div>
@@ -516,7 +540,7 @@
     </div>
 
     <footer class="sys-footer">
-      <span>Python Öğrenme Platformu · Sunucusuz · localStorage + Pyodide</span>
+      <span>İnteraktif Python Akademisi · Sunucusuz · localStorage + Pyodide</span>
       <button type="button" class="sys-footer-link" id="footerShortcutsBtn">⌨ Klavye Kısayolları</button>
     </footer>
 
@@ -549,7 +573,7 @@
     </div>
   </div>
 
-  <!-- Kod Odası Modal -->
+  <!-- Akademi Modülü Modal -->
   <div class="modal-overlay hidden" id="notesModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal modal-wide">
         <div class="modal-frame" id="modalFrame">
@@ -564,7 +588,7 @@
         </div>
 
         <div class="modal-body">
-        <!-- Görev Sayacı (KORUNUYOR) -->
+        <!-- Görev Sayacı -->
         <div class="mission-timer" id="missionTimer">
           <div class="timer-header">
             <span class="timer-label">// ÇALIŞMA SAYACI</span>
@@ -591,42 +615,53 @@
           <p class="timer-status" id="timerStatus"></p>
         </div>
 
-        <!-- İki Panelli Kod Odası -->
-        <div class="code-room">
-          <div class="code-panel notes-panel-rpg">
-            <div class="panel-header">📝 Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
-            <textarea id="modalNotes" class="modal-textarea markdown-input" placeholder="# Notlarınız&#10;&#10;```python&#10;print('Merhaba Python!')&#10;```"></textarea>
-            <div id="markdownPreview" class="markdown-preview"></div>
-            <p class="modal-status" id="modalStatus"></p>
+        <nav class="modal-tabs" id="modalTabs" role="tablist" aria-label="Konu sekmeleri">
+          <button type="button" class="modal-tab active" data-tab="notes" role="tab" aria-selected="true" id="modalTabNotes">📖 Ders Notları</button>
+          <button type="button" class="modal-tab" data-tab="code" role="tab" aria-selected="false" id="modalTabCode">💻 Kod Laboratuvarı</button>
+          <button type="button" class="modal-tab" data-tab="flashcards" role="tab" aria-selected="false" id="modalTabFlashcards">🎴 Bilgi Kartları</button>
+          <button type="button" class="modal-tab" data-tab="quiz" role="tab" aria-selected="false" id="modalTabQuiz">🎯 Modül Testi</button>
+        </nav>
+
+        <div class="modal-tab-panels">
+          <div class="modal-tab-panel active" data-panel="notes" role="tabpanel">
+            <div class="lesson-panel">
+              <div class="panel-header">📖 Ders Notları <span class="panel-tag">Akademi</span></div>
+              <article class="lesson-article" id="lessonContent">
+                <p class="learning-placeholder">Ders içeriği yükleniyor...</p>
+              </article>
+            </div>
+            <div class="code-panel notes-panel-rpg notes-panel-personal">
+              <div class="panel-header">📝 Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
+              <textarea id="modalNotes" class="modal-textarea markdown-input" placeholder="# Kendi notlarını buraya yaz&#10;&#10;```python&#10;print('Merhaba Python!')&#10;```"></textarea>
+              <div id="markdownPreview" class="markdown-preview"></div>
+              <p class="modal-status" id="modalStatus"></p>
+            </div>
           </div>
-          <div class="code-panel terminal-panel-rpg">
-            <div class="panel-header">🚀 Canlı Terminal <span class="panel-tag">Python 3</span></div>
-            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="# Python kodunuzu yazın&#10;print('Merhaba Python!')"></textarea>
-            <button type="button" class="run-code-btn" id="runCodeBtn">▶️ KODU ATEŞLE</button>
-            <div class="code-output" id="codeOutput">
-              <p class="output-line dim">// Çıktı burada görünecek...</p>
+
+          <div class="modal-tab-panel" data-panel="code" role="tabpanel" hidden>
+            <div class="code-panel terminal-panel-rpg">
+              <div class="panel-header">🚀 Canlı Terminal <span class="panel-tag">Pyodide · Python 3</span></div>
+              <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="# Python kodunuzu yazın&#10;print('Merhaba Python!')"></textarea>
+              <button type="button" class="run-code-btn" id="runCodeBtn">▶️ KODU ATEŞLE</button>
+              <div class="code-output" id="codeOutput">
+                <p class="output-line dim">// Çıktı burada görünecek...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-tab-panel" data-panel="flashcards" role="tabpanel" hidden>
+            <div class="flashcards-deck" id="flashcardsContainer">
+              <p class="learning-placeholder">Bilgi kartları yükleniyor...</p>
+            </div>
+          </div>
+
+          <div class="modal-tab-panel" data-panel="quiz" role="tabpanel" hidden>
+            <div class="quiz-container" id="quizContainer">
+              <p class="learning-placeholder">Modül testi yükleniyor...</p>
             </div>
           </div>
         </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Kaynaklar Modal -->
-  <div class="modal-overlay hidden" id="resourcesModal" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modal-frame resources-frame" id="resourcesFrame">
-        <div class="modal-corner mc-tl"></div>
-        <div class="modal-corner mc-tr"></div>
-        <div class="modal-corner mc-bl"></div>
-        <div class="modal-corner mc-br"></div>
-        <div class="modal-header">
-          <span class="modal-tag">📚 KAYNAKLAR</span>
-          <h2 id="resourcesTitle">Konu Kaynakları</h2>
-          <button type="button" class="modal-close" id="resourcesClose" aria-label="Kapat">✕</button>
-        </div>
-        <ul class="resources-list" id="resourcesList"></ul>
       </div>
     </div>
   </div>
@@ -653,6 +688,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=27"></script>
+  <script src="script.js?v=29"></script>
 </body>
 </html>
