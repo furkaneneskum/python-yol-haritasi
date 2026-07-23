@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -110,6 +110,13 @@
                 <span>30 günlük çalışma ısı haritası</span>
               </div>
             </article>
+            <article class="module-card">
+              <span class="module-icon">🎯</span>
+              <div class="module-body">
+                <strong>Bilgi Kartları & Quiz</strong>
+                <span>3D kartlar · modül testleri · XP</span>
+              </div>
+            </article>
           </div>
 
           <div class="landing-stats">
@@ -119,16 +126,19 @@
             <div class="stat-pill"><span class="stat-num">+XP</span><span class="stat-lbl">XP Sistemi</span></div>
           </div>
 
-          <div class="operator-field">
-            <label for="operatorName" class="operator-label">// Adın</label>
-            <input type="text" id="operatorName" class="operator-input" maxlength="24" placeholder="Örn: Furkan" spellcheck="false" autocomplete="name" required>
-            <p class="operator-error hidden" id="operatorError">Lütfen adını gir.</p>
+          <div class="operator-boot-module">
+            <div class="operator-field">
+              <label for="operatorName" class="operator-label">// Adın</label>
+              <div class="operator-boot-row">
+                <input type="text" id="operatorName" class="operator-input" maxlength="24" placeholder="Örn: Furkan" spellcheck="false" autocomplete="name" required>
+                <button type="button" class="enter-system-btn boot-start-btn" id="enterSystemBtn">
+                  <span class="enter-glow"></span>
+                  <span class="boot-btn-label" id="bootBtnLabel">[ SİSTEMİ BAŞLAT ]</span>
+                </button>
+              </div>
+              <p class="operator-error hidden" id="operatorError">Lütfen adını gir.</p>
+            </div>
           </div>
-
-          <button type="button" class="enter-system-btn" id="enterSystemBtn">
-            <span class="enter-glow"></span>
-            <span>🚀 Sisteme Gir</span>
-          </button>
         </div>
 
         <div class="landing-panel landing-terminal-wrap">
@@ -173,12 +183,12 @@
                     <div class="dock-meter-fill" id="terminalMeterFill"></div>
                   </div>
                 </div>
-                <p class="terminal-dock-hint">▸ Adını gir ve soldaki <strong>Sisteme Gir</strong> ile yolculuğa başla</p>
+                <p class="terminal-dock-hint">▸ Adını gir · <strong>[ SİSTEMİ BAŞLAT ]</strong> veya <kbd>Enter</kbd></p>
               </div>
             </div>
           </div>
 
-          <p class="terminal-footnote">Boot logları canlı akar — giriş için sol paneldeki butonu kullan.</p>
+          <p class="terminal-footnote">Boot logları canlı akar — [ SİSTEMİ BAŞLAT ] ile komuta merkezine geç.</p>
         </div>
       </div>
     </div>
@@ -699,6 +709,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=30"></script>
+  <script src="script.js?v=31"></script>
 </body>
 </html>

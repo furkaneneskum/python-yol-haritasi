@@ -807,7 +807,8 @@ body {
   padding: 0.6rem 0.65rem;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(48, 105, 152, 0.25);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, border-color var(--transition), box-shadow var(--transition);
   animation: moduleIn 0.5s ease backwards;
 }
 
@@ -815,12 +816,15 @@ body {
 .module-card:nth-child(2) { animation-delay: 0.45s; }
 .module-card:nth-child(3) { animation-delay: 0.55s; }
 .module-card:nth-child(4) { animation-delay: 0.65s; }
+.module-card:nth-child(5) { animation-delay: 0.75s; }
+.module-card:nth-child(6) { animation-delay: 0.85s; }
 
 @keyframes moduleIn {
   from { opacity: 0; transform: translateX(-8px); }
 }
 
 .module-card:hover {
+  opacity: 1;
   border-color: rgba(0, 240, 255, 0.45);
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.12);
 }
@@ -885,7 +889,44 @@ body {
 }
 
 .operator-field {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+.operator-boot-module {
+  margin-top: 0.35rem;
+  margin-bottom: 0.25rem;
+  padding: 1rem 1rem 0.85rem;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  box-shadow:
+    0 0 24px rgba(0, 240, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+.operator-boot-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+
+.operator-boot-row .operator-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.operator-boot-row .boot-start-btn {
+  flex-shrink: 0;
+  width: auto;
+  min-width: min(100%, 200px);
+  padding: 0.6rem 1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+}
+
+.boot-btn-label {
+  position: relative;
+  z-index: 1;
 }
 
 .operator-label {
@@ -949,8 +990,40 @@ body {
 }
 
 .enter-system-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.85;
   cursor: default;
+}
+
+.enter-system-btn.is-connecting {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  background: linear-gradient(135deg, rgba(20, 80, 40, 0.45), rgba(57, 255, 20, 0.12));
+  animation: bootBtnPulse 0.75s ease-in-out infinite;
+  transform: none;
+}
+
+.enter-system-btn.is-connecting .enter-glow {
+  background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.22), transparent);
+}
+
+@keyframes bootBtnPulse {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(57, 255, 20, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(57, 255, 20, 0.75), 0 0 48px rgba(57, 255, 20, 0.25);
+  }
+}
+
+.terminal-dock-hint kbd {
+  display: inline-block;
+  padding: 0.08rem 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--neon-cyan);
 }
 
 .enter-glow {
@@ -1121,6 +1194,15 @@ body {
 @media (max-width: 520px) {
   .landing-modules {
     grid-template-columns: 1fr;
+  }
+
+  .operator-boot-row {
+    flex-direction: column;
+  }
+
+  .operator-boot-row .boot-start-btn {
+    width: 100%;
+    min-width: 0;
   }
 
   .landing-stats {

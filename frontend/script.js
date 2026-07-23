@@ -827,7 +827,14 @@ const BOOT_LINES = [
   { text: "▸ Aktivite haritası .......... [SENKRON]", cls: "success boot" },
   { text: "────────────────────────────────────", cls: "dim boot" },
   { text: "✓ Tüm sistemler çalışır durumda.", cls: "success boot" },
-  { text: "▸ Giriş: soldaki «Sisteme Gir» butonu", cls: "hint boot" },
+  { text: "▸ Giriş: [ SİSTEMİ BAŞLAT ] veya Enter", cls: "hint boot" },
+];
+
+const LANDING_BOOT_MS = 1500;
+const LANDING_BOOT_LOGS = [
+  { text: "> Kullanıcı doğrulandı...", cls: "success boot", delay: 80 },
+  { text: "> Modüller yükleniyor...", cls: "dim boot", delay: 480 },
+  { text: "> Erişim izni verildi.", cls: "success boot", delay: 980 },
 ];
 
 /** @type {Record<string, HTMLElement|null>} */
@@ -849,6 +856,8 @@ let typewriterLineIndex = 0;
 let landingClockId = null;
 let welcomeTimeoutId = null;
 let welcomeRevealId = null;
+let landingBootTimeoutId = null;
+let landingEnterTimeoutId = null;
 let bootTimeoutIds = [];
 let terminalMeterId = null;
 let globalTickId = null;
@@ -866,7 +875,7 @@ function cacheElements() {
     "landing", "app", "typewriter", "typewriterCursor", "landingSub",
     "landingClock", "landingBootStatus", "operatorName", "operatorError",
     "terminalOutput", "terminalStatus", "terminalOperatorName", "terminalMeterFill",
-    "enterSystemBtn", "welcomeOverlay", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
+    "enterSystemBtn", "bootBtnLabel", "welcomeOverlay", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
     "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
@@ -1804,6 +1813,95 @@ function updateTerminalOperator(name) {
   if (el.terminalOperatorName) el.terminalOperatorName.textContent = display;
 }
 
+function setBootButtonState(state) {
+  const btn = el.enterSystemBtn;
+  const label = el.bootBtnLabel;
+  if (!btn || !label) return;
+
+  if (state === "connecting") {
+    btn.disabled = true;
+    btn.classList.add("is-connecting");
+    label.textContent = "[ BAĞLANTI KURULUYOR... ]";
+    return;
+  }
+
+  btn.disabled = false;
+  btn.classList.remove("is-connecting");
+  label.textContent = "[ SİSTEMİ BAŞLAT ]";
+}
+
+function clearLandingBootTimers() {
+  if (landingBootTimeoutId !== null) {
+    clearTimeout(landingBootTimeoutId);
+    landingBootTimeoutId = null;
+  }
+  if (landingEnterTimeoutId !== null) {
+    clearTimeout(landingEnterTimeoutId);
+    landingEnterTimeoutId = null;
+  }
+}
+
+function runLandingBootSequence(name) {
+  enteringApp = true;
+  setBootButtonState("connecting");
+
+  if (el.landingBootStatus) el.landingBootStatus.textContent = "Bağlantı kuruluyor...";
+  if (el.terminalStatus) {
+    el.terminalStatus.textContent = "LINK";
+    el.terminalStatus.classList.remove("ready");
+  }
+  if (el.operatorName) el.operatorName.disabled = true;
+
+  LANDING_BOOT_LOGS.forEach((log) => {
+    setTimeout(() => appendTermLine(log.text, log.cls), log.delay);
+  });
+
+  landingBootTimeoutId = setTimeout(() => {
+    landingBootTimeoutId = null;
+    finishLandingBootEnter(name);
+  }, LANDING_BOOT_MS);
+}
+
+function finishLandingBootEnter(name) {
+  saveOperatorName();
+  updateHudUsername(name);
+
+  if (landingClockId !== null) {
+    clearInterval(landingClockId);
+    landingClockId = null;
+  }
+  if (el.terminalStatus) {
+    el.terminalStatus.textContent = "READY";
+    el.terminalStatus.classList.add("ready");
+  }
+  if (el.landingBootStatus) {
+    el.landingBootStatus.textContent = "Erişim izni verildi — Akademi açılıyor";
+  }
+
+  if (el.landing) {
+    el.landing.classList.add("exit");
+    el.landing.style.pointerEvents = "none";
+  }
+
+  landingEnterTimeoutId = setTimeout(() => {
+    landingEnterTimeoutId = null;
+    if (el.landing) el.landing.style.display = "none";
+    if (el.app) {
+      el.app.classList.remove("hidden");
+      requestAnimationFrame(() => el.app.classList.add("visible"));
+    }
+    if (window.location.hash !== "#app") {
+      history.pushState({ view: "app" }, "", "#app");
+    }
+    if (!appInitialized) {
+      appInitialized = true;
+      loadTopics();
+    }
+    if (el.operatorName) el.operatorName.disabled = false;
+    enteringApp = false;
+  }, 850);
+}
+
 function appendTermLine(text, cls = "") {
   if (!el.terminalOutput) return;
   const line = document.createElement("div");
@@ -1990,7 +2088,9 @@ function showLandingView() {
     el.app.classList.remove("visible");
     el.app.classList.add("hidden");
   }
-  if (el.enterSystemBtn) el.enterSystemBtn.disabled = false;
+  setBootButtonState("idle");
+  if (el.operatorName) el.operatorName.disabled = false;
+  clearLandingBootTimers();
 
   if (welcomeTimeoutId !== null) {
     clearTimeout(welcomeTimeoutId);
@@ -2032,10 +2132,7 @@ function requestEnterApp() {
     return;
   }
 
-  const name = getOperatorName();
-  saveOperatorName();
-  updateHudUsername(name);
-  showWelcomeTransition(name);
+  runLandingBootSequence(getOperatorName());
 }
 
 const DECRYPT_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#%&*";
@@ -2399,7 +2496,8 @@ function tryRestoreAppSession() {
   updateTerminalOperator(saved);
 
   enteringApp = false;
-  if (el.enterSystemBtn) el.enterSystemBtn.disabled = false;
+  setBootButtonState("idle");
+  if (el.operatorName) el.operatorName.disabled = false;
   if (el.landing) {
     el.landing.classList.add("exit");
     el.landing.style.pointerEvents = "none";
