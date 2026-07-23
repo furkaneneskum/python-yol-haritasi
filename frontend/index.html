@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=29">
+  <link rel="stylesheet" href="style.css?v=30">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -575,7 +575,7 @@
 
   <!-- Akademi Modülü Modal -->
   <div class="modal-overlay hidden" id="notesModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal modal-wide">
+    <div class="modal modal-wide" id="notesModalPanel">
         <div class="modal-frame" id="modalFrame">
         <div class="modal-corner mc-tl"></div>
         <div class="modal-corner mc-tr"></div>
@@ -584,7 +584,18 @@
         <div class="modal-header">
           <span class="modal-tag" id="modalTag">BÖLÜM</span>
           <h2 id="modalTitle">Konu Başlığı</h2>
-          <button type="button" class="modal-close" id="modalClose" aria-label="Kapat">✕</button>
+          <div class="modal-header-actions">
+            <button type="button" class="modal-maximize" id="modalMaximize" aria-label="Tam ekran" aria-pressed="false" title="Tam ekran">
+              <svg class="icon-expand" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M8 3H3v5M16 3h5v5M16 21h5v-5M8 21H3v-5"/>
+              </svg>
+              <svg class="icon-restore hidden" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="1"/>
+                <path d="M5 15V5h10"/>
+              </svg>
+            </button>
+            <button type="button" class="modal-close" id="modalClose" aria-label="Kapat">✕</button>
+          </div>
         </div>
 
         <div class="modal-body">
@@ -688,6 +699,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=29"></script>
+  <script src="script.js?v=30"></script>
 </body>
 </html>

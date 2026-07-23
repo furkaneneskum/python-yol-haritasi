@@ -881,8 +881,8 @@ function cacheElements() {
     "mobileGoalBar", "mobileGoalTopic", "mobileGoalBtn",
     "devDailyGoal", "devDailyStatus", "devDailyRingFill", "devDailyRingLabel", "devDailyHint",
     "staircase", "loading", "progressFill", "progressPercent", "progressMeta",
-    "notesModal", "modalFrame", "modalTitle", "modalTag", "modalNotes", "modalStatus",
-    "modalClose", "celebrationOverlay", "celebrationClose", "staircasePath",
+    "notesModal", "notesModalPanel", "modalFrame", "modalTitle", "modalTag", "modalNotes", "modalStatus",
+    "modalClose", "modalMaximize", "celebrationOverlay", "celebrationClose", "staircasePath",
     "timerDisplay", "timerToggle", "missionTimer", "timerToggleIcon", "timerToggleText",
     "timerSave", "timerStatus", "timerState", "timerSaved", "timerSession",
     "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill",
@@ -1897,6 +1897,7 @@ function closeAllModals() {
   el.notesModal?.classList.add("hidden");
   el.shortcutsModal?.classList.add("hidden");
   el.celebrationOverlay?.classList.add("hidden");
+  resetModalFullscreen();
   activeTopicId = null;
 }
 
@@ -2526,6 +2527,30 @@ function createBadgeRow(topic) {
   return row;
 }
 
+let modalIsMaximized = false;
+
+function setModalFullscreen(enabled) {
+  modalIsMaximized = Boolean(enabled);
+  const panel = el.notesModalPanel || document.getElementById("notesModalPanel");
+  if (panel) panel.classList.toggle("is-maximized", modalIsMaximized);
+
+  if (el.modalMaximize) {
+    el.modalMaximize.setAttribute("aria-pressed", modalIsMaximized ? "true" : "false");
+    el.modalMaximize.setAttribute("aria-label", modalIsMaximized ? "Küçült" : "Tam ekran");
+    el.modalMaximize.title = modalIsMaximized ? "Küçült" : "Tam ekran";
+    el.modalMaximize.querySelector(".icon-expand")?.classList.toggle("hidden", modalIsMaximized);
+    el.modalMaximize.querySelector(".icon-restore")?.classList.toggle("hidden", !modalIsMaximized);
+  }
+}
+
+function toggleModalFullscreen() {
+  setModalFullscreen(!modalIsMaximized);
+}
+
+function resetModalFullscreen() {
+  setModalFullscreen(false);
+}
+
 function createStep(topic, index) {
   const step = document.createElement("article");
   step.className = "step";
@@ -2533,7 +2558,9 @@ function createStep(topic, index) {
   if (topic.is_completed) step.classList.add("completed");
   step.style.animationDelay = `${index * 0.04}s`;
 
-  const offsetX = (index % 2 === 0 ? 0 : 80) + Math.min(index * 28, 320);
+  const zigzag = index % 2 === 0 ? 0 : 72;
+  const progress = Math.min(index * 34, 300);
+  const offsetX = 48 + zigzag + progress * 0.75;
   step.style.marginLeft = `${offsetX}px`;
   step.style.zIndex = String(index + 1);
   step.style.transform = `translateZ(${index * 4}px)`;
@@ -2659,6 +2686,7 @@ function renderStaircase() {
 function openNotesModal(topic) {
   if (!el.notesModal) return;
 
+  resetModalFullscreen();
   setFocusedTopic(topic.id);
 
   if (el.modalTag) el.modalTag.textContent = getBolum(topic.title);
@@ -2709,6 +2737,7 @@ function tryCloseNotesModal() {
   }
 
   el.notesModal.classList.add("hidden");
+  resetModalFullscreen();
   activeTopicId = null;
   if (noteTimer) clearTimeout(noteTimer);
   updateHudActiveTimer();
@@ -2859,6 +2888,11 @@ function bindEvents() {
   safeOn(el.timerSave, "click", saveTimer);
   safeOn(el.runCodeBtn, "click", handleRunCode);
   safeOn(el.modalClose, "click", closeNotesModal);
+  safeOn(el.modalMaximize, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleModalFullscreen();
+  });
   safeOn(el.missionTimer, "click", (e) => e.stopPropagation());
   safeOn(el.modalFrame, "click", (e) => e.stopPropagation());
   safeOn(el.notesModal, "click", (e) => {
