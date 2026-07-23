@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 Python Öğrenme Yol Haritası</title>
-  <link rel="stylesheet" href="style.css?v=26">
+  <link rel="stylesheet" href="style.css?v=27">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -24,11 +24,6 @@
   <div class="scanlines" aria-hidden="true"></div>
   <div class="grid-bg" aria-hidden="true"></div>
 
-  <button type="button" class="theme-toggle" id="themeToggle" aria-label="Açık temaya geç" title="Açık tema">
-    <span class="theme-toggle-icon theme-icon-dark" aria-hidden="true">🌙</span>
-    <span class="theme-toggle-icon theme-icon-light hidden" aria-hidden="true">☀️</span>
-  </button>
-
   <!-- Landing Screen -->
   <section class="landing" id="landing">
     <div class="landing-corner lc-tl" aria-hidden="true"></div>
@@ -41,6 +36,19 @@
       <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
       <span class="lsb-item"><span class="lsb-label">SİSTEM</span> PYTHON_YOL v3.0</span>
       <span class="lsb-item lsb-online"><span class="status-dot"></span> BAĞLANTI AKTİF</span>
+      <button type="button" class="theme-switch" data-theme-switch aria-checked="false" role="switch" aria-label="Açık moda geç">
+        <span class="theme-switch-track">
+          <span class="theme-switch-thumb" aria-hidden="true"></span>
+          <span class="theme-switch-side theme-switch-side-light">
+            <span class="theme-switch-emoji" aria-hidden="true">☀️</span>
+            <span class="theme-switch-text">Açık Mod</span>
+          </span>
+          <span class="theme-switch-side theme-switch-side-dark">
+            <span class="theme-switch-text">Koyu Mod</span>
+            <span class="theme-switch-emoji" aria-hidden="true">🌙</span>
+          </span>
+        </span>
+      </button>
     </header>
 
     <div class="landing-inner">
@@ -226,6 +234,19 @@
       <div class="hud-top-bar">
         <button type="button" class="hud-back-btn" id="backToLandingBtn" title="Giriş ekranına dön">← Geri</button>
         <button type="button" class="hud-shortcuts-btn" id="openShortcutsBtn" title="Klavye kısayolları"><span aria-hidden="true">⌨</span> <span class="shortcuts-label-full">Kısayollar</span></button>
+        <button type="button" class="theme-switch theme-switch-hud" data-theme-switch aria-checked="false" role="switch" aria-label="Açık moda geç">
+          <span class="theme-switch-track">
+            <span class="theme-switch-thumb" aria-hidden="true"></span>
+            <span class="theme-switch-side theme-switch-side-light">
+              <span class="theme-switch-emoji" aria-hidden="true">☀️</span>
+              <span class="theme-switch-text">Açık Mod</span>
+            </span>
+            <span class="theme-switch-side theme-switch-side-dark">
+              <span class="theme-switch-text">Koyu Mod</span>
+              <span class="theme-switch-emoji" aria-hidden="true">🌙</span>
+            </span>
+          </span>
+        </button>
         <div class="hud-user-chip" id="hudUserChip">
           <span class="hud-user-icon">👤</span>
           <span class="hud-user-label">Kullanıcı:</span>
@@ -632,6 +653,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=26"></script>
+  <script src="script.js?v=27"></script>
 </body>
 </html>

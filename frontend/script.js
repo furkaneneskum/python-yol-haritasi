@@ -389,7 +389,7 @@ function cacheElements() {
     "enterSystemBtn", "welcomeOverlay", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
-    "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn", "themeToggle",
+    "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
     "shortcutsModal", "shortcutsFrame", "shortcutsBody", "shortcutsClose",
     "hudUsername", "hudUserChip",
     "devPanel", "devAvatar", "devAvatarName", "devLevelBadge", "devRingFill",
@@ -1805,14 +1805,12 @@ function getStoredTheme() {
 }
 
 function updateThemeToggleUI(theme) {
-  if (!el.themeToggle) return;
-  const darkIcon = el.themeToggle.querySelector(".theme-icon-dark");
-  const lightIcon = el.themeToggle.querySelector(".theme-icon-light");
-  if (darkIcon) darkIcon.classList.toggle("hidden", theme === "light");
-  if (lightIcon) lightIcon.classList.toggle("hidden", theme !== "light");
-  const label = theme === "light" ? "Koyu temaya geç" : "Açık temaya geç";
-  el.themeToggle.setAttribute("aria-label", label);
-  el.themeToggle.title = theme === "light" ? "Koyu tema" : "Açık tema";
+  const isLight = theme === "light";
+  document.querySelectorAll("[data-theme-switch]").forEach((btn) => {
+    btn.setAttribute("aria-checked", String(isLight));
+    btn.setAttribute("aria-label", isLight ? "Koyu moda geç" : "Açık moda geç");
+    btn.title = isLight ? "Koyu Mod" : "Açık Mod";
+  });
 }
 
 function refreshParticlesForTheme(theme) {
@@ -2382,9 +2380,11 @@ function bindEvents() {
     setDailyGoalMinutes(Number(btn.dataset.minutes));
   });
 
-  safeOn(el.themeToggle, "click", (e) => {
-    e.preventDefault();
-    toggleTheme();
+  document.querySelectorAll("[data-theme-switch]").forEach((btn) => {
+    safeOn(btn, "click", (e) => {
+      e.preventDefault();
+      toggleTheme();
+    });
   });
 
   /* Giriş & navigasyon */
