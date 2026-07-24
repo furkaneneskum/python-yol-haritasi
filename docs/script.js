@@ -1875,7 +1875,7 @@ function finishLandingBootEnter(name) {
     el.terminalStatus.classList.add("ready");
   }
   if (el.landingBootStatus) {
-    el.landingBootStatus.textContent = "Erişim izni verildi — Akademi açılıyor";
+    el.landingBootStatus.textContent = "Kimlik protokolü başlatılıyor...";
   }
 
   if (el.landing) {
@@ -1886,19 +1886,7 @@ function finishLandingBootEnter(name) {
   landingEnterTimeoutId = setTimeout(() => {
     landingEnterTimeoutId = null;
     if (el.landing) el.landing.style.display = "none";
-    if (el.app) {
-      el.app.classList.remove("hidden");
-      requestAnimationFrame(() => el.app.classList.add("visible"));
-    }
-    if (window.location.hash !== "#app") {
-      history.pushState({ view: "app" }, "", "#app");
-    }
-    if (!appInitialized) {
-      appInitialized = true;
-      loadTopics();
-    }
-    if (el.operatorName) el.operatorName.disabled = false;
-    enteringApp = false;
+    showWelcomeTransition(name);
   }, 850);
 }
 
@@ -2152,12 +2140,12 @@ const WELCOME_STATUS_PHASES = [
   { at: 18, label: "OPERATÖR DOĞRULAMA", sub: "Biyometrik imza taranıyor...", pct: 34 },
   { at: 36, label: "NEURAL LINK AKTİF", sub: "Bellek katmanları açılıyor...", pct: 58 },
   { at: 52, label: "KİMLİK KİLİTLENDİ", sub: "Hoş geldin, operatör.", pct: 88 },
-  { at: 68, label: "MERDİVEN YÜKLENİYOR", sub: "Python yol haritası senkronize ediliyor...", pct: 100 },
+  { at: 68, label: "AKADEMİ YÜKLENİYOR", sub: "Python merdiveni senkronize ediliyor...", pct: 100 },
 ];
 
 function resetWelcomeSpectacle() {
   if (el.welcomeOverlay) {
-    el.welcomeOverlay.classList.remove("spectacle-active", "spectacle-shake", "show-progress");
+    el.welcomeOverlay.classList.remove("spectacle-active", "spectacle-shake", "show-progress", "from-boot");
   }
   if (el.welcomeParticles) el.welcomeParticles.innerHTML = "";
   if (el.welcomeBootFeed) el.welcomeBootFeed.innerHTML = "";
@@ -2426,14 +2414,22 @@ function initStepTiltEffects() {
 
 function showWelcomeTransition(name) {
   enteringApp = true;
-  if (el.enterSystemBtn) el.enterSystemBtn.disabled = true;
+  resetWelcomeSpectacle();
+  resetWelcomeTextAnimation();
 
-  appendTermLine(`▸ Operatör doğrulandı: ${name}`, "success boot");
-  appendTermLine("▸ Oturum açılıyor...", "hint boot");
+  const displayName = name.trim().charAt(0).toUpperCase() + name.trim().slice(1);
+  if (el.welcomeAlert) {
+    el.welcomeAlert.textContent = "▌ ERİŞİM ONAYLANDI — KİMLİK PROTOKOLÜ";
+  }
+  if (el.welcomeKicker) {
+    el.welcomeKicker.textContent = `// OPERATÖR: ${displayName.toUpperCase()} — DECRYPT BAŞLATILDI`;
+  }
+  if (el.welcomeSub) el.welcomeSub.textContent = "Kimlik çözülüyor...";
+  if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
 
   if (el.welcomeOverlay) {
     el.welcomeOverlay.classList.remove("hidden");
-    el.welcomeOverlay.classList.add("spectacle-active");
+    el.welcomeOverlay.classList.add("spectacle-active", "from-boot");
     spawnWelcomeParticles();
     runWelcomeBootFeed();
     requestAnimationFrame(() => {
@@ -2456,7 +2452,7 @@ function finishEnterApp(name) {
 
   if (el.welcomeOverlay) {
     el.welcomeOverlay.classList.add("hidden");
-    el.welcomeOverlay.classList.remove("show-progress");
+    el.welcomeOverlay.classList.remove("show-progress", "spectacle-active", "from-boot");
   }
   if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
 
@@ -2467,6 +2463,10 @@ function finishEnterApp(name) {
     appInitialized = true;
     loadTopics();
   }
+
+  if (el.operatorName) el.operatorName.disabled = false;
+  enteringApp = false;
+  setBootButtonState("idle");
 }
 
 function handlePopState(event) {

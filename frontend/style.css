@@ -295,6 +295,25 @@ body {
   animation: welcomeOverlayIn 0.5s ease forwards;
 }
 
+.welcome-overlay.from-boot.spectacle-active {
+  animation: welcomeBootHandoff 0.65s ease forwards;
+}
+
+@keyframes welcomeBootHandoff {
+  from {
+    opacity: 0;
+    background: #000;
+  }
+  35% {
+    opacity: 1;
+    background: #050508;
+  }
+  to {
+    opacity: 1;
+    background: #000;
+  }
+}
+
 .welcome-overlay.spectacle-shake {
   animation: welcomeShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
