@@ -602,9 +602,10 @@ const DAILY_GOAL_DONE_KEY = "python_yol_daily_goal_done";
 const DEFAULT_DAILY_GOAL = 30;
 const DAILY_GOAL_OPTIONS = [15, 30, 45, 60];
 const DAILY_RING_CIRCUMFERENCE = 188.5;
-const WELCOME_PROGRESS_MS = 2600;
-const WELCOME_BURST_MS = 450;
-const WELCOME_FADE_MS = 650;
+const WELCOME_PROGRESS_MS = 3800;
+const WELCOME_HOLD_MS = 700;
+const WELCOME_BURST_MS = 600;
+const WELCOME_FADE_MS = 800;
 
 const DEV_RANK_TITLES = [
   { minXp: 0, title: "Python Çırağı 🐍", icon: "🐍", avatarTier: "novice" },
@@ -735,7 +736,7 @@ function cacheElements() {
     "celebrationOverlay", "celebrationClose", "staircasePath",
     "timerDisplay", "timerToggle", "missionTimer", "timerToggleIcon", "timerToggleText",
     "timerSave", "timerStatus", "timerState", "timerSaved", "timerSession",
-    "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill",
+    "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill", "timerTotal",
     "timerRing", "hudActiveTimer", "hudTimerLabel", "hudTimerClock",
     "rpgStreak", "rpgLevel", "rpgRank", "rpgXpText", "rpgXpFill", "cosmicGrid",
     "codeEditor", "runCodeBtn", "codeOutput", "markdownPreview", "lessonContent",
@@ -1341,7 +1342,7 @@ function formatShortClock(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds));
   const m = Math.floor(s / 60);
   const sec = s % 60;
-  return `${m}:${String(sec).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
 function formatSpentLabel(seconds) {
@@ -1434,8 +1435,13 @@ function refreshTimerUI(topicId) {
   }
   if (el.timerRing) el.timerRing.classList.toggle("active", session.running);
   if (el.timerSaved) el.timerSaved.textContent = formatClock(saved);
+  if (el.timerTotal) el.timerTotal.textContent = formatClock(total);
   if (el.timerSession) el.timerSession.textContent = formatClock(liveSession);
-  if (el.timerEstimate) el.timerEstimate.textContent = activeTopicDuration || "—";
+  if (el.timerEstimate) {
+    el.timerEstimate.textContent = estimateSec > 0
+      ? formatClock(estimateSec)
+      : "00:00:00";
+  }
 
   if (el.timerToggleIcon) el.timerToggleIcon.textContent = session.running ? "⏸" : "▶";
   if (el.timerToggleText) el.timerToggleText.textContent = session.running ? "Durdur" : "Başlat";
@@ -1457,7 +1463,7 @@ function refreshTimerUI(topicId) {
 
   if (unsaved > 0) {
     if (el.timerSavePill) {
-      el.timerSavePill.textContent = `+${formatShortClock(unsaved)}`;
+      el.timerSavePill.textContent = `+${formatClock(unsaved)}`;
       el.timerSavePill.classList.remove("hidden");
     }
     if (el.timerSave) {
@@ -2085,25 +2091,28 @@ function animateWelcomeProgress(onComplete) {
 }
 
 function triggerWelcomeBurst(onComplete) {
-  if (el.welcomeOverlay) {
-    el.welcomeOverlay.classList.add("welcome-burst-active");
-  }
-  if (el.welcomeFlash) {
-    el.welcomeFlash.style.animation = "none";
-    void el.welcomeFlash.offsetWidth;
-    el.welcomeFlash.style.animation = "";
-  }
-  if (el.welcomeSub) el.welcomeSub.textContent = "Erişim tamamlandı — Akademi açılıyor...";
-  if (el.welcomeWarning) el.welcomeWarning.textContent = "⚡ Sistem hazır — geçiş başlatılıyor";
-
   welcomeTimeoutId = setTimeout(() => {
     welcomeTimeoutId = null;
-    el.welcomeOverlay?.classList.add("welcome-exiting");
+    if (el.welcomeOverlay) {
+      el.welcomeOverlay.classList.add("welcome-burst-active");
+    }
+    if (el.welcomeFlash) {
+      el.welcomeFlash.style.animation = "none";
+      void el.welcomeFlash.offsetWidth;
+      el.welcomeFlash.style.animation = "";
+    }
+    if (el.welcomeSub) el.welcomeSub.textContent = "Erişim tamamlandı — Akademi açılıyor...";
+    if (el.welcomeWarning) el.welcomeWarning.textContent = "⚡ Sistem hazır — geçiş başlatılıyor";
+
     welcomeTimeoutId = setTimeout(() => {
       welcomeTimeoutId = null;
-      onComplete();
-    }, WELCOME_FADE_MS);
-  }, WELCOME_BURST_MS);
+      el.welcomeOverlay?.classList.add("welcome-exiting");
+      welcomeTimeoutId = setTimeout(() => {
+        welcomeTimeoutId = null;
+        onComplete();
+      }, WELCOME_FADE_MS);
+    }, WELCOME_BURST_MS);
+  }, WELCOME_HOLD_MS);
 }
 
 function spawnWelcomeParticles() {
@@ -2560,13 +2569,11 @@ function createBadgeRow(topic) {
   row.appendChild(durationBadge);
 
   const spentLabel = formatSpentLabel(topic.time_spent);
-  if (spentLabel) {
-    const spentBadge = document.createElement("span");
-    spentBadge.className = "spent-badge has-progress";
-    spentBadge.title = "Kayıtlı çalışma süresi";
-    spentBadge.innerHTML = `<span class="badge-icon">🟢</span><span>${spentLabel}</span>`;
-    row.appendChild(spentBadge);
-  }
+  const spentBadge = document.createElement("span");
+  spentBadge.className = `spent-badge${spentLabel ? " has-progress" : ""}`;
+  spentBadge.title = "Kayıtlı çalışma süresi";
+  spentBadge.innerHTML = `<span class="badge-icon">🟢</span><span>${formatClock(topic.time_spent || 0)}</span>`;
+  row.appendChild(spentBadge);
 
   const estimateSec = parseDurationToSeconds(topic.duration);
   if (estimateSec > 0 && topic.time_spent > 0) {

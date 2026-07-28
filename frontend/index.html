@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=35">
+  <link rel="stylesheet" href="style.css?v=36">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -655,7 +655,7 @@
             </div>
             <div class="timer-controls">
               <button type="button" class="timer-btn" id="timerToggle"><span class="timer-btn-icon" id="timerToggleIcon">▶</span><span id="timerToggleText">Başlat</span></button>
-              <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+0:00</span></button>
+              <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+00:00:00</span></button>
             </div>
             <div class="accordion-module accordion-compact command-timer-extra" data-accordion>
               <button type="button" class="accordion-trigger" aria-expanded="false">
@@ -666,8 +666,9 @@
                 <div class="accordion-panel-inner">
             <div class="timer-breakdown timer-breakdown-compact">
               <div class="timer-stat"><span class="timer-stat-label">Kayıtlı</span><span class="timer-stat-value" id="timerSaved">00:00:00</span></div>
-              <div class="timer-stat highlight"><span class="timer-stat-label">Bu Oturum</span><span class="timer-stat-value" id="timerSession">00:00:00</span></div>
-              <div class="timer-stat"><span class="timer-stat-label">Tahmini</span><span class="timer-stat-value" id="timerEstimate">—</span></div>
+              <div class="timer-stat highlight"><span class="timer-stat-label">Toplam</span><span class="timer-stat-value" id="timerTotal">00:00:00</span></div>
+              <div class="timer-stat"><span class="timer-stat-label">Bu Oturum</span><span class="timer-stat-value" id="timerSession">00:00:00</span></div>
+              <div class="timer-stat"><span class="timer-stat-label">Tahmini</span><span class="timer-stat-value" id="timerEstimate">00:00:00</span></div>
             </div>
             <div class="timer-progress-wrap">
               <div class="timer-progress-track"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
@@ -771,7 +772,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=35"></script>
-  <script src="script.js?v=35"></script>
+  <script src="academy-content.js?v=36"></script>
+  <script src="script.js?v=36"></script>
 </body>
 </html>
