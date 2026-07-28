@@ -462,17 +462,43 @@ let quizState = { topicId: null, index: 0, score: 0, total: 0, answered: false }
 let flashcardIndex = 0;
 let flashcardFlipped = false;
 
-function switchModalTab(tabName) {
-  document.querySelectorAll(".modal-tab").forEach((btn) => {
-    const active = btn.dataset.tab === tabName;
-    btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", active ? "true" : "false");
-  });
-  document.querySelectorAll(".modal-tab-panel").forEach((panel) => {
-    const active = panel.dataset.panel === tabName;
+let activeFocusPanel = null;
+
+const FOCUS_LABELS = {
+  notes: "📖 Ders Notları",
+  code: "💻 Kod Laboratuvarı",
+  flashcards: "🎴 Bilgi Kartları",
+  quiz: "🧠 Modül Testi",
+};
+
+function openFocusMode(panelName) {
+  activeFocusPanel = panelName;
+  if (el.commandCenter) el.commandCenter.classList.add("is-hidden");
+  if (el.focusMode) el.focusMode.classList.remove("hidden");
+  if (el.focusTitle) el.focusTitle.textContent = FOCUS_LABELS[panelName] || panelName;
+  document.querySelectorAll(".focus-panel").forEach((panel) => {
+    const active = panel.dataset.panel === panelName;
     panel.classList.toggle("active", active);
     panel.hidden = !active;
   });
+  if (el.notesModalPanel) el.notesModalPanel.classList.add("focus-active");
+  if (panelName === "notes") {
+    setTimeout(() => {
+      const lessonEl = document.getElementById("lessonContent");
+      if (lessonEl) lessonEl.scrollTop = 0;
+    }, 80);
+  }
+}
+
+function closeFocusMode() {
+  activeFocusPanel = null;
+  if (el.commandCenter) el.commandCenter.classList.remove("is-hidden");
+  if (el.focusMode) el.focusMode.classList.add("hidden");
+  if (el.notesModalPanel) el.notesModalPanel.classList.remove("focus-active");
+}
+
+function switchModalTab(tabName) {
+  openFocusMode(tabName);
 }
 
 function launchConfetti() {
@@ -679,11 +705,15 @@ function initDevTip() {
 }
 
 function bindLearningEvents() {
-  document.querySelectorAll(".modal-tab").forEach((btn) => {
+  document.querySelectorAll(".command-action-btn").forEach((btn) => {
     safeOn(btn, "click", (e) => {
       e.preventDefault();
-      switchModalTab(btn.dataset.tab);
+      if (btn.dataset.focus) openFocusMode(btn.dataset.focus);
     });
+  });
+  safeOn(el.focusCloseBtn, "click", (e) => {
+    e.preventDefault();
+    closeFocusMode();
   });
   safeOn(el.devTipFlipBtn, "click", () => {
     el.devTipFlipInner?.classList.toggle("is-flipped");
@@ -891,7 +921,8 @@ function cacheElements() {
     "devDailyGoal", "devDailyStatus", "devDailyRingFill", "devDailyRingLabel", "devDailyHint",
     "staircase", "loading", "progressFill", "progressPercent", "progressMeta",
     "notesModal", "notesModalPanel", "modalFrame", "modalTitle", "modalTag", "modalNotes", "modalStatus",
-    "modalClose", "modalMaximize", "celebrationOverlay", "celebrationClose", "staircasePath",
+    "modalClose", "commandCenter", "focusMode", "focusCloseBtn", "focusTitle",
+    "celebrationOverlay", "celebrationClose", "staircasePath",
     "timerDisplay", "timerToggle", "missionTimer", "timerToggleIcon", "timerToggleText",
     "timerSave", "timerStatus", "timerState", "timerSaved", "timerSession",
     "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill",
@@ -1983,7 +2014,7 @@ function closeAllModals() {
   el.notesModal?.classList.add("hidden");
   el.shortcutsModal?.classList.add("hidden");
   el.celebrationOverlay?.classList.add("hidden");
-  resetModalFullscreen();
+  closeFocusMode();
   activeTopicId = null;
 }
 
@@ -2220,7 +2251,8 @@ function resetWelcomeTextAnimation() {
   if (el.welcomePrefix) el.welcomePrefix.textContent = "";
   if (el.welcomeName) {
     el.welcomeName.textContent = "";
-    el.welcomeName.classList.remove("revealed");
+    el.welcomeName.classList.remove("revealed", "glitch-active", "glitch-settled");
+    el.welcomeName.removeAttribute("data-text");
   }
   if (el.welcomeCursor) el.welcomeCursor.classList.remove("hidden");
 }
@@ -2248,17 +2280,22 @@ function runWelcomeReveal(name) {
     if (el.welcomeName && prefixLen >= prefix.length) {
       const scrambleFrame = frame - prefix.length * 2;
       if (scrambleFrame < 28) {
-        el.welcomeName.textContent = displayName.split("").map((ch, i) => {
+        const scrambled = displayName.split("").map((ch, i) => {
           if (ch === " ") return " ";
           const threshold = (i + 1) / displayName.length;
           const progress = scrambleFrame / 28;
           return progress > threshold ? ch : DECRYPT_POOL[Math.floor(Math.random() * DECRYPT_POOL.length)];
         }).join("");
-        el.welcomeName.classList.remove("revealed");
+        el.welcomeName.textContent = scrambled;
+        el.welcomeName.setAttribute("data-text", scrambled);
+        el.welcomeName.classList.add("glitch-active");
+        el.welcomeName.classList.remove("revealed", "glitch-settled");
       } else {
         el.welcomeName.textContent = displayName;
+        el.welcomeName.setAttribute("data-text", displayName);
+        el.welcomeName.classList.remove("glitch-active");
         if (!el.welcomeName.classList.contains("revealed")) {
-          el.welcomeName.classList.add("revealed");
+          el.welcomeName.classList.add("revealed", "glitch-settled");
           if (!shakeTriggered) {
             shakeTriggered = true;
             triggerWelcomeShake();
@@ -2274,7 +2311,9 @@ function runWelcomeReveal(name) {
       welcomeRevealId = null;
       if (el.welcomeName) {
         el.welcomeName.textContent = displayName;
-        el.welcomeName.classList.add("revealed");
+        el.welcomeName.setAttribute("data-text", displayName);
+        el.welcomeName.classList.remove("glitch-active");
+        el.welcomeName.classList.add("revealed", "glitch-settled");
       }
       if (el.welcomeCursor) el.welcomeCursor.classList.add("hidden");
     }
@@ -2784,7 +2823,7 @@ function renderStaircase() {
 function openNotesModal(topic) {
   if (!el.notesModal) return;
 
-  resetModalFullscreen();
+  closeFocusMode();
   setFocusedTopic(topic.id);
 
   if (el.modalTag) el.modalTag.textContent = getBolum(topic.title);
@@ -2799,7 +2838,7 @@ function openNotesModal(topic) {
   }
 
   renderAcademyTabs(topic.id);
-  switchModalTab("notes");
+  closeFocusMode();
   renderMarkdownPreview();
   initTimerForTopic(topic);
   showOverlay(el.notesModal);
@@ -2811,6 +2850,11 @@ function openNotesModal(topic) {
 
 function tryCloseNotesModal() {
   if (!el.notesModal) return;
+
+  if (activeFocusPanel) {
+    closeFocusMode();
+    return;
+  }
 
   if (!activeTopicId) {
     el.notesModal.classList.add("hidden");
@@ -2835,7 +2879,7 @@ function tryCloseNotesModal() {
   }
 
   el.notesModal.classList.add("hidden");
-  resetModalFullscreen();
+  closeFocusMode();
   activeTopicId = null;
   if (noteTimer) clearTimeout(noteTimer);
   updateHudActiveTimer();
@@ -2986,11 +3030,6 @@ function bindEvents() {
   safeOn(el.timerSave, "click", saveTimer);
   safeOn(el.runCodeBtn, "click", handleRunCode);
   safeOn(el.modalClose, "click", closeNotesModal);
-  safeOn(el.modalMaximize, "click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleModalFullscreen();
-  });
   safeOn(el.missionTimer, "click", (e) => e.stopPropagation());
   safeOn(el.modalFrame, "click", (e) => e.stopPropagation());
   safeOn(el.notesModal, "click", (e) => {

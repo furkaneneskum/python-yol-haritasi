@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="style.css?v=33">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -23,6 +23,12 @@
   <div id="particles-js" aria-hidden="true"></div>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="grid-bg" aria-hidden="true"></div>
+  <div class="cyber-dataflow" aria-hidden="true">
+    <div class="dataflow-layer dataflow-back"></div>
+    <div class="dataflow-layer dataflow-mid"></div>
+    <div class="dataflow-layer dataflow-front"></div>
+    <div class="dataflow-scan-sweep"></div>
+  </div>
 
   <!-- Landing Screen -->
   <section class="landing" id="landing">
@@ -225,7 +231,7 @@
       <div class="welcome-card welcome-card-spectacle">
         <p class="welcome-kicker" id="welcomeKicker">// OTURUM DOĞRULANDI — OPERATÖR TESPİT EDİLDİ</p>
         <h2 class="welcome-headline welcome-headline-spectacle">
-          <span class="welcome-prefix" id="welcomePrefix"></span><span class="welcome-name" id="welcomeName"></span><span class="welcome-cursor" id="welcomeCursor" aria-hidden="true">|</span>
+          <span class="welcome-prefix" id="welcomePrefix"></span><span class="welcome-name glitch-text" id="welcomeName"></span><span class="welcome-cursor" id="welcomeCursor" aria-hidden="true">|</span>
         </h2>
         <p class="welcome-sub" id="welcomeSub">Kimlik çözülüyor...</p>
         <div class="welcome-status-row">
@@ -595,90 +601,92 @@
           <span class="modal-tag" id="modalTag">BÖLÜM</span>
           <h2 id="modalTitle">Konu Başlığı</h2>
           <div class="modal-header-actions">
-            <button type="button" class="modal-maximize" id="modalMaximize" aria-label="Tam ekran" aria-pressed="false" title="Tam ekran">
-              <svg class="icon-expand" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M8 3H3v5M16 3h5v5M16 21h5v-5M8 21H3v-5"/>
-              </svg>
-              <svg class="icon-restore hidden" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <rect x="9" y="9" width="11" height="11" rx="1"/>
-                <path d="M5 15V5h10"/>
-              </svg>
-            </button>
             <button type="button" class="modal-close" id="modalClose" aria-label="Kapat">✕</button>
           </div>
         </div>
 
         <div class="modal-body">
-        <!-- Görev Sayacı -->
-        <div class="mission-timer" id="missionTimer">
-          <div class="timer-header">
-            <span class="timer-label">// ÇALIŞMA SAYACI</span>
-            <span class="timer-state idle" id="timerState">BEKLEMEDE</span>
+        <!-- Görev Komuta Merkezi -->
+        <div class="command-center" id="commandCenter">
+          <p class="command-center-kicker">// GÖREV KOMUTA MERKEZİ</p>
+
+          <div class="mission-timer mission-timer-hero" id="missionTimer">
+            <div class="timer-header timer-header-hero">
+              <span class="timer-label">// ÇALIŞMA SAYACI</span>
+              <span class="timer-state idle" id="timerState">BEKLEMEDE</span>
+            </div>
+            <div class="timer-display-wrap timer-display-wrap-hero">
+              <div class="timer-display timer-display-hero" id="timerDisplay">00:00:00</div>
+              <div class="timer-ring timer-ring-hero" id="timerRing"></div>
+            </div>
+            <div class="timer-breakdown timer-breakdown-compact">
+              <div class="timer-stat"><span class="timer-stat-label">Kayıtlı</span><span class="timer-stat-value" id="timerSaved">00:00:00</span></div>
+              <div class="timer-stat highlight"><span class="timer-stat-label">Bu Oturum</span><span class="timer-stat-value" id="timerSession">00:00:00</span></div>
+              <div class="timer-stat"><span class="timer-stat-label">Tahmini</span><span class="timer-stat-value" id="timerEstimate">—</span></div>
+            </div>
+            <div class="timer-progress-wrap">
+              <div class="timer-progress-track"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
+              <span class="timer-progress-label" id="timerProgressLabel">0% tamamlandı</span>
+            </div>
+            <div class="timer-controls">
+              <button type="button" class="timer-btn" id="timerToggle"><span class="timer-btn-icon" id="timerToggleIcon">▶</span><span id="timerToggleText">Başlat</span></button>
+              <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+0:00</span></button>
+            </div>
+            <p class="timer-hint">Başlat → çalış → Durdur → Süreyi Kaydet (+10 XP / dakika)</p>
+            <p class="timer-status" id="timerStatus"></p>
           </div>
-          <div class="timer-display-wrap">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-ring" id="timerRing"></div>
-          </div>
-          <div class="timer-breakdown">
-            <div class="timer-stat"><span class="timer-stat-label">Kayıtlı</span><span class="timer-stat-value" id="timerSaved">00:00:00</span></div>
-            <div class="timer-stat highlight"><span class="timer-stat-label">Bu Oturum</span><span class="timer-stat-value" id="timerSession">00:00:00</span></div>
-            <div class="timer-stat"><span class="timer-stat-label">Tahmini</span><span class="timer-stat-value" id="timerEstimate">—</span></div>
-          </div>
-          <div class="timer-progress-wrap">
-            <div class="timer-progress-track"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
-            <span class="timer-progress-label" id="timerProgressLabel">0% tamamlandı</span>
-          </div>
-          <div class="timer-controls">
-            <button type="button" class="timer-btn" id="timerToggle"><span class="timer-btn-icon" id="timerToggleIcon">▶</span><span id="timerToggleText">Başlat</span></button>
-            <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+0:00</span></button>
-          </div>
-          <p class="timer-hint">Başlat → çalış → Durdur → Süreyi Kaydet (+10 XP / dakika)</p>
-          <p class="timer-status" id="timerStatus"></p>
+
+          <nav class="command-actions" id="commandActions" aria-label="Modül yönlendirme">
+            <button type="button" class="command-action-btn" data-focus="notes">📖 Ders Notlarına Git</button>
+            <button type="button" class="command-action-btn" data-focus="code">💻 Kod Laboratuvarına Git</button>
+            <button type="button" class="command-action-btn" data-focus="flashcards">🎴 Bilgi Kartlarına Git</button>
+            <button type="button" class="command-action-btn" data-focus="quiz">🧠 Modül Testine Git</button>
+          </nav>
         </div>
 
-        <nav class="modal-tabs" id="modalTabs" role="tablist" aria-label="Konu sekmeleri">
-          <button type="button" class="modal-tab active" data-tab="notes" role="tab" aria-selected="true" id="modalTabNotes">📖 Ders Notları</button>
-          <button type="button" class="modal-tab" data-tab="code" role="tab" aria-selected="false" id="modalTabCode">💻 Kod Laboratuvarı</button>
-          <button type="button" class="modal-tab" data-tab="flashcards" role="tab" aria-selected="false" id="modalTabFlashcards">🎴 Bilgi Kartları</button>
-          <button type="button" class="modal-tab" data-tab="quiz" role="tab" aria-selected="false" id="modalTabQuiz">🎯 Modül Testi</button>
-        </nav>
-
-        <div class="modal-tab-panels">
-          <div class="modal-tab-panel active" data-panel="notes" role="tabpanel">
-            <div class="lesson-panel">
-              <div class="panel-header">📖 Ders Notları <span class="panel-tag">Akademi</span></div>
-              <article class="lesson-article" id="lessonContent">
-                <p class="learning-placeholder">Ders içeriği yükleniyor...</p>
-              </article>
-            </div>
-            <div class="code-panel notes-panel-rpg notes-panel-personal">
-              <div class="panel-header">📝 Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
-              <textarea id="modalNotes" class="modal-textarea markdown-input" placeholder="# Kendi notlarını buraya yaz&#10;&#10;```python&#10;print('Merhaba Python!')&#10;```"></textarea>
-              <div id="markdownPreview" class="markdown-preview"></div>
-              <p class="modal-status" id="modalStatus"></p>
-            </div>
+        <!-- Tam Ekran Odak Modu -->
+        <div class="focus-mode hidden" id="focusMode">
+          <div class="focus-toolbar">
+            <span class="focus-title" id="focusTitle">📖 Ders Notları</span>
+            <button type="button" class="focus-close-btn" id="focusCloseBtn">✖ Kapat ve Komuta Merkezine Dön</button>
           </div>
-
-          <div class="modal-tab-panel" data-panel="code" role="tabpanel" hidden>
-            <div class="code-panel terminal-panel-rpg">
-              <div class="panel-header">🚀 Canlı Terminal <span class="panel-tag">Pyodide · Python 3</span></div>
-              <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="# Python kodunuzu yazın&#10;print('Merhaba Python!')"></textarea>
-              <button type="button" class="run-code-btn" id="runCodeBtn">▶️ KODU ATEŞLE</button>
-              <div class="code-output" id="codeOutput">
-                <p class="output-line dim">// Çıktı burada görünecek...</p>
+          <div class="focus-panels">
+            <div class="focus-panel active" data-panel="notes">
+              <div class="lesson-panel">
+                <div class="panel-header">📖 Ders Notları <span class="panel-tag">Akademi</span></div>
+                <article class="lesson-article" id="lessonContent">
+                  <p class="learning-placeholder">Ders içeriği yükleniyor...</p>
+                </article>
+              </div>
+              <div class="code-panel notes-panel-rpg notes-panel-personal">
+                <div class="panel-header">📝 Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
+                <textarea id="modalNotes" class="modal-textarea markdown-input" placeholder="# Kendi notlarını buraya yaz&#10;&#10;```python&#10;print('Merhaba Python!')&#10;```"></textarea>
+                <div id="markdownPreview" class="markdown-preview"></div>
+                <p class="modal-status" id="modalStatus"></p>
               </div>
             </div>
-          </div>
 
-          <div class="modal-tab-panel" data-panel="flashcards" role="tabpanel" hidden>
-            <div class="flashcards-deck" id="flashcardsContainer">
-              <p class="learning-placeholder">Bilgi kartları yükleniyor...</p>
+            <div class="focus-panel" data-panel="code" hidden>
+              <div class="code-panel terminal-panel-rpg">
+                <div class="panel-header">🚀 Canlı Terminal <span class="panel-tag">Pyodide · Python 3</span></div>
+                <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="# Python kodunuzu yazın&#10;print('Merhaba Python!')"></textarea>
+                <button type="button" class="run-code-btn" id="runCodeBtn">▶️ KODU ATEŞLE</button>
+                <div class="code-output" id="codeOutput">
+                  <p class="output-line dim">// Çıktı burada görünecek...</p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="modal-tab-panel" data-panel="quiz" role="tabpanel" hidden>
-            <div class="quiz-container" id="quizContainer">
-              <p class="learning-placeholder">Modül testi yükleniyor...</p>
+            <div class="focus-panel" data-panel="flashcards" hidden>
+              <div class="flashcards-deck" id="flashcardsContainer">
+                <p class="learning-placeholder">Bilgi kartları yükleniyor...</p>
+              </div>
+            </div>
+
+            <div class="focus-panel" data-panel="quiz" hidden>
+              <div class="quiz-container" id="quizContainer">
+                <p class="learning-placeholder">Modül testi yükleniyor...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -709,6 +717,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=32"></script>
+  <script src="script.js?v=33"></script>
 </body>
 </html>
