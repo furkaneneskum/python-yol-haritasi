@@ -181,199 +181,6 @@ const MODULE_KEYS = [
   "numpy", "pandas", "pandas_proj", "api_proj", "matplotlib",
 ];
 
-function mkCards(items) {
-  return items.map(([front, back, code]) => ({ front, back, code }));
-}
-
-function mkQuiz(items) {
-  return items.map(([q, options, correct, explain]) => ({ q, options, correct, explain }));
-}
-
-const ACADEMY_BANK = {
-  data: {
-    lesson: `<h3>Temel Python Objeleri</h3>
-<p>Python'da <strong>her şey bir nesnedir</strong>. En sık kullandığımız koleksiyonlar <code>list</code>, <code>tuple</code>, <code>dict</code> ve <code>set</code>'tir.</p>
-<h4>List vs Tuple</h4>
-<p><strong>List</strong> değiştirilebilir (mutable), <strong>tuple</strong> değiştirilemez (immutable). Performans kritik sabit veriler için tuple tercih edilir.</p>
-<pre><code class="language-python">meyveler = ["elma", "armut"]
-meyveler.append("kiraz")  # OK
-
-koordinat = (41.0, 29.0)
-# koordinat[0] = 42  # HATA!</code></pre>
-<h4>Sözlük (dict)</h4>
-<p>Anahtar-değer çiftleri ile O(1) erişim sağlar. JSON benzeri veri yapılarında idealdir.</p>
-<pre><code class="language-python">kullanici = {"ad": "Ayşe", "xp": 120}
-print(kullanici["ad"])</code></pre>`,
-    flashcards: mkCards([
-      ["List ile Tuple arasındaki temel fark?", "List mutable, tuple immutable'dır.", "lst = [1,2]\ntpl = (1,2)"],
-      ["dict['anahtar'] ne döndürür?", "İlgili anahtarın değerini.", "d = {'a': 1}\nprint(d['a'])"],
-      ["Set neden tekrarsız?", "Küme matematik modelini takip eder.", "print({1,1,2})  # {1,2}"],
-    ]),
-    quiz: mkQuiz([
-      ["Hangisi değiştirilebilir?", ["tuple", "list", "str", "int"], 1, "Listeler append/extend ile güncellenir."],
-      ["len([10,20,30]) sonucu?", ["1", "2", "3", "30"], 2, "len eleman sayısını verir."],
-      ["Boş sözlük nasıl oluşturulur?", ["[]", "{}", "()", "set()"], 1, "Süslü parantez dict oluşturur."],
-    ]),
-    starter: "meyveler = ['elma', 'armut', 'kiraz']\nfor m in meyveler:\n    print(m.upper())",
-  },
-  conditionals: {
-    lesson: `<h3>Koşullu Durumlar</h3>
-<p><strong>if / elif / else</strong> blokları program akışını dallandırır. Python girintileme (indentation) sözdiziminin parçasıdır.</p>
-<pre><code class="language-python">puan = 85
-if puan >= 90:
-    notu = "AA"
-elif puan >= 70:
-    notu = "BB"
-else:
-    notu = "CC"
-print(notu)</code></pre>
-<p>Karşılaştırma operatörleri: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>and</code>, <code>or</code>, <code>not</code>.</p>`,
-    flashcards: mkCards([
-      ["elif ne zaman kullanılır?", "Birden fazla koşul sırasıyla test edilirken.", "if x>0: ...\nelif x==0: ..."],
-      ["Truthiness nedir?", "Boş koleksiyon/0/None False sayılır.", "if []: print('hayır')"],
-      ["Ternary if sözdizimi?", "deger if kosul else diger", "maxi = a if a>b else b"],
-    ]),
-    quiz: mkQuiz([
-      ["if bloğu hangi karakterle biter?", [";", "}", "Girinti değişince", "end"], 2, "Python blokları girinti ile belirlenir."],
-      ["not True sonucu?", ["True", "False", "None", "0"], 1, "not mantıksal değil tersler."],
-      ["Hangisi eşitlik kontrolü?", ["=", "==", "===", ":="], 1, "== karşılaştırma operatörüdür."],
-    ]),
-    starter: "yas = 20\nif yas >= 18:\n    print('Ehliyet alabilir')\nelse:\n    print('Bekle')",
-  },
-  loops: {
-    lesson: `<h3>Döngü Yapıları</h3>
-<p><strong>for</strong> iterable üzerinde, <strong>while</strong> koşul doğru olduğu sürece çalışır.</p>
-<pre><code class="language-python">for i in range(5):
-    print(i * i)
-
-sayac = 3
-while sayac > 0:
-    print(sayac)
-    sayac -= 1</code></pre>
-<p><code>break</code> döngüyü, <code>continue</code> o turu atlar.</p>`,
-    flashcards: mkCards([
-      ["range(3) ne üretir?", "0, 1, 2", "list(range(3))"],
-      ["enumerate ne sağlar?", "İndeks + değer çifti.", "for i,v in enumerate(a):"],
-      ["while sonsuz döngüden kaçın?", "Koşulun bir noktada False olmasını sağla.", "while True: break"],
-    ]),
-    quiz: mkQuiz([
-      ["range(2,5) son eleman?", ["5", "4", "3", "2"], 1, "Üst sınır dahil değildir."],
-      ["for x in 'py': kaç iterasyon?", ["1", "2", "3", "0"], 1, "İki karakter iki tur."],
-      ["continue ne yapar?", ["Döngüyü bitirir", "Sonraki tura geçer", "Fonksiyondan çıkar", "Hata verir"], 1, "continue o iterasyonu atlar."],
-    ]),
-    starter: "toplam = 0\nfor n in range(1, 6):\n    toplam += n\nprint(toplam)",
-  },
-  functions: {
-    lesson: `<h3>Fonksiyonlar</h3>
-<p><strong>def</strong> ile tanımlanır. Parametreler, varsayılan değerler ve <code>return</code> ile sonuç döndürülür.</p>
-<pre><code class="language-python">def selam(isim, n=1):
-    return (f"Merhaba {isim}! " * n).strip()
-
-print(selam("Python", 2))</code></pre>
-<p>*args ve **kwargs ileri seviye esneklik sağlar.</p>`,
-    flashcards: mkCards([
-      ["return olmadan fonksiyon?", "None döner.", "def f(): pass"],
-      ["Varsayılan parametre tuzağı?", "Mutable default paylaşılır — dikkat!", "def f(a=[]):\n    a.append(1)"],
-      ["Lambda ne için?", "Tek satırlık anonim fonksiyon.", "sq = lambda x: x*x"],
-    ]),
-    quiz: mkQuiz([
-      ["Fonksiyon tanım anahtar kelimesi?", ["func", "def", "fn", "function"], 1, "def Python sözdizimidir."],
-      ["return tipi belirtmek zorunlu mu?", ["Evet", "Hayır", "Sadece async", "Sadece class"], 1, "Python dinamik tipli."],
-      ["*args ne toplar?", ["Sözlük", "Konum argümanları", "Anahtar kelimeler", "Sınıf"], 1, "*args tuple benzeri toplar."],
-    ]),
-    starter: "def alan_genislik(g, u):\n    return g * u\nprint(alan_genislik(4, 5))",
-  },
-  modules: {
-    lesson: `<h3>Modüller ve Paketler</h3>
-<p>Kod organizasyonu için modüller kullanılır. <code>import math</code> veya <code>from math import sqrt</code>.</p>
-<pre><code class="language-python">import math
-print(math.sqrt(16))
-
-from datetime import date
-print(date.today())</code></pre>
-<p><code>if __name__ == "__main__":</code> doğrudan çalıştırma koruması sağlar.</p>`,
-    flashcards: mkCards([
-      ["import math vs from math import pi?", "İkincisi doğrudan pi adını getirir.", "import math\nmath.pi"],
-      ["__name__ == '__main__' ne?", "Dosya doğrudan çalıştırıldı.", "if __name__=='__main__':"],
-      ["pip ne yapar?", "Paket yöneticisi — kütüphane kurar.", "# pip install requests"],
-    ]),
-    quiz: mkQuiz([
-      ["Standart kütüphane örneği?", ["react", "math", "lodash", "jquery"], 1, "math Python ile gelir."],
-      ["Modül dosya uzantısı?", [".mod", ".py", ".python", ".pkg"], 1, "Kaynak .py dosyalarıdır."],
-      ["Paket klasöründe zorunlu dosya?", ["setup.py", "__init__.py", "main.py", "README"], 1, "__init__.py paketi tanımlar."],
-    ]),
-    starter: "import math\nprint('Pi:', round(math.pi, 4))",
-  },
-  oop: {
-    lesson: `<h3>Nesne Tabanlı Programlama</h3>
-<p><strong>class</strong> şablon, <strong>instance</strong> nesnedir. <code>__init__</code> yapıcı metottur.</p>
-<pre><code class="language-python">class Kahraman:
-    def __init__(self, ad, xp=0):
-        self.ad = ad
-        self.xp = xp
-    def seviye_atla(self, miktar):
-        self.xp += miktar
-
-k = Kahraman("Coder", 100)
-k.seviye_atla(50)
-print(k.xp)</code></pre>`,
-    flashcards: mkCards([
-      ["self ne?", "Nesnenin kendisine referans.", "def metot(self):"],
-      ["Kalıtım (inheritance)?", "Alt sınıf üst sınıfı genişletir.", "class B(A): pass"],
-      ["Encapsulation?", "Veriyi metotlarla koruma.", "self._gizli = 1"],
-    ]),
-    quiz: mkQuiz([
-      ["Yapıcı metot adı?", ["__new__", "__init__", "__call__", "constructor"], 1, "__init__ instance oluşturur."],
-      ["Instance attribute erişimi?", ["Class.attr", "self.attr", "this.attr", "obj->attr"], 1, "self üzerinden erişilir."],
-      ["super() ne için?", ["Üst sınıf metodunu çağırır", "Modül import", "Static metot", "Destructor"], 0, "super() parent class'a erişir."],
-    ]),
-    starter: "class Oyuncu:\n    def __init__(self, ad):\n        self.ad = ad\np = Oyuncu('Ali')\nprint(p.ad)",
-  },
-  errors: {
-    lesson: `<h3>Hatalar ve İstisnalar</h3>
-<p><strong>try / except / finally</strong> ile kontrollü hata yönetimi.</p>
-<pre><code class="language-python">try:
-    sonuc = 10 / int(input("Bölüm: "))
-except ZeroDivisionError:
-    print("Sıfıra bölünemez")
-except ValueError:
-    print("Sayı girin")
-finally:
-    print("Temizlik tamam")</code></pre>`,
-    flashcards: mkCards([
-      ["raise ne yapar?", "Manuel istisna fırlatır.", "raise ValueError('hata')"],
-      ["else bloğu try'da?", "Hata olmadan try biterse çalışır.", "try: ...\nelse: ..."],
-      ["Exception base class?", "Tüm istisnalar bundan türer.", "except Exception:"],
-    ]),
-    quiz: mkQuiz([
-      ["ZeroDivisionError ne zaman?", ["Dosya yok", "Sıfıra bölme", "Syntax", "Import"], 1, "0'a bölünce oluşur."],
-      ["finally her zaman?", ["Sadece hata varsa", "Evet, her durumda", "Hayır", "Sadece return"], 1, "finally her koşulda çalışır."],
-      ["pass ifadesi?", ["Döngü atla", "Boş blok placeholder", "Return None", "Import"], 1, "pass yer tutucudur."],
-    ]),
-    starter: "try:\n    print(int('42'))\nexcept ValueError:\n    print('Geçersiz sayı')",
-  },
-  files: {
-    lesson: `<h3>Dosya İşlemleri</h3>
-<p><code>with open(...)</code> bağlam yöneticisi dosyayı güvenle kapatır.</p>
-<pre><code class="language-python">with open("notlar.txt", "w", encoding="utf-8") as f:
-    f.write("Python Akademisi\\n")
-
-with open("notlar.txt", "r", encoding="utf-8") as f:
-    print(f.read())</code></pre>`,
-    flashcards: mkCards([
-      ["with open avantajı?", "Otomatik close — kaynak sızıntısı önlenir.", "with open('a.txt') as f:"],
-      ["'r' modu?", "Okuma (read).", "open('f.txt','r')"],
-      ["encoding neden önemli?", "Türkçe karakterler için utf-8.", "encoding='utf-8'"],
-    ]),
-    quiz: mkQuiz([
-      ["Yazma modu harfi?", ["r", "w", "x", "a only"], 1, "'w' write/truncate."],
-      ["readlines() ne döner?", ["Tek string", "Satır listesi", "Bytes", "Dict"], 1, "Her satır bir liste elemanı."],
-      ["Dosya kapatılmazsa?", ["Sorun olmaz", "Kaynak sızıntısı riski", "Syntax error", "Otomatik silinir"], 1, "Descriptor limit aşılabilir."],
-    ]),
-    starter: "# Dosya simülasyonu\nveri = 'Merhaba Akademi'\nprint(len(veri))",
-  },
-};
-
 function buildGenericModule(topicId, section) {
   return {
     lesson: `<h3>${section}</h3>
@@ -795,7 +602,9 @@ const DAILY_GOAL_DONE_KEY = "python_yol_daily_goal_done";
 const DEFAULT_DAILY_GOAL = 30;
 const DAILY_GOAL_OPTIONS = [15, 30, 45, 60];
 const DAILY_RING_CIRCUMFERENCE = 188.5;
-const WELCOME_DURATION_MS = 3800;
+const WELCOME_PROGRESS_MS = 2600;
+const WELCOME_BURST_MS = 450;
+const WELCOME_FADE_MS = 650;
 
 const DEV_RANK_TITLES = [
   { minXp: 0, title: "Python Çırağı 🐍", icon: "🐍", avatarTier: "novice" },
@@ -886,6 +695,7 @@ let typewriterLineIndex = 0;
 let landingClockId = null;
 let welcomeTimeoutId = null;
 let welcomeRevealId = null;
+let welcomeProgressRaf = null;
 let landingBootTimeoutId = null;
 let landingEnterTimeoutId = null;
 let bootTimeoutIds = [];
@@ -905,7 +715,7 @@ function cacheElements() {
     "landing", "app", "typewriter", "typewriterCursor", "landingSub",
     "landingClock", "landingBootStatus", "operatorName", "operatorError",
     "terminalOutput", "terminalStatus", "terminalOperatorName", "terminalMeterFill",
-    "enterSystemBtn", "bootBtnLabel", "welcomeOverlay", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
+    "enterSystemBtn", "bootBtnLabel", "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
     "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
@@ -915,7 +725,7 @@ function cacheElements() {
     "devProgressLabel", "devCompletedCount", "devTodayMinutes", "devTotalXpDisplay",
     "devStreak", "devLevelRank", "devXpText", "devXpFill", "devWeekBars",
     "devGoalCard", "devGoalChapter", "devGoalTopic", "devGoalMeta", "devGoalMotivation",
-    "devGoalBtn", "devGoalScrollBtn",
+    "devGoalBtn", "devGoalScrollBtn", "devMissionList",
     "devCurrentCard", "devCurrentChapter", "devCurrentTopic", "devCurrentOpenBtn",
     "mobileGoalBar", "mobileGoalTopic", "mobileGoalBtn",
     "devDailyGoal", "devDailyStatus", "devDailyRingFill", "devDailyRingLabel", "devDailyHint",
@@ -1132,6 +942,32 @@ function renderDevWeekBars() {
   });
 }
 
+function renderDevMissionList() {
+  if (!el.devMissionList) return;
+  el.devMissionList.innerHTML = "";
+
+  topics.forEach((topic) => {
+    const li = document.createElement("li");
+    li.className = "dev-mission-item";
+    if (topic.is_completed) li.classList.add("is-done");
+    if (topic.id === nextGoalTopicId) li.classList.add("is-next");
+
+    const status = document.createElement("span");
+    status.className = "dev-mission-status";
+    status.textContent = topic.is_completed ? "✓" : "○";
+    status.setAttribute("aria-hidden", "true");
+
+    const title = document.createElement("span");
+    title.className = "dev-mission-title";
+    title.textContent = getShortTitle(topic.title);
+
+    li.appendChild(status);
+    li.appendChild(title);
+    li.addEventListener("click", () => openNotesModal(topic));
+    el.devMissionList.appendChild(li);
+  });
+}
+
 function findNextTopic() {
   if (!topics.length) return null;
   return topics.find((t) => !t.is_completed) ?? null;
@@ -1239,6 +1075,8 @@ function renderDevPanel() {
   if (el.devXpFill) el.devXpFill.style.width = `${xpPct}%`;
 
   renderDevWeekBars();
+
+  renderDevMissionList();
 
   const nextTopic = findNextTopic();
   nextGoalTopicId = nextTopic?.id ?? null;
@@ -2091,9 +1929,21 @@ function showLandingView() {
   closeAllModals();
   enteringApp = false;
 
+  if (welcomeTimeoutId !== null) {
+    clearTimeout(welcomeTimeoutId);
+    welcomeTimeoutId = null;
+  }
+  cancelWelcomeProgress();
+
   if (el.welcomeOverlay) {
     el.welcomeOverlay.classList.add("hidden");
-    el.welcomeOverlay.classList.remove("show-progress");
+    el.welcomeOverlay.classList.remove(
+      "show-progress",
+      "spectacle-active",
+      "from-boot",
+      "welcome-burst-active",
+      "welcome-exiting",
+    );
   }
   if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
   resetWelcomeAnimation();
@@ -2115,6 +1965,7 @@ function showLandingView() {
     clearTimeout(welcomeTimeoutId);
     welcomeTimeoutId = null;
   }
+  cancelWelcomeProgress();
 
   startLandingClock();
   runBootSequence();
@@ -2175,14 +2026,84 @@ const WELCOME_STATUS_PHASES = [
 ];
 
 function resetWelcomeSpectacle() {
+  cancelWelcomeProgress();
   if (el.welcomeOverlay) {
-    el.welcomeOverlay.classList.remove("spectacle-active", "spectacle-shake", "show-progress", "from-boot");
+    el.welcomeOverlay.classList.remove(
+      "spectacle-active",
+      "spectacle-shake",
+      "show-progress",
+      "from-boot",
+      "welcome-burst-active",
+      "welcome-exiting",
+    );
   }
   if (el.welcomeParticles) el.welcomeParticles.innerHTML = "";
   if (el.welcomeBootFeed) el.welcomeBootFeed.innerHTML = "";
   if (el.welcomeStatusPct) el.welcomeStatusPct.textContent = "0%";
+  if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
   if (el.welcomeSub) el.welcomeSub.textContent = "Kimlik çözülüyor...";
   if (el.welcomeWarning) el.welcomeWarning.textContent = "⚠ Derin sistem katmanlarına bağlanılıyor...";
+}
+
+function cancelWelcomeProgress() {
+  if (welcomeProgressRaf !== null) {
+    cancelAnimationFrame(welcomeProgressRaf);
+    welcomeProgressRaf = null;
+  }
+}
+
+function updateWelcomeProgressUI(pct) {
+  let phase = WELCOME_STATUS_PHASES[0];
+  for (const p of WELCOME_STATUS_PHASES) {
+    if (pct >= p.pct) phase = p;
+  }
+  if (el.welcomeStatusLabel) el.welcomeStatusLabel.textContent = phase.label;
+  if (el.welcomeSub) el.welcomeSub.textContent = phase.sub;
+  if (el.welcomeStatusPct) el.welcomeStatusPct.textContent = `${pct}%`;
+  if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = `${pct}%`;
+}
+
+function animateWelcomeProgress(onComplete) {
+  cancelWelcomeProgress();
+  const start = performance.now();
+
+  const tick = (now) => {
+    const raw = Math.min(1, (now - start) / WELCOME_PROGRESS_MS);
+    const eased = 1 - Math.pow(1 - raw, 2.4);
+    const pct = Math.round(eased * 100);
+    updateWelcomeProgressUI(pct);
+
+    if (raw < 1) {
+      welcomeProgressRaf = requestAnimationFrame(tick);
+    } else {
+      welcomeProgressRaf = null;
+      triggerWelcomeBurst(onComplete);
+    }
+  };
+
+  welcomeProgressRaf = requestAnimationFrame(tick);
+}
+
+function triggerWelcomeBurst(onComplete) {
+  if (el.welcomeOverlay) {
+    el.welcomeOverlay.classList.add("welcome-burst-active");
+  }
+  if (el.welcomeFlash) {
+    el.welcomeFlash.style.animation = "none";
+    void el.welcomeFlash.offsetWidth;
+    el.welcomeFlash.style.animation = "";
+  }
+  if (el.welcomeSub) el.welcomeSub.textContent = "Erişim tamamlandı — Akademi açılıyor...";
+  if (el.welcomeWarning) el.welcomeWarning.textContent = "⚡ Sistem hazır — geçiş başlatılıyor";
+
+  welcomeTimeoutId = setTimeout(() => {
+    welcomeTimeoutId = null;
+    el.welcomeOverlay?.classList.add("welcome-exiting");
+    welcomeTimeoutId = setTimeout(() => {
+      welcomeTimeoutId = null;
+      onComplete();
+    }, WELCOME_FADE_MS);
+  }, WELCOME_BURST_MS);
 }
 
 function spawnWelcomeParticles() {
@@ -2217,16 +2138,6 @@ function runWelcomeBootFeed() {
       }
     }, 180 + index * 320);
   });
-}
-
-function updateWelcomeStatusPhase(frame) {
-  let phase = WELCOME_STATUS_PHASES[0];
-  for (const p of WELCOME_STATUS_PHASES) {
-    if (frame >= p.at) phase = p;
-  }
-  if (el.welcomeStatusLabel) el.welcomeStatusLabel.textContent = phase.label;
-  if (el.welcomeSub) el.welcomeSub.textContent = phase.sub;
-  if (el.welcomeStatusPct) el.welcomeStatusPct.textContent = `${phase.pct}%`;
 }
 
 function triggerWelcomeShake() {
@@ -2272,7 +2183,6 @@ function runWelcomeReveal(name) {
 
   const tick = () => {
     frame += 1;
-    updateWelcomeStatusPhase(frame);
 
     const prefixLen = Math.min(prefix.length, Math.floor(frame / 2));
     if (el.welcomePrefix) el.welcomePrefix.textContent = prefix.slice(0, prefixLen);
@@ -2464,16 +2374,16 @@ function showWelcomeTransition(name) {
     el.welcomeKicker.textContent = `// OPERATÖR: ${displayName.toUpperCase()} — DECRYPT BAŞLATILDI`;
   }
   if (el.welcomeSub) el.welcomeSub.textContent = "Kimlik çözülüyor...";
-  if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
+  updateWelcomeProgressUI(0);
 
   if (el.welcomeOverlay) {
     el.welcomeOverlay.classList.remove("hidden");
-    el.welcomeOverlay.classList.add("spectacle-active", "from-boot");
+    el.welcomeOverlay.classList.add("spectacle-active", "from-boot", "show-progress");
     spawnWelcomeParticles();
     runWelcomeBootFeed();
     requestAnimationFrame(() => {
-      el.welcomeOverlay?.classList.add("show-progress");
       runWelcomeReveal(name);
+      animateWelcomeProgress(() => finishEnterApp(name));
     });
   }
 
@@ -2481,17 +2391,25 @@ function showWelcomeTransition(name) {
     clearInterval(landingClockId);
     landingClockId = null;
   }
-
-  welcomeTimeoutId = setTimeout(() => finishEnterApp(name), WELCOME_DURATION_MS);
 }
 
 function finishEnterApp(name) {
-  welcomeTimeoutId = null;
+  if (welcomeTimeoutId !== null) {
+    clearTimeout(welcomeTimeoutId);
+    welcomeTimeoutId = null;
+  }
+  cancelWelcomeProgress();
   resetWelcomeAnimation();
 
   if (el.welcomeOverlay) {
     el.welcomeOverlay.classList.add("hidden");
-    el.welcomeOverlay.classList.remove("show-progress", "spectacle-active", "from-boot");
+    el.welcomeOverlay.classList.remove(
+      "show-progress",
+      "spectacle-active",
+      "from-boot",
+      "welcome-burst-active",
+      "welcome-exiting",
+    );
   }
   if (el.welcomeProgressFill) el.welcomeProgressFill.style.width = "0%";
 
@@ -2963,6 +2881,21 @@ async function loadTopics() {
   }
 }
 
+function bindAccordions() {
+  document.querySelectorAll("[data-accordion]").forEach((module) => {
+    if (module.dataset.accordionBound === "1") return;
+    module.dataset.accordionBound = "1";
+
+    const trigger = module.querySelector(".accordion-trigger");
+    if (!trigger) return;
+
+    trigger.addEventListener("click", () => {
+      const open = module.classList.toggle("is-open");
+      trigger.setAttribute("aria-expanded", String(open));
+    });
+  });
+}
+
 function bindEvents() {
   /* Geliştirici paneli */
   safeOn(el.devGoalBtn, "click", (e) => {
@@ -3127,6 +3060,7 @@ function bindEvents() {
 function initApp() {
   cacheElements();
   initTheme();
+  bindAccordions();
   bindEvents();
   initDevTip();
   initParticlesBackground(getStoredTheme());

@@ -96,14 +96,14 @@ body {
   mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
 }
 
-/* Dijital veri yağmuru — giriş ekranı arka planı */
+/* Dijital veri yağmuru — giriş ekranı arka planı (göz yormayan, soluk) */
 .cyber-dataflow {
   position: fixed;
   inset: 0;
   z-index: 2;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.55;
+  opacity: 0.08;
 }
 
 .dataflow-layer {
@@ -117,36 +117,36 @@ body {
   background-image: repeating-linear-gradient(
     180deg,
     transparent 0,
-    transparent 18px,
-    rgba(0, 240, 255, 0.04) 18px,
-    rgba(0, 240, 255, 0.04) 19px
+    transparent 22px,
+    rgba(48, 72, 96, 0.35) 22px,
+    rgba(48, 72, 96, 0.35) 23px
   );
-  animation: dataflowDrift 28s linear infinite;
-  opacity: 0.45;
+  animation: dataflowDrift 52s linear infinite;
+  opacity: 0.55;
 }
 
 .dataflow-mid {
   background-image: repeating-linear-gradient(
     180deg,
     transparent 0,
-    transparent 10px,
-    rgba(99, 102, 241, 0.07) 10px,
-    rgba(99, 102, 241, 0.07) 11px
+    transparent 14px,
+    rgba(56, 80, 110, 0.4) 14px,
+    rgba(56, 80, 110, 0.4) 15px
   );
-  animation: dataflowDrift 16s linear infinite reverse;
-  opacity: 0.6;
+  animation: dataflowDrift 42s linear infinite reverse;
+  opacity: 0.45;
 }
 
 .dataflow-front {
   background-image: repeating-linear-gradient(
     180deg,
     transparent 0,
-    transparent 6px,
-    rgba(57, 255, 20, 0.05) 6px,
-    rgba(57, 255, 20, 0.05) 7px
+    transparent 8px,
+    rgba(40, 90, 120, 0.35) 8px,
+    rgba(40, 90, 120, 0.35) 9px
   );
-  animation: dataflowDrift 9s linear infinite;
-  opacity: 0.75;
+  animation: dataflowDrift 68s linear infinite;
+  opacity: 0.35;
 }
 
 .dataflow-scan-sweep {
@@ -155,13 +155,13 @@ body {
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(0, 240, 255, 0.04) 48%,
-    rgba(0, 240, 255, 0.12) 50%,
-    rgba(0, 240, 255, 0.04) 52%,
+    rgba(48, 90, 120, 0.08) 48%,
+    rgba(48, 90, 120, 0.15) 50%,
+    rgba(48, 90, 120, 0.08) 52%,
     transparent 100%
   );
   background-size: 100% 220px;
-  animation: dataflowScan 5.5s ease-in-out infinite;
+  animation: dataflowScan 14s ease-in-out infinite;
   mix-blend-mode: screen;
 }
 
@@ -432,6 +432,22 @@ body {
 
 .welcome-overlay.spectacle-active .welcome-flash {
   animation: welcomeFlashBurst 1.2s ease-out forwards;
+}
+
+.welcome-overlay.welcome-burst-active .welcome-flash {
+  animation: welcomeFlashBurst 0.55s ease-out forwards;
+}
+
+.welcome-overlay.welcome-exiting {
+  opacity: 0;
+  transition: opacity 0.65s ease;
+  pointer-events: none;
+}
+
+.welcome-overlay.welcome-exiting .welcome-stage {
+  transform: scale(0.98);
+  opacity: 0;
+  transition: opacity 0.55s ease, transform 0.65s ease;
 }
 
 @keyframes welcomeFlashBurst {
@@ -862,8 +878,7 @@ body {
 }
 
 .welcome-overlay.show-progress .welcome-progress-fill {
-  width: 100%;
-  transition: width 3.2s linear;
+  transition: width 0.12s linear;
 }
 
 .welcome-warning {
@@ -1590,9 +1605,10 @@ body {
   width: min(300px, 100%);
   flex-shrink: 0;
   position: sticky;
-  top: 268px;
+  top: 120px;
   align-self: flex-start;
-  max-height: calc(100vh - 290px);
+  max-height: min(60vh, calc(100vh - 120px));
+  min-height: min(60vh, calc(100vh - 120px));
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(48, 105, 152, 0.4) transparent;
@@ -1801,6 +1817,7 @@ body {
   color: #6eb5ff;
   margin-bottom: 0.85rem;
   letter-spacing: 0.03em;
+  line-height: 1.5;
 }
 
 .dev-quick-stats {
@@ -2136,11 +2153,82 @@ body {
 }
 
 .dev-goal-topic {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #6eb5ff;
-  line-height: 1.4;
-  margin-bottom: 0.35rem;
+  line-height: 1.55;
+  margin-bottom: 0.4rem;
+}
+
+.dev-mission-wrap {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(110, 181, 255, 0.12);
+}
+
+.dev-mission-heading {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.55rem;
+}
+
+.dev-mission-scroll {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(28vh, 220px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(48, 105, 152, 0.35) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dev-mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  line-height: 1.45;
+}
+
+.dev-mission-item:hover {
+  background: rgba(110, 181, 255, 0.08);
+  border-color: rgba(110, 181, 255, 0.18);
+}
+
+.dev-mission-item.is-next {
+  background: rgba(126, 87, 194, 0.1);
+  border-color: rgba(126, 87, 194, 0.28);
+}
+
+.dev-mission-item.is-done {
+  opacity: 0.72;
+}
+
+.dev-mission-status {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  width: 1rem;
+  text-align: center;
+  color: #4ade80;
+}
+
+.dev-mission-item:not(.is-done) .dev-mission-status {
+  color: var(--text-dim);
+}
+
+.dev-mission-title {
+  font-size: 0.78rem;
+  color: var(--text);
 }
 
 .dev-goal-meta {
@@ -5015,6 +5103,50 @@ html[data-theme="light"] .quiz-option {
   padding: 0.85rem 1rem;
 }
 
+.lesson-tip,
+.lesson-warn,
+.lesson-practice {
+  margin: 0.75rem 0 0.85rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  border: 1px solid transparent;
+}
+
+.lesson-tip {
+  background: rgba(57, 255, 20, 0.06);
+  border-color: rgba(57, 255, 20, 0.22);
+  color: #b8f5c0;
+}
+
+.lesson-warn {
+  background: rgba(255, 180, 80, 0.08);
+  border-color: rgba(255, 180, 80, 0.28);
+  color: #ffd9a8;
+}
+
+.lesson-practice {
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.28);
+  color: #d4b8ff;
+}
+
+html[data-theme="light"] .lesson-tip {
+  color: #1a5c28;
+  background: rgba(57, 255, 20, 0.1);
+}
+
+html[data-theme="light"] .lesson-warn {
+  color: #7a4a00;
+  background: rgba(255, 180, 80, 0.12);
+}
+
+html[data-theme="light"] .lesson-practice {
+  color: #4a2080;
+  background: rgba(168, 85, 247, 0.1);
+}
+
 .notes-panel-personal {
   flex-shrink: 0;
   max-height: min(28vh, 220px);
@@ -5643,17 +5775,29 @@ html[data-theme="light"] .lesson-article p {
 .focus-panel .lesson-article {
   flex: 1;
   max-height: none;
-  min-height: 180px;
+  min-height: min(55vh, 520px);
+  font-size: 0.86rem;
+  line-height: 1.72;
+  padding: 1.15rem 1.25rem;
 }
 
 .focus-panel .notes-panel-personal {
   flex-shrink: 0;
-  max-height: min(30vh, 240px);
+  max-height: none;
 }
 
 .focus-panel .notes-panel-personal .modal-textarea {
-  min-height: 80px;
-  max-height: 120px;
+  min-height: 100px;
+  max-height: 180px;
+}
+
+.focus-panel .notes-accordion {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.focus-panel .notes-accordion .accordion-panel-inner {
+  padding-top: 0.35rem;
 }
 
 .focus-panel .code-panel {
@@ -5707,7 +5851,7 @@ html[data-theme="light"] .lesson-article p {
 }
 
 html[data-theme="light"] .cyber-dataflow {
-  opacity: 0.35;
+  opacity: 0.12;
 }
 
 html[data-theme="light"] .command-action-btn {
@@ -5716,4 +5860,100 @@ html[data-theme="light"] .command-action-btn {
 
 html[data-theme="light"] .focus-mode {
   background: rgba(248, 250, 252, 0.96);
+}
+
+/* ===================== AKORDEON MODÜLLER ===================== */
+.accordion-module {
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  overflow: hidden;
+}
+
+.accordion-module.accordion-compact {
+  border-radius: 10px;
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.72rem 0.85rem;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+.accordion-trigger:hover {
+  background: rgba(110, 181, 255, 0.08);
+  color: #6eb5ff;
+}
+
+.accordion-trigger-label {
+  flex: 1;
+}
+
+.accordion-chevron {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-module.is-open .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-module.is-open .accordion-panel {
+  grid-template-rows: 1fr;
+}
+
+.accordion-panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.accordion-module .dev-daily-goal,
+.accordion-module .dev-tip-card,
+.accordion-module .dev-week {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0 0.85rem 0.85rem;
+}
+
+.command-timer-extra {
+  width: 100%;
+  max-width: 420px;
+  margin: 0.35rem auto 0;
+}
+
+.command-timer-extra .accordion-panel-inner {
+  padding: 0 0.85rem 0.85rem;
+}
+
+.command-timer-extra .timer-hint {
+  margin-top: 0.55rem;
+}
+
+html[data-theme="light"] .accordion-module {
+  background: rgba(255, 255, 255, 0.55);
 }

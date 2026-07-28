@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=35">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -463,9 +463,16 @@
             </div>
           </div>
 
+          <div class="accordion-module accordion-compact" data-accordion>
+            <button type="button" class="accordion-trigger" aria-expanded="false">
+              <span class="accordion-trigger-label">⏱ Günlük Hedef</span>
+              <span class="accordion-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="accordion-panel">
+              <div class="accordion-panel-inner">
           <section class="dev-daily-goal" id="devDailyGoal">
             <div class="dev-daily-header">
-              <span class="dev-daily-title">⏱ Günlük Hedef</span>
+              <span class="dev-daily-title">Günlük Odak</span>
               <span class="dev-daily-status" id="devDailyStatus">0 / 30 dk</span>
             </div>
             <div class="dev-daily-ring-wrap">
@@ -483,6 +490,9 @@
               <button type="button" class="dev-daily-preset" data-minutes="60">60 dk</button>
             </div>
           </section>
+              </div>
+            </div>
+          </div>
 
           <div class="dev-stat dev-stat-streak">
             <span class="dev-stat-icon" aria-hidden="true">🔥</span>
@@ -528,10 +538,21 @@
             <button type="button" class="dev-goal-btn" id="devGoalBtn">Çalışmaya Başla</button>
             <button type="button" class="dev-goal-btn dev-goal-btn-secondary hidden" id="devGoalScrollBtn">Basamağa Git</button>
           </div>
+          <div class="dev-mission-wrap">
+            <p class="dev-mission-heading">📋 Modül İlerlemesi</p>
+            <ul class="dev-mission-scroll" id="devMissionList" role="list"></ul>
+          </div>
         </section>
 
+        <div class="accordion-module accordion-compact" data-accordion>
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            <span class="accordion-trigger-label">💡 Günün Python İpucu</span>
+            <span class="accordion-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
         <section class="dev-tip-card" id="devTipCard" aria-label="Günün Python ipucu">
-          <h3 class="dev-tip-title">💡 Günün Python İpucu</h3>
+          <h3 class="dev-tip-title">İpucu Kartı</h3>
           <button type="button" class="dev-tip-flip-btn" id="devTipFlipBtn" aria-label="İpucu kartını çevir">
             <div class="dev-tip-flip-inner" id="devTipFlipInner">
               <div class="dev-tip-face dev-tip-front">
@@ -546,11 +567,24 @@
           </button>
           <button type="button" class="dev-tip-refresh" id="devTipRefresh">🔄 Yeni İpucu</button>
         </section>
+            </div>
+          </div>
+        </div>
 
+        <div class="accordion-module accordion-compact" data-accordion>
+          <button type="button" class="accordion-trigger" aria-expanded="false">
+            <span class="accordion-trigger-label">📅 Son 7 Gün</span>
+            <span class="accordion-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-panel">
+            <div class="accordion-panel-inner">
         <section class="dev-week" aria-label="Son 7 gün özeti">
-          <p class="dev-week-title">📅 Son 7 Gün</p>
+          <p class="dev-week-title">Aktivite Özeti</p>
           <div class="dev-week-bars" id="devWeekBars"></div>
         </section>
+            </div>
+          </div>
+        </div>
       </div>
     </aside>
     </div>
@@ -619,6 +653,17 @@
               <div class="timer-display timer-display-hero" id="timerDisplay">00:00:00</div>
               <div class="timer-ring timer-ring-hero" id="timerRing"></div>
             </div>
+            <div class="timer-controls">
+              <button type="button" class="timer-btn" id="timerToggle"><span class="timer-btn-icon" id="timerToggleIcon">▶</span><span id="timerToggleText">Başlat</span></button>
+              <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+0:00</span></button>
+            </div>
+            <div class="accordion-module accordion-compact command-timer-extra" data-accordion>
+              <button type="button" class="accordion-trigger" aria-expanded="false">
+                <span class="accordion-trigger-label">📊 Sayaç Detayları & İpuçları</span>
+                <span class="accordion-chevron" aria-hidden="true">▾</span>
+              </button>
+              <div class="accordion-panel">
+                <div class="accordion-panel-inner">
             <div class="timer-breakdown timer-breakdown-compact">
               <div class="timer-stat"><span class="timer-stat-label">Kayıtlı</span><span class="timer-stat-value" id="timerSaved">00:00:00</span></div>
               <div class="timer-stat highlight"><span class="timer-stat-label">Bu Oturum</span><span class="timer-stat-value" id="timerSession">00:00:00</span></div>
@@ -628,12 +673,11 @@
               <div class="timer-progress-track"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
               <span class="timer-progress-label" id="timerProgressLabel">0% tamamlandı</span>
             </div>
-            <div class="timer-controls">
-              <button type="button" class="timer-btn" id="timerToggle"><span class="timer-btn-icon" id="timerToggleIcon">▶</span><span id="timerToggleText">Başlat</span></button>
-              <button type="button" class="timer-btn timer-btn-save" id="timerSave"><span class="timer-btn-icon">💾</span><span>Süreyi Kaydet</span><span class="timer-save-pill hidden" id="timerSavePill">+0:00</span></button>
-            </div>
             <p class="timer-hint">Başlat → çalış → Durdur → Süreyi Kaydet (+10 XP / dakika)</p>
             <p class="timer-status" id="timerStatus"></p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <nav class="command-actions" id="commandActions" aria-label="Modül yönlendirme">
@@ -658,11 +702,21 @@
                   <p class="learning-placeholder">Ders içeriği yükleniyor...</p>
                 </article>
               </div>
+              <div class="accordion-module notes-accordion accordion-compact" data-accordion>
+                <button type="button" class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-trigger-label">📝 Kendi Notunu Ekle</span>
+                  <span class="accordion-chevron" aria-hidden="true">▾</span>
+                </button>
+                <div class="accordion-panel">
+                  <div class="accordion-panel-inner">
               <div class="code-panel notes-panel-rpg notes-panel-personal">
-                <div class="panel-header">📝 Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
+                <div class="panel-header">Kişisel Kayıtlar <span class="panel-tag">Markdown</span></div>
                 <textarea id="modalNotes" class="modal-textarea markdown-input" placeholder="# Kendi notlarını buraya yaz&#10;&#10;```python&#10;print('Merhaba Python!')&#10;```"></textarea>
                 <div id="markdownPreview" class="markdown-preview"></div>
                 <p class="modal-status" id="modalStatus"></p>
+              </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -717,6 +771,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="script.js?v=33"></script>
+  <script src="academy-content.js?v=35"></script>
+  <script src="script.js?v=35"></script>
 </body>
 </html>
