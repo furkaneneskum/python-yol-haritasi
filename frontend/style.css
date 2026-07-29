@@ -3357,6 +3357,7 @@ body {
 
 .timer-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: center;
 }
@@ -3407,6 +3408,18 @@ body {
 
 .timer-btn-save.has-unsaved {
   animation: savePulse 2s ease-in-out infinite;
+}
+
+.timer-btn-reset {
+  border-color: rgba(255, 120, 120, 0.45);
+  color: #ff9a9a;
+}
+
+.timer-btn-reset:hover:not(:disabled) {
+  border-color: #ff6b6b;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(255, 80, 80, 0.35);
+  background: rgba(255, 80, 80, 0.12);
 }
 
 @keyframes savePulse {

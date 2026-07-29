@@ -735,7 +735,7 @@ function cacheElements() {
     "modalClose", "commandCenter", "focusMode", "focusCloseBtn", "focusTitle",
     "celebrationOverlay", "celebrationClose", "staircasePath",
     "timerDisplay", "timerToggle", "missionTimer", "timerToggleIcon", "timerToggleText",
-    "timerSave", "timerStatus", "timerState", "timerSaved", "timerSession",
+    "timerSave", "timerReset", "timerStatus", "timerState", "timerSaved", "timerSession",
     "timerEstimate", "timerProgressFill", "timerProgressLabel", "timerSavePill", "timerTotal",
     "timerRing", "hudActiveTimer", "hudTimerLabel", "hudTimerClock",
     "rpgStreak", "rpgLevel", "rpgRank", "rpgXpText", "rpgXpFill", "cosmicGrid",
@@ -1615,6 +1615,74 @@ async function saveTimer(e) {
   } finally {
     if (el.timerSave) el.timerSave.disabled = false;
   }
+}
+
+function resetTimer(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (!activeTopicId) return;
+
+  const topicId = activeTopicId;
+  const session = getSession(topicId);
+  const topic = topics.find((t) => t.id === topicId);
+  const saved = session.savedSpent;
+  const unsaved = getUnsavedSeconds(topicId);
+  const hasSaved = saved > 0;
+  const hasSession = unsaved > 0 || session.running;
+
+  if (!hasSaved && !hasSession) {
+    if (el.timerStatus) {
+      el.timerStatus.textContent = "Sayaç zaten 00:00:00 — sıfırlanacak süre yok.";
+      el.timerStatus.className = "timer-status";
+    }
+    return;
+  }
+
+  if (session.running) pauseSession(topicId);
+
+  if (hasSaved) {
+    const ok = window.confirm(
+      "Bu modülün kayıtlı süresi de silinecek ve sayaç 00:00:00 olacak.\n\nDevam etmek istiyor musun?",
+    );
+    if (!ok) {
+      refreshTimerUI(topicId);
+      return;
+    }
+
+    try {
+      const result = updateTime(topicId, 0, "set");
+      const idx = topics.findIndex((t) => t.id === topicId);
+      if (idx !== -1) topics[idx] = result;
+      session.savedSpent = 0;
+    } catch {
+      if (el.timerStatus) {
+        el.timerStatus.textContent = "Sıfırlama hatası! Tekrar dene.";
+        el.timerStatus.className = "timer-status error";
+      }
+      return;
+    }
+  }
+
+  session.sessionSeconds = 0;
+  session.running = false;
+  session.tickStart = null;
+
+  if (el.timerState) {
+    el.timerState.textContent = "SIFIRLANDI";
+    el.timerState.className = "timer-state idle";
+  }
+  if (el.timerStatus) {
+    el.timerStatus.textContent = hasSaved
+      ? "Kayıtlı süre ve oturum sıfırlandı — 00:00:00"
+      : "Bu oturum sıfırlandı — 00:00:00";
+    el.timerStatus.className = "timer-status success";
+  }
+
+  refreshTimerUI(topicId);
+  renderStaircase();
+  renderDevPanel();
+  updateHudActiveTimer();
+  stopGlobalTickIfIdle();
 }
 
 function initTimerForTopic(topic) {
@@ -2968,6 +3036,7 @@ function bindEvents() {
   /* Kod odası modal */
   safeOn(el.timerToggle, "click", toggleTimer);
   safeOn(el.timerSave, "click", saveTimer);
+  safeOn(el.timerReset, "click", resetTimer);
   safeOn(el.runCodeBtn, "click", handleRunCode);
   safeOn(el.modalClose, "click", closeNotesModal);
   safeOn(el.missionTimer, "click", (e) => e.stopPropagation());
