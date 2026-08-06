@@ -1107,9 +1107,8 @@ function renderDevPanel() {
   if (el.devGoalMeta) {
     if (nextTopic) {
       const parts = [];
-      if (nextTopic.duration) parts.push(`⏱ ${nextTopic.duration}`);
       if (nextTopic.time_spent > 0) {
-        parts.push(`🟢 ${formatSpentLabel(nextTopic.time_spent)} kayıtlı`);
+        parts.push(`🟢 ${formatClock(nextTopic.time_spent)} kayıtlı`);
       } else {
         parts.push("✨ Henüz çalışılmadı");
       }
@@ -2630,29 +2629,12 @@ function createBadgeRow(topic) {
   const row = document.createElement("div");
   row.className = "badge-row";
 
-  const durationBadge = document.createElement("span");
-  durationBadge.className = "duration-badge";
-  durationBadge.title = "Tahmini süre";
-  durationBadge.innerHTML = `<span class="badge-icon">⏱️</span><span>${topic.duration || "—"}</span>`;
-  row.appendChild(durationBadge);
-
   const spentLabel = formatSpentLabel(topic.time_spent);
   const spentBadge = document.createElement("span");
   spentBadge.className = `spent-badge${spentLabel ? " has-progress" : ""}`;
   spentBadge.title = "Kayıtlı çalışma süresi";
   spentBadge.innerHTML = `<span class="badge-icon">🟢</span><span>${formatClock(topic.time_spent || 0)}</span>`;
   row.appendChild(spentBadge);
-
-  const estimateSec = parseDurationToSeconds(topic.duration);
-  if (estimateSec > 0 && topic.time_spent > 0) {
-    const pct = Math.min(100, Math.round((topic.time_spent / estimateSec) * 100));
-    const pctBadge = document.createElement("span");
-    pctBadge.className = "spent-badge";
-    pctBadge.style.borderColor = "rgba(0, 240, 255, 0.4)";
-    pctBadge.style.color = "var(--neon-cyan)";
-    pctBadge.innerHTML = `<span class="badge-icon">📊</span><span>${pct}%</span>`;
-    row.appendChild(pctBadge);
-  }
 
   return row;
 }
