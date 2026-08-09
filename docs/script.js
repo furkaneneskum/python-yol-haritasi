@@ -381,6 +381,293 @@ let duckWelcomePending = true;
 let duckLastLine = "";
 let duckWelcomeShown = false;
 
+/* ── ORDEK.AI Enterprise: Hibrit AI + Guardrails ── */
+const ORDUCK_AI_CONFIG = {
+  ollamaGenerateUrl: "http://localhost:11434/api/generate",
+  ollamaTagsUrl: "http://localhost:11434/api/tags",
+  defaultModel: "qwen2.5-coder:latest",
+  fallbackModels: ["qwen2.5-coder:7b", "llama3.2:latest", "llama3:latest"],
+  probeTimeoutMs: 2500,
+  generateTimeoutMs: 45000,
+};
+
+const ORDUCK_INPUT_GUARDRAILS = [
+  { pattern: /ignore\s+(all\s+)?(previous|prior|above|system)\s+(instructions|prompts?)/i, reason: "jailbreak" },
+  { pattern: /(system\s*prompt|prompt\s*injection|jailbreak|dan\s+mode|do\s+anything\s+now)/i, reason: "jailbreak" },
+  { pattern: /(forget|disregard|override)\s+(your|all)\s+(rules|instructions|guidelines)/i, reason: "jailbreak" },
+  { pattern: /\bos\.system\b|\bsubprocess\b|\brm\s+-rf\b|\bformat\s+c:/i, reason: "harmful" },
+  { pattern: /\beval\s*\(|\bexec\s*\(|\b__import__\s*\(/i, reason: "harmful" },
+  { pattern: /<script[\s>]|[\s"']javascript:/i, reason: "xss" },
+  { pattern: /\b(api[_-]?key|secret|password|token)\s*[:=]/i, reason: "secrets" },
+];
+
+const ORDUCK_GUARDRAIL_MESSAGES = {
+  jailbreak: "Güvenlik duvarı: sistem talimatlarını atlatmaya yönelik girdiler engellendi.",
+  harmful: "Güvenlik duvarı: zararlı sistem komutları içeren girdiler engellendi.",
+  xss: "Güvenlik duvarı: güvenli olmayan içerik engellendi.",
+  secrets: "Güvenlik duvarı: hassas veri paylaşımı engellendi.",
+  default: "Güvenlik duvarı: girdi reddedildi.",
+};
+
+const orduckAiState = {
+  mode: "rules",
+  webgpu: false,
+  model: null,
+  probing: false,
+  lastProbe: 0,
+};
+
+let orduckMessageBusy = false;
+
+async function detectWebGPU() {
+  if (!navigator.gpu) return false;
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    return Boolean(adapter);
+  } catch {
+    return false;
+  }
+}
+
+function pickOllamaModel(models) {
+  const names = (models || []).map((m) => (typeof m === "string" ? m : m.name || "")).filter(Boolean);
+  const prefs = [ORDUCK_AI_CONFIG.defaultModel, ...ORDUCK_AI_CONFIG.fallbackModels];
+  for (const pref of prefs) {
+    const base = pref.split(":")[0];
+    const hit = names.find((n) => n === pref || n.startsWith(`${base}:`) || n.startsWith(base));
+    if (hit) return hit;
+  }
+  return names[0] || ORDUCK_AI_CONFIG.defaultModel;
+}
+
+function updateOrduckAiStatusUI() {
+  if (!el.orduckAiStatus) return;
+  el.orduckAiStatus.classList.remove("is-live", "is-webgpu");
+  if (orduckAiState.mode === "ollama") {
+    el.orduckAiStatus.textContent = orduckAiState.webgpu ? "[ GPU/NPU: Aktif ]" : "[ Mod: Yerel LLM ]";
+    el.orduckAiStatus.classList.add("is-live");
+    if (orduckAiState.webgpu) el.orduckAiStatus.classList.add("is-webgpu");
+    return;
+  }
+  el.orduckAiStatus.textContent = "[ Mod: Kural Motoru ]";
+}
+
+async function probeOllamaProvider(force = false) {
+  if (orduckAiState.probing) return orduckAiState.mode;
+  const now = Date.now();
+  if (!force && orduckAiState.lastProbe && now - orduckAiState.lastProbe < 30000) {
+    updateOrduckAiStatusUI();
+    return orduckAiState.mode;
+  }
+
+  orduckAiState.probing = true;
+  orduckAiState.webgpu = await detectWebGPU();
+
+  try {
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => ctrl.abort(), ORDUCK_AI_CONFIG.probeTimeoutMs);
+    const res = await fetch(ORDUCK_AI_CONFIG.ollamaTagsUrl, { signal: ctrl.signal, mode: "cors" });
+    window.clearTimeout(timer);
+    if (!res.ok) throw new Error("Ollama erişilemedi");
+    const data = await res.json();
+    orduckAiState.model = pickOllamaModel(data.models);
+    orduckAiState.mode = "ollama";
+  } catch {
+    orduckAiState.mode = "rules";
+    orduckAiState.model = null;
+  } finally {
+    orduckAiState.probing = false;
+    orduckAiState.lastProbe = Date.now();
+    updateOrduckAiStatusUI();
+  }
+  return orduckAiState.mode;
+}
+
+function validateOrduckInput(text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return { ok: false, message: "Boş mesaj gönderemezsin." };
+  if (trimmed.length > 500) return { ok: false, message: "Mesaj çok uzun (en fazla 500 karakter)." };
+
+  for (const rule of ORDUCK_INPUT_GUARDRAILS) {
+    if (rule.pattern.test(trimmed)) {
+      return { ok: false, message: ORDUCK_GUARDRAIL_MESSAGES[rule.reason] || ORDUCK_GUARDRAIL_MESSAGES.default };
+    }
+  }
+  if (isCodeBlocked(trimmed)) {
+    return { ok: false, message: "Güvenlik duvarı: çalıştırılamayan komut desenleri tespit edildi." };
+  }
+  return { ok: true, text: trimmed };
+}
+
+function buildOrduckSystemPrompt() {
+  const persona = {
+    mentor: "Destekleyici Python mentorüsün. Kısa, net, Türkçe yanıt ver.",
+    strict: "Sert ama yapıcı Python incelemecisisin. Gereksiz nezaket yok, net Türkçe.",
+    socratic: "Sokratik öğretmensin. Cevabı doğrudan vermek yerine yönlendirici sorular sor, Türkçe.",
+  };
+  const snap = getDuckProgressSnapshot();
+  const code = getActiveEditorCode();
+  const codeCtx = code.trim()
+    ? `\nAktif editör kodu:\n\`\`\`python\n${code.slice(0, 2000)}\n\`\`\``
+    : "";
+  return `Sen ORDEK.AI, Python Akademisi siber ördek asistanısın.
+${persona[duckPersonality] || persona.mentor}
+Yalnızca Python öğrenimi, Pyodide laboratuvarı ve akademi içeriği hakkında yardım et.
+Kod örneklerini \`\`\`python bloklarında ver.
+Kullanıcı ilerlemesi: Seviye ${snap.stats.user_level}, ${snap.completed}/${snap.total} modül.${codeCtx}`;
+}
+
+async function fetchOllamaCompletion(userMessage, options = {}) {
+  const model = options.model || orduckAiState.model || ORDUCK_AI_CONFIG.defaultModel;
+  const prompt = options.prompt
+    || `${buildOrduckSystemPrompt()}\n\nKullanıcı: ${userMessage}\n\nORDEK.AI:`;
+  const ctrl = new AbortController();
+  const timer = window.setTimeout(() => ctrl.abort(), ORDUCK_AI_CONFIG.generateTimeoutMs);
+
+  try {
+    const res = await fetch(ORDUCK_AI_CONFIG.ollamaGenerateUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt,
+        stream: false,
+        options: { temperature: 0.55, num_predict: 512 },
+      }),
+      signal: ctrl.signal,
+      mode: "cors",
+    });
+    window.clearTimeout(timer);
+    if (!res.ok) throw new Error(`Ollama HTTP ${res.status}`);
+    const data = await res.json();
+    const text = String(data.response || "").trim();
+    if (!text) throw new Error("Ollama boş yanıt döndürdü");
+    return text;
+  } catch (err) {
+    window.clearTimeout(timer);
+    throw err;
+  }
+}
+
+function extractPythonCodeBlocks(text) {
+  const blocks = [];
+  const fenced = /```(?:python|py)?\s*\n([\s\S]*?)```/gi;
+  let match = fenced.exec(text);
+  while (match) {
+    const code = match[1].trim();
+    if (code) blocks.push(code);
+    match = fenced.exec(text);
+  }
+  return blocks;
+}
+
+async function verifyPythonAst(code) {
+  const trimmed = String(code || "").trim();
+  if (!trimmed) return { ok: true };
+  if (isCodeBlocked(trimmed)) {
+    return { ok: false, error: "Güvenlik: kod blokları çalıştırılamaz." };
+  }
+  try {
+    const pyodide = await initPyodide();
+    const payload = JSON.stringify(trimmed);
+    pyodide.runPython(`
+import ast
+try:
+    ast.parse(${payload})
+    __orduck_ast_ok = True
+    __orduck_ast_err = ""
+except SyntaxError as e:
+    __orduck_ast_ok = False
+    __orduck_ast_err = str(e)
+`);
+    return {
+      ok: Boolean(pyodide.runPython("__orduck_ast_ok")),
+      error: String(pyodide.runPython("__orduck_ast_err") || ""),
+    };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+function buildOrduckRuleResponse(userMessage) {
+  const lower = String(userMessage || "").toLowerCase();
+  for (const entry of ORDUCK_KNOWLEDGE) {
+    if (entry.keys.some((key) => lower.includes(key))) {
+      return entry[duckPersonality] || entry.mentor;
+    }
+  }
+  if (/ilerleme|xp|seviye|modül|tamaml/.test(lower)) return buildDuckProgressMessage();
+  if (/kod|incele|debug|hata|syntax|sözdizim/.test(lower)) return buildDuckCodeReviewMessage();
+  if (/ipucu|tüyo|yardım|ne yap/.test(lower)) return buildDuckTipMessage();
+  return matchOrduckKnowledge();
+}
+
+async function verifyAndReviseAiOutput(rawText, userMessage, revisionAttempt = 0) {
+  const blocks = extractPythonCodeBlocks(rawText);
+  if (!blocks.length) return rawText;
+
+  for (const block of blocks) {
+    const check = await verifyPythonAst(block);
+    if (check.ok) continue;
+
+    const prefix = "Ürettiğim kodda sözdizimi hatası tespit ettim, düzeltiyorum...";
+    if (revisionAttempt >= 1) {
+      return `${prefix}\n\nAST doğrulama hatası: ${check.error}\n\n${buildOrduckRuleResponse(userMessage)}`;
+    }
+
+    if (orduckAiState.mode === "ollama") {
+      try {
+        const fixPrompt = `${buildOrduckSystemPrompt()}\n\nÖnceki yanıtında sözdizimi hatası vardı: ${check.error}\nKullanıcı sorusu: ${userMessage}\nYalnızca düzeltilmiş yanıtı ver; Python kodunu \`\`\`python bloğunda yaz.`;
+        const fixed = await fetchOllamaCompletion(userMessage, { prompt: fixPrompt });
+        const revised = await verifyAndReviseAiOutput(fixed, userMessage, revisionAttempt + 1);
+        if (revised.startsWith(prefix)) return revised;
+        return `${prefix}\n\n${revised}`;
+      } catch {
+        return `${prefix}\n\n${buildOrduckRuleResponse(userMessage)}`;
+      }
+    }
+    return `${prefix}\n\n${buildOrduckRuleResponse(userMessage)}`;
+  }
+  return rawText;
+}
+
+async function orduckAiProviderGenerate(userMessage) {
+  await probeOllamaProvider();
+  if (orduckAiState.mode === "ollama") {
+    try {
+      const raw = await fetchOllamaCompletion(userMessage);
+      return verifyAndReviseAiOutput(raw, userMessage);
+    } catch {
+      orduckAiState.mode = "rules";
+      updateOrduckAiStatusUI();
+    }
+  }
+  return buildOrduckRuleResponse(userMessage);
+}
+
+async function handleOrduckUserMessage() {
+  if (orduckMessageBusy || !el.orduckChatInput) return;
+  const validation = validateOrduckInput(el.orduckChatInput.value);
+  if (!validation.ok) {
+    deliverDuckResponse(validation.message, { analyzing: false });
+    return;
+  }
+
+  const message = validation.text;
+  el.orduckChatInput.value = "";
+  orduckMessageBusy = true;
+  deliverDuckResponse("", { analyzing: true });
+
+  try {
+    const response = await orduckAiProviderGenerate(message);
+    deliverDuckResponse(response, { analyzing: true });
+  } catch {
+    deliverDuckResponse(buildOrduckRuleResponse(message), { analyzing: true });
+  } finally {
+    orduckMessageBusy = false;
+  }
+}
+
 function buildGenericModule(topicId, section) {
   return {
     lesson: `<h3>${section}</h3>
@@ -1133,6 +1420,7 @@ function cacheElements() {
     "xpToast", "xpToastIcon", "xpToastText",
     "bossVictoryOverlay", "bossVictoryClose", "bossVictorySub",
     "orduckWidget", "orduckChatPanel", "orduckChatClose", "orduckChatStatus", "orduckChatText",
+    "orduckAiStatus", "orduckChatInput", "orduckChatSend",
     "orduckBtnProgress", "orduckBtnCode", "orduckBtnTip",
     "cyberDuck",
   ];
@@ -1896,6 +2184,7 @@ function openDuckChat(showWelcome = true) {
   el.orduckChatPanel.classList.remove("hidden");
   el.cyberDuck?.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => el.orduckChatPanel.classList.add("is-open"));
+  probeOllamaProvider().catch(() => updateOrduckAiStatusUI());
 
   if (showWelcome && duckWelcomePending) {
     duckWelcomePending = false;
@@ -2012,6 +2301,26 @@ function initCyberDuck() {
     e.stopPropagation();
     deliverDuckResponse(buildDuckTipMessage());
   });
+
+  safeOn(el.orduckChatSend, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleOrduckUserMessage();
+  });
+
+  safeOn(el.orduckChatInput, "keydown", (e) => {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    e.preventDefault();
+    e.stopPropagation();
+    handleOrduckUserMessage();
+  });
+
+  detectWebGPU().then((ok) => {
+    orduckAiState.webgpu = ok;
+    updateOrduckAiStatusUI();
+  }).catch(() => updateOrduckAiStatusUI());
+
+  probeOllamaProvider().catch(() => updateOrduckAiStatusUI());
 
   document.addEventListener("click", (e) => {
     if (!duckChatOpen) return;
