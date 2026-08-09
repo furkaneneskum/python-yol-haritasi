@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=45">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -612,15 +612,17 @@
           <button type="button" class="orduck-tab" data-personality="socratic" role="tab" aria-selected="false">🟡 Sokratik</button>
         </div>
 
-        <div class="orduck-chat-body">
-          <p class="orduck-chat-status hidden" id="orduckChatStatus">Ördek.AI analiz ediyor...</p>
-          <p class="orduck-chat-text" id="orduckChatText">Merhaba! Kişilik modunu seç, hızlı aksiyonlardan birine bas veya bana sor.</p>
+        <div class="orduck-chat-body" id="orduckChatBody">
+          <div class="orduck-chat-thread" id="orduckChatThread" aria-live="polite" aria-relevant="additions"></div>
+          <p class="orduck-chat-status hidden" id="orduckChatStatus">ORDEK.AI düşünüyor...</p>
+          <p class="orduck-chat-text hidden" id="orduckChatText" aria-hidden="true"></p>
         </div>
 
         <div class="orduck-chat-compose">
-          <input type="text" class="orduck-chat-input" id="orduckChatInput" placeholder="ORDEK.AI'a sor..." maxlength="500" autocomplete="off">
+          <input type="text" class="orduck-chat-input" id="orduckChatInput" placeholder="Python, kod veya akademi hakkında sor..." maxlength="500" autocomplete="off">
           <button type="button" class="orduck-chat-send" id="orduckChatSend" aria-label="Mesaj gönder">➤</button>
         </div>
+        <p class="orduck-chat-hint">Enter ile gönder · Ör: <em>for döngüsü anlat</em> · <em>kodumu incele</em> · <em>ne yapabilirsin?</em></p>
 
         <div class="orduck-chat-actions">
           <button type="button" class="orduck-action-btn" id="orduckBtnProgress">🚀 İlerlememi Göster</button>
@@ -826,7 +828,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=44"></script>
-  <script src="script.js?v=44"></script>
+  <script src="academy-content.js?v=45"></script>
+  <script src="script.js?v=45"></script>
 </body>
 </html>
