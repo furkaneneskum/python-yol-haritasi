@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=42">
+  <link rel="stylesheet" href="style.css?v=43">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -274,15 +274,6 @@
           <span class="hud-user-icon">👤</span>
           <span class="hud-user-label">Kullanıcı:</span>
           <span class="hud-username" id="hudUsername">—</span>
-        </div>
-        <!-- Siber Ördek Asistan — üst sağ HUD -->
-        <div class="cyber-duck" id="cyberDuck" role="button" tabindex="0" aria-label="Siber Ördek Asistan — tıkla ve konuş">
-          <span class="cyber-duck-glow" aria-hidden="true"></span>
-          <span class="cyber-duck-icon" aria-hidden="true">🦆</span>
-          <div class="cyber-duck-bubble hidden" id="cyberDuckBubble">
-            <span class="cyber-duck-bubble-tag" id="cyberDuckTag">// ÖRDEK.AI</span>
-            <p class="cyber-duck-text" id="cyberDuckText"></p>
-          </div>
         </div>
       </div>
 
@@ -598,6 +589,41 @@
     </aside>
     </div>
 
+    <!-- ORDEK.AI — Sol Asistan Paneli -->
+    <div class="orduck-widget" id="orduckWidget">
+      <button type="button" class="cyber-duck" id="cyberDuck" aria-expanded="false" aria-controls="orduckChatPanel" aria-label="ORDEK.AI — sohbeti aç/kapat">
+        <span class="cyber-duck-glow" aria-hidden="true"></span>
+        <span class="cyber-duck-icon" aria-hidden="true">🦆</span>
+      </button>
+
+      <div class="orduck-chat hidden" id="orduckChatPanel" role="dialog" aria-modal="false" aria-labelledby="orduckChatTitle">
+        <div class="orduck-chat-header">
+          <div class="orduck-chat-heading">
+            <span class="orduck-chat-tag">// ORDEK.AI</span>
+            <span class="orduck-chat-title" id="orduckChatTitle">Siber Ördek Asistan</span>
+          </div>
+          <button type="button" class="orduck-chat-close" id="orduckChatClose" aria-label="Sohbeti kapat">✖</button>
+        </div>
+
+        <div class="orduck-personality-tabs" role="tablist" aria-label="Kişilik modu">
+          <button type="button" class="orduck-tab active" data-personality="mentor" role="tab" aria-selected="true">🟢 Mentor</button>
+          <button type="button" class="orduck-tab" data-personality="strict" role="tab" aria-selected="false">🔴 Sert İncelemeci</button>
+          <button type="button" class="orduck-tab" data-personality="socratic" role="tab" aria-selected="false">🟡 Sokratik</button>
+        </div>
+
+        <div class="orduck-chat-body">
+          <p class="orduck-chat-status hidden" id="orduckChatStatus">Ördek.AI analiz ediyor...</p>
+          <p class="orduck-chat-text" id="orduckChatText">Merhaba! Kişilik modunu seç, hızlı aksiyonlardan birine bas veya bana sor.</p>
+        </div>
+
+        <div class="orduck-chat-actions">
+          <button type="button" class="orduck-action-btn" id="orduckBtnProgress">🚀 İlerlememi Göster</button>
+          <button type="button" class="orduck-action-btn" id="orduckBtnCode">🐞 Kodumu İncele</button>
+          <button type="button" class="orduck-action-btn" id="orduckBtnTip">💡 İpucu Ver</button>
+        </div>
+      </div>
+    </div>
+
     <footer class="sys-footer">
       <span>İnteraktif Python Akademisi · Sunucusuz · localStorage + Pyodide</span>
       <button type="button" class="sys-footer-link" id="footerShortcutsBtn">⌨ Klavye Kısayolları</button>
@@ -794,7 +820,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=42"></script>
-  <script src="script.js?v=42"></script>
+  <script src="academy-content.js?v=43"></script>
+  <script src="script.js?v=43"></script>
 </body>
 </html>

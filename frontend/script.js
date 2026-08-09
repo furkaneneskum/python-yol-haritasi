@@ -264,112 +264,120 @@ assert satir_say('a\\n') == 2`,
   },
 };
 
-const DUCK_MODES = {
-  default: { tag: "// ÖRDEK.AI", className: "" },
-  debug: { tag: "// ÖRDEK.AI · DEBUG", className: "cyber-duck-mode-debug" },
-  odak: { tag: "// ÖRDEK.AI · ODAK", className: "cyber-duck-mode-focus" },
-  boss: { tag: "// ÖRDEK.AI · BOSS", className: "cyber-duck-mode-boss" },
-  coach: { tag: "// ÖRDEK.AI · KOÇ", className: "cyber-duck-mode-coach" },
-  welcome: { tag: "// ÖRDEK.AI · MERHABA", className: "cyber-duck-mode-welcome" },
-  alert: { tag: "// ÖRDEK.AI · UYARI", className: "cyber-duck-alert" },
-};
-
-const DUCK_LINES = {
-  welcome: [
-    "Ben Siber Ördek — rubber duck debugging partnerin. Takıldığında tıkla; birlikte adım adım ilerleriz.",
-    "Kod laboratuvarında hata alırsan otomatik uyanırım. Sorular sorarım, sen cevaplarsın — çözüm çoğu zaman orada gizlidir.",
-  ],
-  genel: [
-    "Şu an tam olarak hangi satırda takıldın? Satır numarasını netleştirmek, zihni odaklar.",
-    "Kodun ne yapması gerektiğini bana sesli anlatır mısın? Anlatırken genelde hatayı kendin bulursun.",
-    "Derin bir nefes al — bazen tek bir virgül, tırnak veya girinti her şeyi değiştirir.",
-    "Beklediğin değer ile terminalde gördüğün çıktı arasındaki fark ne?",
-    "Sorunu üç cümleyle özetle: girdi → işlem → beklenen çıktı. Çözüm genelde bu özetin içindedir.",
-    "Bugün sadece bir adım ilerlemen yeterli. Küçük ilerleme de gerçek ilerlemedir.",
-    "Kodu satır satır, yorum satırı gibi oku: 'Burada ne oluyor?' diye sor.",
-  ],
-  debug: [
-    "Hata mesajı sana ne anlatmaya çalışıyor? İlk satır genelde en kritik ipucudur.",
-    "En küçük çalışan örnekle başla — sonra parça parça büyüt.",
-    "print() ile ara değerleri görünür kıl: 'Buraya kadar doğru mu?' diye kontrol et.",
-    "Son değiştirdiğin satırı geri al ve tekrar dene. Hata çoğu zaman en son dokunuştadır.",
-    "Değişken isimlerin niyetini yansıtıyor mu? Karışık isimler, karışık düşünce demektir.",
-    "Aynı hatayı tekrar alıyorsan, varsayımını yaz: 'X her zaman Y'dir' — bu doğru mu?",
-  ],
-  kod: [
-    "Fonksiyonun girdisi ve çıktısı net mi? Belirsiz sorumluluk, belirsiz hata demektir.",
-    "Döngünün kaç kez döneceğini ve ne zaman duracağını söyleyebilir misin?",
-    "Koşul ifadenin tüm dallarını test ettin mi? if/else'in her kolu ayrı senaryo ister.",
-    "Sihirli sayılar var mı? Anlamlı sabit veya değişken isimleri kullan.",
-    "Boş liste, tek eleman ve sınır değerlerini denedin mi? Gerçek hatalar çoğu zaman orada çıkar.",
-  ],
-  odak: [
-    "Sayaç aktif — dikkatin dağılmasın. Tek modül, tek görev, tek oturum.",
-    "25 dakika odaklan, 5 dakika mola. Beyin de derleme süresine ihtiyaç duyar.",
-    "Şu anki hedefin sadece bir fonksiyon mu, bir test mi? Hedefi küçült, momentum kazan.",
-    "Telefonu kenara koy, sekmeleri kapat. Derin çalışma, yüzeysel çoklu görevden güçlüdür.",
-  ],
-  boss: [
-    "Boss Fight: önce görev metnini kelime kelime oku. Testler gizli senaryoları kontrol eder.",
-    "Fonksiyon adını ve parametrelerini görevle birebir eşleştir — isim uyuşmazlığı en sık tuzak.",
-    "return değerini unutma. assert sadece dönen sonucu değil, yan etkileri de fark eder.",
-    "Bir test düşerse, o senaryoyu elle düşün: boş liste, negatif sayı, eşit değerler…",
-    "Canavar güçlü görünür ama mantık basittir. Parçala, test et, sonra birleştir.",
-  ],
-  ogrenme: [
-    "Ders notlarını okuduktan sonra kendi cümlelerinle özetle — aktif tekrar kalıcıdır.",
-    "Bilgi kartlarını ezberleme; 'neden?' sorusunu sor. Anlam, ezberden uzun ömürlüdür.",
-    "Modül bitince 3 satırlık mini not bırak: bugün ne öğrendim?",
-    "Pyodide'de küçük denemeler yap — okumak kod yazmaktan daha yavaş öğretir.",
-  ],
-  motivasyon: [
-    "Her ustası olan biri bir zamanlar 'print(hello)' yazmaya başladı. Sen de o yoldasın.",
-    "Hata almak, sistemin sana geri bildirim vermesidir. Sessiz hata daha tehlikelidir.",
-    "Serini koru — günlük 15 dakika bile compound etkisi yaratır.",
-    "Takıldığında durmak değil, yön değiştirmek önemli. Ördek burada tam bunun için.",
-  ],
-};
+const ORDUCK_KNOWLEDGE = [
+  {
+    keys: ["liste", "list", "dizi", "append", "pop"],
+    mentor: "Listeler sıralı veri tutar. append() sona ekler, indeks 0'dan başlar. len(liste) boyutu verir.",
+    strict: "Liste karıştırma oyunu değil — indeks taşarsa IndexError gelir. len()'i unutma.",
+    socratic: "Bu listenin uzunluğu kaç? Son elemana hangi indeksle ulaşırsın?",
+  },
+  {
+    keys: ["sözlük", "dict", "dictionary", "anahtar", "key"],
+    mentor: "Sözlükler anahtar-değer çiftleri tutar. Anahtar yoksa .get() güvenli bir alternatiftir.",
+    strict: "KeyError = olmayan anahtara koşmak. get() kullanmayı öğren, hayat kurtarır.",
+    socratic: "Aradığın anahtar gerçekten sözlükte var mı — nasıl doğrularsın?",
+  },
+  {
+    keys: ["döngü", "for", "while", "range"],
+    mentor: "for genelde koleksiyonlar üzerinde, while koşul doğru olduğu sürece döner. range(n) 0'dan n-1'e gider.",
+    strict: "Sonsuz while mı yazdın? Koşulun bir gün False olmalı — yoksa tarayıcı da seninle ağlar.",
+    socratic: "Döngün ne zaman duracak? Durma koşulunu tek cümleyle söyleyebilir misin?",
+  },
+  {
+    keys: ["fonksiyon", "def", "return", "parametre"],
+    mentor: "def ile fonksiyon tanımlarsın; return sonucu geri verir. Parametreler girdiyi taşır.",
+    strict: "return'süz fonksiyon None döner — bazen kasıtlı, çoğu zaman sürpriz.",
+    socratic: "Fonksiyonun girdisi ne, çıktısı ne — ikisini net ayırabilir misin?",
+  },
+  {
+    keys: ["if", "else", "elif", "koşul"],
+    mentor: "Koşullu ifadeler karar verir. elif zinciri alternatifleri sırayla dener.",
+    strict: "if'ten sonra mutlaka : var mı? Python'da iki nokta unutulursa SyntaxError gelir.",
+    socratic: "Hangi koşul True olduğunda hangi dal çalışır — tablo yapabilir misin?",
+  },
+  {
+    keys: ["print", "çıktı", "output"],
+    mentor: "print() değerleri terminale yazar. f-string ile değişken gömmek okunabilirliği artırır.",
+    strict: "Python 3'te print merhaba yazmaz — print('merhaba'). Parantez şaka değil.",
+    socratic: "Ekranda görmek istediğin değer tam olarak hangi değişkende?",
+  },
+  {
+    keys: ["xp", "seviye", "level", "streak", "seri"],
+    mentor: "XP kart çevirme (+10), quiz (+100), süre kaydı (+10/dk) ve Boss (+500) ile gelir. Seri günlük aktiviteyi ödüllendirir.",
+    strict: "XP kasılmıyor mu? Quiz geç, kart çevir veya süreyi kaydet — bedava değil.",
+    socratic: "Bugün XP kazanmak için hangi aksiyonu seçeceksin?",
+  },
+  {
+    keys: ["boss", "patron", "canavar", "unit test", "assert"],
+    mentor: "Boss Fight'ta gizli assert testleri kodunu doğrular. Görev metnindeki fonksiyon adına dikkat et.",
+    strict: "Canavar assert ile konuşur — isim uyuşmazlığı en büyük tuzak. Görevi kelime kelime oku.",
+    socratic: "Testin beklediği çıktı ile senin return değerin aynı mı — nasıl kanıtlarsın?",
+  },
+  {
+    keys: ["kısayol", "shortcut", "?", "klavye"],
+    mentor: "Uygulama içindeyken ? tuşu kısayol panelini açar. Merdivende Enter ile modül açılır.",
+    strict: "Fareyle her şeye tıklama — ? ile kısayolları öğren, hız kazan.",
+    socratic: "Sık yaptığın işlem hangi kısayolla daha hızlı olurdu?",
+  },
+  {
+    keys: ["pyodide", "laboratuvar", "terminal", "kod"],
+    mentor: "Kod Laboratuvarı Pyodide ile tarayıcıda Python çalıştırır. ▶ Kodu Ateşle ile dene.",
+    strict: "Kodu çalıştırmadan tahmin yürütme — Pyodide bedava, kullan.",
+    socratic: "Kodunu çalıştırmadan önce ne olmasını bekliyorsun — yazabilir misin?",
+  },
+];
 
 const DUCK_ERROR_LINES = {
-  generic: [
-    "Hata yakalandı! Kodu bana satır satır anlatmaya ne dersin?",
-    "Terminal kırmızı konuşuyor — hata satırını bul, bana ne yaptığını anlat.",
-    "Çalışmadı ama panik yok. İlk hata satırını oku, sonra kodu o satıra kadar izle.",
-  ],
-  syntax: [
-    "SyntaxError: parantez, iki nokta veya tırnak eksik olabilir. Hata satırının hemen üstüne bak.",
-    "Sözdizimi hatası — genelde eksik `:`, `)` veya yanlış girinti. Satır satır karşılaştır.",
-  ],
-  indent: [
-    "IndentationError: girinti Python'da sözdiziminin parçasıdır. Bloklar aynı hizada mı?",
-    "Girinti tutarsız — sekmeler ve boşlukları karıştırma. Bir stil seç, ona sadık kal.",
-  ],
-  name: [
-    "NameError: tanımsız bir isim kullanılmış. Değişkeni tanımladın mı, doğru yazdın mı?",
-    "Bu isim Python'a tanıdık değil — yazım hatası mı, import eksik mi kontrol et.",
-  ],
-  type: [
-    "TypeError: yanlış tipte işlem yapılıyor. Sayı mı string mi — türleri print() ile doğrula.",
-    "Tür uyuşmazlığı var. Fonksiyona ne gönderdiğini ve ne beklediğini karşılaştır.",
-  ],
-  index: [
-    "Index/KeyError: olmayan bir elemana eriştin. Liste sınırını ve anahtarın varlığını kontrol et.",
-    "Eleman bulunamadı — boş veri veya yanlış indeks. len() ve içeriği incele.",
-  ],
-  value: [
-    "ValueError: değer biçimi uygun değil. Girdiyi dönüştürmeden önce doğrula.",
-    "Geçersiz değer — sayı beklenen yerde metin olabilir. int/float dönüşümünü kontrol et.",
-  ],
-  zero: [
-    "ZeroDivisionError: sıfıra bölme. Payda sıfır olabilir mi — koşulla koru.",
-  ],
-  assert: [
-    "Unit test düşmedi — fonksiyonun dönüş değerini ve kenar durumlarını yeniden gözden geçir.",
-    "Assert başarısız: beklenen ile dönen farklı. print() ile fonksiyon çıktısını gör.",
-    "Canavar hâlâ ayakta — görev metnindeki her koşulu kodunda karşılıyor musun?",
-  ],
+  generic: {
+    mentor: "Hata yakalandı. Kodu satır satır anlat — birlikte izleyelim.",
+    strict: "Terminal kırmızı — klasik. İlk hata satırını oku, sonra panik yap.",
+    socratic: "Hata mesajı sana ne sormaya çalışıyor? İlk satırı yüksek sesle oku.",
+  },
+  syntax: {
+    mentor: "SyntaxError: parantez, iki nokta veya tırnak eksik olabilir.",
+    strict: "SyntaxError = Python cümleyi anlamadı. Muhtemelen `:` veya `)` eksik — kahve molası değil, düzelt.",
+    socratic: "Hata satırının hemen üstünde hangi karakter eksik olabilir?",
+  },
+  indent: {
+    mentor: "IndentationError: girinti Python'da sözdiziminin parçasıdır.",
+    strict: "Girinti hatası — tab ve boşluk karışımı mı? Bir stil seç, sadık kal.",
+    socratic: "Blok içindeki satırlar aynı hizada mı — hangi satır kaymış?",
+  },
+  name: {
+    mentor: "NameError: tanımsız bir isim kullanılmış olabilir.",
+    strict: "NameError = Python o ismi tanımıyor. Yazım mı, tanımlamayı mı unuttun?",
+    socratic: "Bu değişkeni nerede tanımladın — gerçekten tanımladın mı?",
+  },
+  type: {
+    mentor: "TypeError: yanlış tipte işlem yapılıyor olabilir.",
+    strict: "TypeError = elma ile armut topluyorsun. Türleri print() ile gör.",
+    socratic: "İki değerin türü uyumlu mu — hangisini dönüştürmelisin?",
+  },
+  index: {
+    mentor: "Index/KeyError: olmayan bir elemana erişilmiş olabilir.",
+    strict: "Index/KeyError — sınır dışı veya olmayan anahtar. len() ve .get() dostundur.",
+    socratic: "Erişmeye çalıştığın indeks veya anahtar gerçekten var mı?",
+  },
+  value: {
+    mentor: "ValueError: değer biçimi uygun değil.",
+    strict: "ValueError — doğru tür ama yanlış içerik. int('abc') klasik örnektir.",
+    socratic: "Girdiyi dönüştürmeden önce geçerliliğini nasıl kontrol edersin?",
+  },
+  zero: {
+    mentor: "ZeroDivisionError: sıfıra bölme yapılmış.",
+    strict: "Sıfıra böldün — matematik değil, Python kızar. Payda kontrolü ekle.",
+    socratic: "Payda sıfır olabilir mi — hangi koşulla korursun?",
+  },
+  assert: {
+    mentor: "Unit test geçmedi. Dönüş değerini ve kenar durumlarını gözden geçir.",
+    strict: "Assert patladı — fonksiyon adı, parametre ve return. Üçlü kontrol, hemen.",
+    socratic: "Testin beklediği sonuç ile senin sonucun nerede ayrışıyor?",
+  },
 };
 
+let duckPersonality = "mentor";
+let duckChatOpen = false;
+let duckWelcomePending = true;
 let duckLastLine = "";
 let duckWelcomeShown = false;
 
@@ -512,6 +520,7 @@ const FOCUS_LABELS = {
 
 let duckTypewriterId = null;
 let duckAlertTimeoutId = null;
+let duckAnalyzeTimeoutId = null;
 
 function openFocusMode(panelName) {
   activeFocusPanel = panelName;
@@ -1123,7 +1132,9 @@ function cacheElements() {
     "devTipFront", "devTipBack", "devTipAnswer", "devTipFlipBtn", "devTipFlipInner", "devTipRefresh",
     "xpToast", "xpToastIcon", "xpToastText",
     "bossVictoryOverlay", "bossVictoryClose", "bossVictorySub",
-    "cyberDuck", "cyberDuckBubble", "cyberDuckText",
+    "orduckWidget", "orduckChatPanel", "orduckChatClose", "orduckChatStatus", "orduckChatText",
+    "orduckBtnProgress", "orduckBtnCode", "orduckBtnTip",
+    "cyberDuck",
   ];
   ids.forEach((id) => {
     el[id] = $(id);
@@ -1694,103 +1705,158 @@ function classifyDuckError(text) {
   return "generic";
 }
 
-function pickDuckLine(pool, avoidLast = true) {
-  if (!Array.isArray(pool) || !pool.length) return "";
-  if (pool.length === 1) return pool[0];
-  let line = pool[Math.floor(Math.random() * pool.length)];
-  if (avoidLast && pool.length > 1) {
-    let guard = 0;
-    while (line === duckLastLine && guard < 8) {
-      line = pool[Math.floor(Math.random() * pool.length)];
-      guard += 1;
-    }
-  }
-  duckLastLine = line;
-  return line;
+function getDuckPersonalityLine(errorKind) {
+  const bucket = DUCK_ERROR_LINES[errorKind] || DUCK_ERROR_LINES.generic;
+  return bucket[duckPersonality] || bucket.mentor;
 }
 
 function isModalOpen() {
   return el.notesModal && !el.notesModal.classList.contains("hidden");
 }
 
-function getDuckScenario() {
-  if (isModalOpen()) {
-    if (activeFocusPanel === "quiz" && activeTopicId && isBossModule(activeTopicId)) return "boss";
-    if (activeFocusPanel === "code") return "debug";
-    if (activeFocusPanel === "flashcards") return "ogrenme";
-    if (activeFocusPanel === "notes") return "ogrenme";
-    if (activeFocusPanel === "quiz") return "debug";
-  }
-  if (getRunningTopicId() !== null) return "odak";
-  return null;
+function getDuckProgressSnapshot() {
+  const state = loadState();
+  const stats = statsToDict(state.stats);
+  const completed = state.topics.filter((t) => t.is_completed).length;
+  const total = state.topics.length;
+  const bosses = Object.values(state.learning?.bosses || {}).filter((b) => b.defeated).length;
+  return { stats, completed, total, bosses };
 }
 
-function getDuckModeKey(scenario, isError = false) {
-  if (isError) return "alert";
-  if (scenario === "welcome") return "welcome";
-  if (scenario === "boss") return "boss";
-  if (scenario === "odak") return "odak";
-  if (scenario === "debug" || scenario === "kod") return "debug";
-  if (scenario === "ogrenme") return "coach";
-  return "default";
+function buildDuckProgressMessage() {
+  const { stats, completed, total, bosses } = getDuckProgressSnapshot();
+  const base = `Seviye ${stats.user_level}'tesin, ${stats.total_xp} XP topladın.\n${completed}/${total} modül tamamlandı · ${bosses} patron yenildi.\nUnvan: ${stats.rank_title} · Seri: ${stats.streak_count} gün.`;
+  if (duckPersonality === "strict") {
+    return `${base}\n\nNot: XP kendiliğinden gelmez — çalış, kaydet, test et.`;
+  }
+  if (duckPersonality === "socratic") {
+    return `${base}\n\nSıradaki hedefin hangi modül — ve neden o?`;
+  }
+  return `${base}\n\nHarika gidiyorsun; bir sonraki basamağa odaklan.`;
 }
 
-function setDuckMode(modeKey) {
-  if (!el.cyberDuck) return;
-  el.cyberDuck.classList.remove(
-    "cyber-duck-alert",
-    "cyber-duck-mode-debug",
-    "cyber-duck-mode-focus",
-    "cyber-duck-mode-boss",
-    "cyber-duck-mode-coach",
-    "cyber-duck-mode-welcome",
-  );
-  const mode = DUCK_MODES[modeKey] || DUCK_MODES.default;
-  if (mode.className) el.cyberDuck.classList.add(mode.className);
-  const tagEl = document.getElementById("cyberDuckTag");
-  if (tagEl) tagEl.textContent = mode.tag;
+function getActiveEditorCode() {
+  const bossEditor = document.getElementById("bossCodeEditor");
+  if (isModalOpen() && activeFocusPanel === "quiz" && activeTopicId && isBossModule(activeTopicId) && bossEditor) {
+    return bossEditor.value || "";
+  }
+  if (el.codeEditor && isModalOpen() && activeFocusPanel === "code") {
+    return el.codeEditor.value || "";
+  }
+  if (el.codeEditor?.value?.trim()) return el.codeEditor.value;
+  if (bossEditor?.value?.trim()) return bossEditor.value;
+  return "";
 }
 
-function buildDuckMessage(options = {}) {
-  const scenario = options.scenario || getDuckScenario();
-  if (scenario === "welcome") {
-    return { text: pickDuckLine(DUCK_LINES.welcome), mode: "welcome" };
-  }
-  if (scenario === "boss") {
-    return { text: pickDuckLine(DUCK_LINES.boss), mode: "boss" };
-  }
-  if (scenario === "odak") {
-    return { text: pickDuckLine(DUCK_LINES.odak), mode: "odak" };
-  }
-  if (scenario === "debug") {
-    return { text: pickDuckLine([...DUCK_LINES.debug, ...DUCK_LINES.kod]), mode: "debug" };
-  }
-  if (scenario === "ogrenme") {
-    return { text: pickDuckLine([...DUCK_LINES.ogrenme, ...DUCK_LINES.motivasyon]), mode: "coach" };
+function analyzePythonCode(code) {
+  const findings = [];
+  const trimmed = code.trim();
+  if (!trimmed) {
+    findings.push({ id: "empty", mentor: "Editör boş görünüyor. Önce küçük bir deneme yaz.", strict: "Editör bomboş — debug edecek kod yok.", socratic: "Ne test etmek istiyorsun — tek satırlık bir başlangıç yazabilir misin?" });
+    return findings;
   }
 
-  const pools = [
-    ...DUCK_LINES.genel,
-    ...DUCK_LINES.debug,
-    ...DUCK_LINES.kod,
-    ...DUCK_LINES.motivasyon,
-    ...DUCK_LINES.ogrenme,
-  ];
-  return { text: pickDuckLine(pools), mode: "default" };
+  const lines = code.split("\n");
+  const hasTab = /^\t/.test(code);
+  const hasSpaceIndent = /^ {1,}/m.test(code);
+  if (hasTab && hasSpaceIndent) {
+    findings.push({ id: "indent_mix", mentor: "Sekme ve boşluk girintisi karışmış. Tek bir girinti stili kullan.", strict: "Tab + space karışımı — IndentationError davetiyesi.", socratic: "Blokların girintisi tutarlı mı — hangi satır farklı hizada?" });
+  }
+
+  const openParens = (code.match(/\(/g) || []).length;
+  const closeParens = (code.match(/\)/g) || []).length;
+  if (openParens !== closeParens) {
+    findings.push({ id: "paren", mentor: `Parantez sayısı uyuşmuyor (${openParens} açık, ${closeParens} kapalı).`, strict: "Parantez dengesi yok — SyntaxError kapıda.", socratic: "Hangi satırda açık parantez kapatılmamış olabilir?" });
+  }
+
+  const openBrackets = (code.match(/\[/g) || []).length;
+  const closeBrackets = (code.match(/\]/g) || []).length;
+  if (openBrackets !== closeBrackets) {
+    findings.push({ id: "bracket", mentor: "Köşeli parantezler dengeli değil.", strict: "[] eşleşmiyor — list comprehension mı kırık?", socratic: "Açık kalan [ hangi satırda?" });
+  }
+
+  const singleQuotes = (code.match(/'/g) || []).length;
+  const doubleQuotes = (code.match(/"/g) || []).length;
+  if (singleQuotes % 2 !== 0 || doubleQuotes % 2 !== 0) {
+    findings.push({ id: "quote", mentor: "Tırnak eşleşmesi bozuk olabilir.", strict: "Kapanmamış tırnak — Python string'i yarıda bırakmışsın.", socratic: "String nerede başlıyor, nerede bitmeli?" });
+  }
+
+  if (/\bprint\s+[^(]/.test(code)) {
+    findings.push({ id: "print", mentor: "Python 3'te print bir fonksiyondur: print('metin') şeklinde parantez kullan.", strict: "print merhaba değil, print('merhaba') — Python 2 kalmadı.", socratic: "print ifadesinin parantezi var mı?" });
+  }
+
+  lines.forEach((line, idx) => {
+    const stripped = line.trim();
+    if (/^(if|elif|else|for|while|def|class|try|except|finally|with)\b/.test(stripped) && !stripped.endsWith(":")) {
+      findings.push({ id: `colon_${idx}`, mentor: `Satır ${idx + 1}: '${stripped.split(/\s/)[0]}' satırının sonunda ':' olmalı.`, strict: `Satır ${idx + 1} — iki nokta unutulmuş. Klasik SyntaxError.`, socratic: `Satır ${idx + 1}'de blok başlıyor mu — ':' eksik olabilir mi?` });
+    }
+  });
+
+  if (!findings.length) {
+    findings.push({ id: "ok", mentor: "İlk bakışta belirgin sözdizimi sorunu görmedim. Çalıştırıp çıktıyı print() ile doğrula.", strict: "Statik tarama temiz — ama çalıştırmadan emin olma, Pyodide seni yalanlar.", socratic: "Kodun en riskli satırı hangisi — neden?" });
+  }
+
+  return findings;
 }
 
-function typewriteDuck(text, speed = 22) {
-  if (!el.cyberDuckText) return;
+function buildDuckCodeReviewMessage() {
+  const code = getActiveEditorCode();
+  if (!code.trim()) {
+    const empty = analyzePythonCode("")[0];
+    return empty[duckPersonality] || empty.mentor;
+  }
+  const findings = analyzePythonCode(code);
+  const lines = findings.slice(0, 3).map((f) => f[duckPersonality] || f.mentor);
+  return lines.join("\n\n");
+}
+
+function matchOrduckKnowledge() {
+  const hints = [];
+  if (activeTopicId) {
+    const topic = topics.find((t) => t.id === activeTopicId);
+    if (topic) hints.push(getShortTitle(topic.title).toLowerCase());
+  }
+  if (activeFocusPanel) hints.push(activeFocusPanel);
+  if (getRunningTopicId() !== null) hints.push("odak", "sayaç");
+  const code = getActiveEditorCode().toLowerCase();
+  if (code.includes("def ")) hints.push("fonksiyon", "def");
+  if (code.includes("for ") || code.includes("while")) hints.push("döngü", "for");
+  hints.push("python", "pyodide", "xp");
+
+  for (const entry of ORDUCK_KNOWLEDGE) {
+    if (entry.keys.some((key) => hints.some((h) => h.includes(key) || key.includes(h)))) {
+      return entry[duckPersonality] || entry.mentor;
+    }
+  }
+  const fallback = ORDUCK_KNOWLEDGE[Math.floor(Math.random() * ORDUCK_KNOWLEDGE.length)];
+  return fallback[duckPersonality] || fallback.mentor;
+}
+
+function buildDuckTipMessage() {
+  if (getRunningTopicId() !== null) {
+    if (duckPersonality === "strict") return "Sayaç koşuyor — sosyal medyaya bakarsan zamanın da uçar gider.";
+    if (duckPersonality === "socratic") return "Sayaç aktifken tam olarak hangi görevi bitirmeye çalışıyorsun?";
+    return "Odak modundasın. Tek hedef, tek modül — dağılma.";
+  }
+  if (isModalOpen() && activeFocusPanel === "quiz" && activeTopicId && isBossModule(activeTopicId)) {
+    if (duckPersonality === "strict") return "Boss Fight: fonksiyon adını görevle birebir eşleştir — yoksa assert seni yer.";
+    if (duckPersonality === "socratic") return "Patronu yenmek için kodunun hangi girdilerde doğru çalışması gerekiyor?";
+    return "Boss Fight'ta gizli testler var. Kenar durumlarını düşün.";
+  }
+  return matchOrduckKnowledge();
+}
+
+function typewriteOrduck(text, speed = 20) {
+  if (!el.orduckChatText) return;
   if (duckTypewriterId !== null) {
     clearInterval(duckTypewriterId);
     duckTypewriterId = null;
   }
-  el.cyberDuckBubble?.classList.remove("hidden");
-  el.cyberDuckText.textContent = "";
+  el.orduckChatText.textContent = "";
   let i = 0;
   duckTypewriterId = window.setInterval(() => {
     i += 1;
-    el.cyberDuckText.textContent = text.slice(0, i);
+    el.orduckChatText.textContent = text.slice(0, i);
     if (i >= text.length) {
       clearInterval(duckTypewriterId);
       duckTypewriterId = null;
@@ -1798,26 +1864,97 @@ function typewriteDuck(text, speed = 22) {
   }, speed);
 }
 
-function speakDuck(options = {}) {
-  const { text, mode } = buildDuckMessage(options);
-  setDuckMode(mode);
-  typewriteDuck(text);
+function deliverDuckResponse(text, options = {}) {
+  const { analyzing = true, alert = false } = options;
+  el.orduckWidget?.classList.toggle("is-alert", alert);
+
+  if (!duckChatOpen) openDuckChat(false);
+
+  if (duckAnalyzeTimeoutId !== null) {
+    clearTimeout(duckAnalyzeTimeoutId);
+    duckAnalyzeTimeoutId = null;
+  }
+  if (duckTypewriterId !== null) {
+    clearInterval(duckTypewriterId);
+    duckTypewriterId = null;
+  }
+
+  el.orduckChatStatus?.classList.toggle("hidden", !analyzing);
+  if (el.orduckChatText) el.orduckChatText.textContent = "";
+
+  const delay = analyzing ? 300 : 0;
+  duckAnalyzeTimeoutId = window.setTimeout(() => {
+    el.orduckChatStatus?.classList.add("hidden");
+    typewriteOrduck(text, alert ? 16 : 20);
+    duckAnalyzeTimeoutId = null;
+  }, delay);
 }
 
-function speakDuckRandom() {
-  speakDuck();
+function openDuckChat(showWelcome = true) {
+  if (!el.orduckChatPanel) return;
+  duckChatOpen = true;
+  el.orduckChatPanel.classList.remove("hidden");
+  el.cyberDuck?.setAttribute("aria-expanded", "true");
+  requestAnimationFrame(() => el.orduckChatPanel.classList.add("is-open"));
+
+  if (showWelcome && duckWelcomePending) {
+    duckWelcomePending = false;
+    deliverDuckResponse(
+      "Merhaba! Ben ORDEK.AI — Mentor, Sert İncelemeci veya Sokratik modda yanınızdayım.\nHızlı aksiyonlardan birini seç veya ördeğe tekrar tıkla.",
+      { analyzing: true },
+    );
+  }
+}
+
+function closeDuckChat() {
+  if (!el.orduckChatPanel) return;
+  duckChatOpen = false;
+  el.orduckChatPanel.classList.remove("is-open");
+  el.cyberDuck?.setAttribute("aria-expanded", "false");
+  el.orduckWidget?.classList.remove("is-alert");
+  if (duckAnalyzeTimeoutId !== null) {
+    clearTimeout(duckAnalyzeTimeoutId);
+    duckAnalyzeTimeoutId = null;
+  }
+  if (duckTypewriterId !== null) {
+    clearInterval(duckTypewriterId);
+    duckTypewriterId = null;
+  }
+  window.setTimeout(() => {
+    if (!duckChatOpen) el.orduckChatPanel?.classList.add("hidden");
+  }, 320);
+}
+
+function toggleDuckChat() {
+  if (duckChatOpen) closeDuckChat();
+  else openDuckChat(true);
+}
+
+function setDuckPersonality(next) {
+  duckPersonality = next;
+  document.querySelectorAll(".orduck-tab").forEach((tab) => {
+    const active = tab.dataset.personality === next;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  const ack = {
+    mentor: "Mentor modu aktif — birlikte adım adım ilerleyeceğiz.",
+    strict: "Sert İncelemeci modu aktif — nazik yalan yok, net konuşacağım.",
+    socratic: "Sokratik mod aktif — cevabı birlikte sorularla bulacağız.",
+  };
+  deliverDuckResponse(ack[next] || ack.mentor, { analyzing: false });
 }
 
 function triggerDuckError(errorText = "", options = {}) {
-  if (!el.cyberDuck) return;
+  if (!el.orduckWidget) return;
   let kind = classifyDuckError(errorText);
   if (options.boss && kind === "generic") kind = "assert";
-  const pool = DUCK_ERROR_LINES[kind] || DUCK_ERROR_LINES.generic;
-  setDuckMode("alert");
-  typewriteDuck(pickDuckLine(pool, false), 18);
+  const message = getDuckPersonalityLine(kind);
+  openDuckChat(false);
+  deliverDuckResponse(message, { analyzing: true, alert: true });
   if (duckAlertTimeoutId !== null) clearTimeout(duckAlertTimeoutId);
   duckAlertTimeoutId = window.setTimeout(() => {
-    el.cyberDuck?.classList.remove("cyber-duck-alert");
+    el.orduckWidget?.classList.remove("is-alert");
     duckAlertTimeoutId = null;
   }, 6500);
 }
@@ -1825,22 +1962,65 @@ function triggerDuckError(errorText = "", options = {}) {
 function maybeDuckWelcome() {
   if (duckWelcomeShown) return;
   duckWelcomeShown = true;
-  window.setTimeout(() => {
-    if (!el.app || el.app.classList.contains("hidden")) return;
-    speakDuck({ scenario: "welcome" });
-  }, 2800);
 }
 
 function initCyberDuck() {
-  if (!el.cyberDuck) return;
+  if (!el.cyberDuck || !el.orduckWidget) return;
+
   safeOn(el.cyberDuck, "click", (e) => {
     e.preventDefault();
-    speakDuckRandom();
+    e.stopPropagation();
+    toggleDuckChat();
   });
   safeOn(el.cyberDuck, "keydown", (e) => {
     if (e.key !== "Enter" && e.key !== " ") return;
     e.preventDefault();
-    speakDuckRandom();
+    e.stopPropagation();
+    toggleDuckChat();
+  });
+
+  safeOn(el.orduckChatClose, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeDuckChat();
+  });
+
+  safeOn(el.orduckWidget, "click", (e) => e.stopPropagation());
+
+  document.querySelectorAll(".orduck-tab").forEach((tab) => {
+    safeOn(tab, "click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDuckPersonality(tab.dataset.personality || "mentor");
+    });
+  });
+
+  safeOn(el.orduckBtnProgress, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deliverDuckResponse(buildDuckProgressMessage());
+  });
+
+  safeOn(el.orduckBtnCode, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deliverDuckResponse(buildDuckCodeReviewMessage());
+  });
+
+  safeOn(el.orduckBtnTip, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deliverDuckResponse(buildDuckTipMessage());
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!duckChatOpen) return;
+    if (e.target.closest("#orduckWidget")) return;
+    closeDuckChat();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && duckChatOpen) closeDuckChat();
   });
 }
 
