@@ -1597,7 +1597,9 @@ body {
   gap: 2rem;
   max-width: 1480px;
   margin: 0 auto;
-  padding: 0 1.5rem 2rem;
+  padding: 0 1.5rem 150px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ===================== GELİŞTİRİCİ PANELİ ===================== */
@@ -1612,6 +1614,7 @@ body {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(48, 105, 152, 0.4) transparent;
+  z-index: 90;
 }
 
 .dev-panel-inner {
@@ -2503,6 +2506,7 @@ body {
   gap: 0.65rem;
   padding-bottom: 0.55rem;
   border-bottom: 1px solid rgba(48, 105, 152, 0.18);
+  position: relative;
 }
 
 .hud-back-btn {
@@ -2732,12 +2736,13 @@ body {
   min-width: 0;
   max-width: none;
   margin: 0;
-  padding: 2rem 1rem 4rem 1.75rem;
+  padding: 2rem 1rem 150px 1.75rem;
   perspective: 1400px;
   pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 1;
 }
 
 .staircase-title {
@@ -2802,7 +2807,10 @@ body {
 .step {
   position: relative;
   z-index: 1;
-  width: min(350px, calc(100% - 0.5rem));
+  width: 350px;
+  max-width: calc(100% - 0.5rem);
+  min-width: 0;
+  flex-shrink: 0;
   margin-bottom: 14px;
   transform-style: preserve-3d;
   animation: stepAppear 0.6s ease backwards;
@@ -2810,7 +2818,7 @@ body {
 }
 
 .step:hover {
-  z-index: 200;
+  z-index: 12;
 }
 
 @keyframes stepAppear {
@@ -3673,7 +3681,7 @@ body {
   }
 
   .staircase-wrapper {
-    padding: 1.5rem 0.5rem 3rem;
+    padding: 1.5rem 0.5rem 150px;
   }
 
   .staircase {
@@ -3731,7 +3739,7 @@ body {
   }
 
   .app-body {
-    padding: 0 0.65rem 2rem;
+    padding: 0 0.65rem 150px;
   }
 
   .staircase-wrap {
@@ -6238,11 +6246,11 @@ html[data-theme="light"] .accordion-module {
 /* ===================== SİBER ÖRDEK ASİSTAN ===================== */
 .cyber-duck {
   position: fixed;
-  left: 1.1rem;
-  bottom: 1.1rem;
-  z-index: 9000;
-  width: 58px;
-  height: 58px;
+  top: 20px;
+  right: 350px;
+  z-index: 110;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6298,8 +6306,10 @@ html[data-theme="light"] .accordion-module {
 
 .cyber-duck-bubble {
   position: absolute;
-  left: calc(100% + 12px);
-  bottom: 0;
+  right: 0;
+  top: calc(100% + 10px);
+  left: auto;
+  bottom: auto;
   width: min(280px, 72vw);
   padding: 0.75rem 0.9rem;
   border-radius: 14px;
@@ -6313,10 +6323,13 @@ html[data-theme="light"] .accordion-module {
 .cyber-duck-bubble::before {
   content: "";
   position: absolute;
-  left: -8px;
-  bottom: 16px;
+  right: 18px;
+  top: -8px;
+  left: auto;
+  bottom: auto;
   border: 8px solid transparent;
-  border-right-color: rgba(255, 232, 115, 0.35);
+  border-bottom-color: rgba(255, 232, 115, 0.35);
+  border-right-color: transparent;
 }
 
 .cyber-duck-bubble.hidden {
@@ -6347,25 +6360,39 @@ html[data-theme="light"] .accordion-module {
   color: #ffb4b4;
 }
 
+@media (max-width: 1100px) {
+  .cyber-duck {
+    top: 14px;
+    right: 1rem;
+  }
+}
+
 @media (max-width: 640px) {
   .cyber-duck {
-    left: 0.65rem;
+    top: auto;
     bottom: 4.5rem;
+    right: 0.65rem;
+    left: auto;
     width: 50px;
     height: 50px;
   }
 
   .cyber-duck-bubble {
-    left: 0;
+    right: 0;
+    top: auto;
     bottom: calc(100% + 10px);
+    left: auto;
     width: min(260px, calc(100vw - 2rem));
   }
 
   .cyber-duck-bubble::before {
-    left: 18px;
+    right: 18px;
+    top: auto;
     bottom: -8px;
+    left: auto;
     border: 8px solid transparent;
     border-top-color: rgba(255, 232, 115, 0.35);
+    border-bottom-color: transparent;
     border-right-color: transparent;
   }
 }

@@ -3008,6 +3008,32 @@ function resetModalFullscreen() {
   setModalFullscreen(false);
 }
 
+const STAIR_BASE_OFFSET = 48;
+const STAIR_ZIGZAG = 72;
+const STAIR_PROGRESS_STEP = 34;
+const STAIR_PROGRESS_CAP = 300;
+const STAIR_PROGRESS_MULT = 0.75;
+const STAIR_MAX_MARGIN = 210;
+const STAIR_STEP_WIDTH = 350;
+
+function getStepMarginLeft(index) {
+  const zigzag = index % 2 === 0 ? 0 : STAIR_ZIGZAG;
+  const progress = Math.min(index * STAIR_PROGRESS_STEP, STAIR_PROGRESS_CAP);
+  const raw = STAIR_BASE_OFFSET + zigzag + progress * STAIR_PROGRESS_MULT;
+  let maxMargin = STAIR_MAX_MARGIN;
+
+  if (el.staircase && el.devPanel && window.innerWidth >= 1101) {
+    const wrapper = el.staircase.closest(".staircase-wrapper");
+    const wrapperW = wrapper?.clientWidth || el.staircase.clientWidth;
+    const stairW = Math.min(760, wrapperW);
+    const reserve = el.devPanel.offsetWidth + 48;
+    const maxFromLayout = Math.max(0, stairW - STAIR_STEP_WIDTH - reserve);
+    maxMargin = Math.min(STAIR_MAX_MARGIN, maxFromLayout);
+  }
+
+  return Math.min(raw, maxMargin);
+}
+
 function createStep(topic, index) {
   const step = document.createElement("article");
   step.className = "step";
@@ -3015,12 +3041,10 @@ function createStep(topic, index) {
   if (topic.is_completed) step.classList.add("completed");
   step.style.animationDelay = `${index * 0.04}s`;
 
-  const zigzag = index % 2 === 0 ? 0 : 72;
-  const progress = Math.min(index * 34, 300);
-  const offsetX = 48 + zigzag + progress * 0.75;
+  const offsetX = getStepMarginLeft(index);
   step.style.marginLeft = `${offsetX}px`;
-  step.style.zIndex = String(index + 1);
-  step.style.transform = `translateZ(${index * 4}px)`;
+  step.style.zIndex = String(Math.min(index + 1, 10));
+  step.style.transform = `translateZ(${Math.min(index * 2, 24)}px)`;
 
   const platform = document.createElement("div");
   platform.className = "step-platform";
@@ -3280,7 +3304,12 @@ async function loadTopics() {
 
   if (!resizeBound) {
     resizeBound = true;
-    window.addEventListener("resize", drawPath);
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      drawPath();
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => renderStaircase(), 150);
+    });
   }
 }
 
