@@ -102,7 +102,7 @@ function createInitialState() {
       user_level: 1,
     },
     activity: {},
-    learning: { flashcards: {}, quizzes: {} },
+    learning: { flashcards: {}, quizzes: {}, bosses: {} },
   };
 }
 
@@ -112,7 +112,8 @@ function loadState() {
     if (!raw) return createInitialState();
     const parsed = JSON.parse(raw);
     if (!parsed?.topics?.length) return createInitialState();
-    if (!parsed.learning) parsed.learning = { flashcards: {}, quizzes: {} };
+    if (!parsed.learning) parsed.learning = { flashcards: {}, quizzes: {}, bosses: {} };
+    if (!parsed.learning.bosses) parsed.learning.bosses = {};
     if (!parsed.activity) parsed.activity = {};
     parsed.topics.forEach((t) => {
       if (t.resources) delete t.resources;
@@ -181,6 +182,103 @@ const MODULE_KEYS = [
   "numpy", "pandas", "pandas_proj", "api_proj", "matplotlib",
 ];
 
+const BOSS_XP_REWARD = 500;
+
+const BOSS_FIGHTS = {
+  data: {
+    monster: "Veri Golem",
+    emoji: "🗿",
+    task: "`ters_cevir(elemanlar)` fonksiyonunu yaz. Verilen listeyi ters sırada yeni bir liste olarak döndürsün; orijinal listeyi değiştirmesin.",
+    starter: "def ters_cevir(elemanlar):\n    # Listeyi ters çevir\n    pass\n",
+    tests: `assert ters_cevir([1, 2, 3]) == [3, 2, 1]
+assert ters_cevir([]) == []
+assert ters_cevir(['a', 'b']) == ['b', 'a']
+assert ters_cevir([1, 1]) == [1, 1]`,
+  },
+  conditionals: {
+    monster: "Koşul Hydra",
+    emoji: "🐍",
+    task: "`not_mu(puan)` fonksiyonunu yaz. 0–100 arası puan alır: 90+ → 'AA', 70+ → 'BB', 50+ → 'CC', aksi halde 'FF' döndürsün.",
+    starter: "def not_mu(puan):\n    pass\n",
+    tests: `assert not_mu(95) == 'AA'
+assert not_mu(70) == 'BB'
+assert not_mu(55) == 'CC'
+assert not_mu(40) == 'FF'`,
+  },
+  loops: {
+    monster: "Döngü Dev",
+    emoji: "👾",
+    task: "`cift_toplam(sayilar)` fonksiyonunu yaz. Parametre olarak aldığı listedeki çift sayıları toplayıp döndürsün.",
+    starter: "def cift_toplam(sayilar):\n    # Çift sayıları topla\n    pass\n",
+    tests: `assert cift_toplam([1, 2, 3, 4]) == 6
+assert cift_toplam([]) == 0
+assert cift_toplam([2, 4, 6]) == 12
+assert cift_toplam([1, 3, 5]) == 0`,
+  },
+  functions: {
+    monster: "Fonksiyon Phantom",
+    emoji: "👻",
+    task: "`tekrarli_selam(isim, adet=1)` fonksiyonunu yaz. 'Merhaba {isim}!' metnini adet kadar boşlukla birleştirip döndürsün.",
+    starter: "def tekrarli_selam(isim, adet=1):\n    pass\n",
+    tests: `assert tekrarli_selam('Ali') == 'Merhaba Ali!'
+assert tekrarli_selam('Ali', 2) == 'Merhaba Ali! Merhaba Ali!'
+assert tekrarli_selam('Ayşe', 3).count('Merhaba') == 3`,
+  },
+  modules: {
+    monster: "Import Sentinel",
+    emoji: "📦",
+    task: "`kareler(liste)` fonksiyonunu yaz. Listedeki her sayının karesini yeni bir listede döndürsün.",
+    starter: "def kareler(liste):\n    pass\n",
+    tests: `assert kareler([1, 2, 3]) == [1, 4, 9]
+assert kareler([]) == []
+assert kareler([-2, 0]) == [4, 0]`,
+  },
+  oop: {
+    monster: "Sınıf Titan",
+    emoji: "🛡️",
+    task: "`Dikdortgen` sınıfını yaz. `__init__(self, genislik, yukseklik)` ve `alan(self)` metodu olsun; alan genişlik × yükseklik döndürsün.",
+    starter: "class Dikdortgen:\n    def __init__(self, genislik, yukseklik):\n        pass\n\n    def alan(self):\n        pass\n",
+    tests: `r = Dikdortgen(4, 5)
+assert r.alan() == 20
+k = Dikdortgen(3, 3)
+assert k.alan() == 9`,
+  },
+  errors: {
+    monster: "Exception Wraith",
+    emoji: "💀",
+    task: "`guvenli_bol(a, b)` fonksiyonunu yaz. b sıfırsa None döndürsün; aksi halde a/b sonucunu döndürsün (try/except kullan).",
+    starter: "def guvenli_bol(a, b):\n    pass\n",
+    tests: `assert guvenli_bol(10, 2) == 5
+assert guvenli_bol(10, 0) is None
+assert guvenli_bol(7, 2) == 3.5`,
+  },
+  files: {
+    monster: "Metin Specter",
+    emoji: "📜",
+    task: "`satir_say(metin)` fonksiyonunu yaz. Metindeki satır sayısını döndürsün (\\n ile ayrılmış satırlar).",
+    starter: "def satir_say(metin):\n    pass\n",
+    tests: `assert satir_say('a\\nb\\nc') == 3
+assert satir_say('tek') == 1
+assert satir_say('') == 1
+assert satir_say('a\\n') == 2`,
+  },
+};
+
+const DUCK_REPLIKES = [
+  "Şu an tam olarak hangi satırda takıldın?",
+  "Kodun ne yapması gerektiğini bana sesli anlatır mısın?",
+  "Derin bir nefes al — bazen bir virgül her şeyi bozar.",
+  "Hata mesajı sana ne anlatmaya çalışıyor sence?",
+  "En küçük çalışan örnekle başla; sonra büyüt.",
+  "Değişken isimlerin niyetini yansıtıyor mu?",
+  "Beklediğin değer ile gerçek çıktı arasındaki fark ne?",
+  "Sorunu üç cümleyle özetle — çözüm genelde orada gizli.",
+  "Bugün sadece bir adım ilerle; bu da zaferdir.",
+  "Kodu satır satır okuyunca ne oluyor, adım adım yaz.",
+];
+
+const DUCK_ERROR_MESSAGE = "Hata yakalandı! Kodu bana satır satır anlatmaya ne dersin?";
+
 function buildGenericModule(topicId, section) {
   return {
     lesson: `<h3>${section}</h3>
@@ -215,8 +313,48 @@ function getAcademyModule(topicId) {
 }
 
 function ensureLearningState(state) {
-  if (!state.learning) state.learning = { flashcards: {}, quizzes: {} };
+  if (!state.learning) state.learning = { flashcards: {}, quizzes: {}, bosses: {} };
+  if (!state.learning.bosses) state.learning.bosses = {};
   return state.learning;
+}
+
+function getModuleKey(topicId) {
+  return MODULE_KEYS[topicId - 1] || "data";
+}
+
+function getBossFight(topicId) {
+  return BOSS_FIGHTS[getModuleKey(topicId)] || null;
+}
+
+function isBossModule(topicId) {
+  return Boolean(getBossFight(topicId));
+}
+
+function isBossDefeated(topicId) {
+  return Boolean(loadState().learning?.bosses?.[topicId]?.defeated);
+}
+
+function saveBossVictory(topicId) {
+  const state = loadState();
+  const learning = ensureLearningState(state);
+  if (learning.bosses[topicId]?.defeated) {
+    return { stats: statsToDict(state.stats), xpGained: 0, firstVictory: false };
+  }
+
+  learning.bosses[topicId] = {
+    defeated: true,
+    defeatedAt: new Date().toISOString(),
+  };
+
+  const topic = findTopic(state, topicId);
+  if (topic) {
+    topic.boss_defeated = true;
+    if (!topic.is_completed) topic.is_completed = true;
+  }
+
+  const stats = addXp(state, BOSS_XP_REWARD);
+  saveState(state);
+  return { stats, xpGained: BOSS_XP_REWARD, firstVictory: true };
 }
 
 function isFlashcardDone(topicId, cardIdx) {
@@ -278,11 +416,20 @@ const FOCUS_LABELS = {
   quiz: "🧠 Modül Testi",
 };
 
+let duckTypewriterId = null;
+let duckAlertTimeoutId = null;
+
 function openFocusMode(panelName) {
   activeFocusPanel = panelName;
   if (el.commandCenter) el.commandCenter.classList.add("is-hidden");
   if (el.focusMode) el.focusMode.classList.remove("hidden");
-  if (el.focusTitle) el.focusTitle.textContent = FOCUS_LABELS[panelName] || panelName;
+  if (el.focusTitle) {
+    if (panelName === "quiz" && activeTopicId && isBossModule(activeTopicId)) {
+      el.focusTitle.textContent = "👾 Boss Fight";
+    } else {
+      el.focusTitle.textContent = FOCUS_LABELS[panelName] || panelName;
+    }
+  }
   document.querySelectorAll(".focus-panel").forEach((panel) => {
     const active = panel.dataset.panel === panelName;
     panel.classList.toggle("active", active);
@@ -476,8 +623,137 @@ function renderQuizResult(topicId) {
 }
 
 function startQuiz(topicId) {
+  if (isBossModule(topicId)) {
+    renderBossFight(topicId);
+    return;
+  }
   quizState = { topicId, index: 0, score: 0, total: 0, answered: false };
   renderQuizQuestion(topicId);
+}
+
+function renderBossFight(topicId) {
+  const container = document.getElementById("quizContainer");
+  if (!container) return;
+
+  const boss = getBossFight(topicId);
+  if (!boss) {
+    quizState = { topicId, index: 0, score: 0, total: 0, answered: false };
+    renderQuizQuestion(topicId);
+    return;
+  }
+
+  if (isBossDefeated(topicId)) {
+    container.innerHTML = `
+      <div class="boss-defeated-banner">
+        <p>👾 <strong>${escapeHtml(boss.monster)}</strong> yenildi!</p>
+        <p>Bu bölümün patronu alt edildi · +${BOSS_XP_REWARD} XP kazanıldı.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="boss-fight" id="bossFightPanel">
+      <div class="boss-fight-header">
+        <p class="boss-fight-kicker">// BÖLÜM SONU CANAVARI</p>
+        <div class="boss-fight-monster" aria-hidden="true">${boss.emoji}</div>
+        <p class="boss-fight-name">${escapeHtml(boss.monster)}</p>
+      </div>
+      <div class="boss-fight-task">${boss.task.replace(/`([^`]+)`/g, "<code>$1</code>")}</div>
+      <textarea class="boss-code-editor" id="bossCodeEditor" spellcheck="false">${escapeHtml(boss.starter)}</textarea>
+      <button type="button" class="boss-attack-btn" id="bossAttackBtn">⚔ Kodu Sına / Canavara Saldır</button>
+      <div class="boss-output" id="bossOutput"><p class="output-line dim">// Kodunu yaz ve canavara saldır...</p></div>
+    </div>`;
+
+  document.getElementById("bossAttackBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    attackBoss(topicId);
+  });
+}
+
+async function attackBoss(topicId) {
+  const boss = getBossFight(topicId);
+  const editor = document.getElementById("bossCodeEditor");
+  const output = document.getElementById("bossOutput");
+  const btn = document.getElementById("bossAttackBtn");
+  if (!boss || !editor || !output || !btn) return;
+
+  const code = editor.value.trim();
+  if (!code) {
+    output.innerHTML = '<p class="output-line err">Kod boş — fonksiyonunu yazmalısın!</p>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "⏳ SINAV YAPILIYOR...";
+  output.innerHTML = '<p class="output-line dim">// Unit testler çalıştırılıyor...</p>';
+
+  try {
+    const result = await runCodeWithTests(code, boss.tests);
+    if (result.success) {
+      output.innerHTML = '<p class="output-line ok">✓ Tüm unit testler geçti — PATRON DÜŞTÜ!</p>';
+      triggerScreenShake();
+      const victory = saveBossVictory(topicId);
+      if (victory.firstVictory) {
+        showBossVictoryOverlay(boss.monster);
+        showXpToast(victory.xpGained);
+        if (victory.stats) renderRpgHud(victory.stats);
+        const idx = topics.findIndex((t) => t.id === topicId);
+        if (idx !== -1) topics[idx].boss_defeated = true;
+        renderStaircase();
+        renderDevPanel();
+        launchConfetti();
+      }
+      setTimeout(() => renderBossFight(topicId), 1200);
+    } else {
+      output.innerHTML = "";
+      result.stderr.split("\n").forEach((line) => {
+        if (!line.trim()) return;
+        const p = document.createElement("p");
+        p.className = "output-line err";
+        p.textContent = line;
+        output.appendChild(p);
+      });
+      if (!output.children.length) {
+        output.innerHTML = '<p class="output-line err">Test başarısız — kodunu gözden geçir.</p>';
+      }
+      triggerDuckError();
+    }
+  } catch (err) {
+    output.innerHTML = `<p class="output-line err">${escapeHtml(err.message)}</p>`;
+    triggerDuckError();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "⚔ Kodu Sına / Canavara Saldır";
+  }
+}
+
+function triggerScreenShake() {
+  const target = el.app || document.body;
+  target.classList.remove("screen-shake");
+  void target.offsetWidth;
+  target.classList.add("screen-shake");
+  setTimeout(() => target.classList.remove("screen-shake"), 700);
+}
+
+function showBossVictoryOverlay(monsterName) {
+  if (!el.bossVictoryOverlay) return;
+  if (el.bossVictorySub) {
+    el.bossVictorySub.textContent = `${monsterName} alt edildi — +${BOSS_XP_REWARD} XP kasana aktarıldı.`;
+  }
+  el.bossVictoryOverlay.classList.remove("hidden");
+}
+
+function hideBossVictoryOverlay() {
+  el.bossVictoryOverlay?.classList.add("hidden");
+}
+
+function updateBossNavLabel(topicId) {
+  const btn = document.querySelector('.command-action-btn[data-focus="quiz"]');
+  if (!btn) return;
+  btn.textContent = isBossModule(topicId) ? "👾 Boss Fight'a Git" : "🧠 Modül Testine Git";
+  if (el.focusTitle && activeFocusPanel === "quiz") {
+    el.focusTitle.textContent = isBossModule(topicId) ? "👾 Boss Fight" : FOCUS_LABELS.quiz;
+  }
 }
 
 function renderAcademyTabs(topicId) {
@@ -485,6 +761,7 @@ function renderAcademyTabs(topicId) {
   flashcardIndex = 0;
   renderFlashcards(topicId);
   startQuiz(topicId);
+  updateBossNavLabel(topicId);
   const mod = getAcademyModule(topicId);
   if (el.codeEditor && mod.starter) el.codeEditor.value = mod.starter;
 }
@@ -588,6 +865,14 @@ async function runCode(code) {
       success: false,
     };
   }
+}
+
+async function runCodeWithTests(userCode, testCode) {
+  const combined = `${userCode.trim()}\n\n# --- Unit Tests ---\n${testCode.trim()}`;
+  if (isCodeBlocked(combined)) {
+    throw new Error("Güvenlik: Bu kod güvenlik nedeniyle çalıştırılamaz.");
+  }
+  return runCode(combined);
 }
 
 const TYPEWRITER_LINES = [
@@ -743,6 +1028,8 @@ function cacheElements() {
     "flashcardsContainer", "quizContainer",
     "devTipFront", "devTipBack", "devTipAnswer", "devTipFlipBtn", "devTipFlipInner", "devTipRefresh",
     "xpToast", "xpToastIcon", "xpToastText",
+    "bossVictoryOverlay", "bossVictoryClose", "bossVictorySub",
+    "cyberDuck", "cyberDuckBubble", "cyberDuckText",
   ];
   ids.forEach((id) => {
     el[id] = $(id);
@@ -1296,6 +1583,56 @@ function renderCodeOutput(result) {
     p.textContent = result.success ? "// Kod başarıyla çalıştı (çıktı yok)" : "// Hata oluştu";
     el.codeOutput.appendChild(p);
   }
+  if (!result.success) triggerDuckError();
+}
+
+function typewriteDuck(text) {
+  if (!el.cyberDuckText) return;
+  if (duckTypewriterId !== null) {
+    clearInterval(duckTypewriterId);
+    duckTypewriterId = null;
+  }
+  el.cyberDuckBubble?.classList.remove("hidden");
+  el.cyberDuckText.textContent = "";
+  let i = 0;
+  duckTypewriterId = window.setInterval(() => {
+    i += 1;
+    el.cyberDuckText.textContent = text.slice(0, i);
+    if (i >= text.length) {
+      clearInterval(duckTypewriterId);
+      duckTypewriterId = null;
+    }
+  }, 24);
+}
+
+function speakDuckRandom() {
+  const line = DUCK_REPLIKES[Math.floor(Math.random() * DUCK_REPLIKES.length)];
+  el.cyberDuck?.classList.remove("cyber-duck-alert");
+  typewriteDuck(line);
+}
+
+function triggerDuckError() {
+  if (!el.cyberDuck) return;
+  el.cyberDuck.classList.add("cyber-duck-alert");
+  typewriteDuck(DUCK_ERROR_MESSAGE);
+  if (duckAlertTimeoutId !== null) clearTimeout(duckAlertTimeoutId);
+  duckAlertTimeoutId = window.setTimeout(() => {
+    el.cyberDuck?.classList.remove("cyber-duck-alert");
+    duckAlertTimeoutId = null;
+  }, 5000);
+}
+
+function initCyberDuck() {
+  if (!el.cyberDuck) return;
+  safeOn(el.cyberDuck, "click", (e) => {
+    e.preventDefault();
+    speakDuckRandom();
+  });
+  safeOn(el.cyberDuck, "keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    speakDuckRandom();
+  });
 }
 
 function showOverlay(overlayEl) {
@@ -2636,6 +2973,14 @@ function createBadgeRow(topic) {
   spentBadge.innerHTML = `<span class="badge-icon">🟢</span><span>${formatClock(topic.time_spent || 0)}</span>`;
   row.appendChild(spentBadge);
 
+  if (isBossModule(topic.id)) {
+    const bossBadge = document.createElement("span");
+    bossBadge.className = `boss-badge${isBossDefeated(topic.id) ? " defeated" : ""}`;
+    bossBadge.title = isBossDefeated(topic.id) ? "Patron yenildi" : "Boss Fight mevcut";
+    bossBadge.innerHTML = `<span>${isBossDefeated(topic.id) ? "👾 Yenildi" : "👾 Boss"}</span>`;
+    row.appendChild(bossBadge);
+  }
+
   return row;
 }
 
@@ -2881,6 +3226,7 @@ async function handleRunCode(e) {
     renderCodeOutput(result);
   } catch (err) {
     el.codeOutput.innerHTML = `<p class="output-line err">${escapeHtml(err.message)}</p>`;
+    triggerDuckError();
   } finally {
     el.runCodeBtn.disabled = false;
     el.runCodeBtn.textContent = "▶️ KODU ATEŞLE";
@@ -3039,6 +3385,10 @@ function bindEvents() {
 
   /* Kutlama */
   safeOn(el.celebrationClose, "click", () => el.celebrationOverlay?.classList.add("hidden"));
+  safeOn(el.bossVictoryClose, "click", () => hideBossVictoryOverlay());
+  safeOn(el.bossVictoryOverlay, "click", (e) => {
+    if (e.target === el.bossVictoryOverlay) hideBossVictoryOverlay();
+  });
   safeOn(el.celebrationOverlay, "click", (e) => {
     if (e.target === el.celebrationOverlay) el.celebrationOverlay.classList.add("hidden");
   });
@@ -3120,6 +3470,7 @@ function initApp() {
   initTheme();
   bindAccordions();
   bindEvents();
+  initCyberDuck();
   initDevTip();
   initParticlesBackground(getStoredTheme());
   initLanding();

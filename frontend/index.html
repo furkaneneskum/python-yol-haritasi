@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=39">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -594,6 +594,16 @@
       <button type="button" class="sys-footer-link" id="footerShortcutsBtn">⌨ Klavye Kısayolları</button>
     </footer>
 
+    <!-- Siber Ördek Asistan -->
+    <div class="cyber-duck" id="cyberDuck" role="button" tabindex="0" aria-label="Siber Ördek Asistan — tıkla ve konuş">
+      <span class="cyber-duck-glow" aria-hidden="true"></span>
+      <span class="cyber-duck-icon" aria-hidden="true">🦆</span>
+      <div class="cyber-duck-bubble hidden" id="cyberDuckBubble">
+        <span class="cyber-duck-bubble-tag">// ÖRDEK.AI</span>
+        <p class="cyber-duck-text" id="cyberDuckText"></p>
+      </div>
+    </div>
+
     <!-- Mobil: Sıradaki Hedef Çubuğu -->
     <div class="mobile-goal-bar" id="mobileGoalBar" aria-label="Sıradaki hedef">
       <div class="mobile-goal-info">
@@ -757,6 +767,18 @@
     <span id="xpToastText">+100 XP Kazandın!</span>
   </div>
 
+  <!-- Boss Victory Overlay -->
+  <div class="boss-victory-overlay hidden" id="bossVictoryOverlay" role="dialog" aria-modal="true" aria-live="assertive">
+    <div class="boss-victory-card">
+      <div class="boss-victory-flash" aria-hidden="true"></div>
+      <p class="boss-victory-kicker">// SAVAŞ SONUCU</p>
+      <h2 class="boss-victory-title">PATRON YENİLDİ!</h2>
+      <p class="boss-victory-xp">+500 XP</p>
+      <p class="boss-victory-sub" id="bossVictorySub">Canavar alt edildi — XP kasana aktarıldı.</p>
+      <button type="button" class="boss-victory-close" id="bossVictoryClose">DEVAM ET</button>
+    </div>
+  </div>
+
   <!-- Celebration -->
   <div class="celebration-overlay hidden" id="celebrationOverlay" role="dialog" aria-modal="true">
     <div class="celebration-card">
@@ -773,7 +795,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=38"></script>
-  <script src="script.js?v=38"></script>
+  <script src="academy-content.js?v=39"></script>
+  <script src="script.js?v=39"></script>
 </body>
 </html>
