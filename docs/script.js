@@ -264,20 +264,114 @@ assert satir_say('a\\n') == 2`,
   },
 };
 
-const DUCK_REPLIKES = [
-  "Şu an tam olarak hangi satırda takıldın?",
-  "Kodun ne yapması gerektiğini bana sesli anlatır mısın?",
-  "Derin bir nefes al — bazen bir virgül her şeyi bozar.",
-  "Hata mesajı sana ne anlatmaya çalışıyor sence?",
-  "En küçük çalışan örnekle başla; sonra büyüt.",
-  "Değişken isimlerin niyetini yansıtıyor mu?",
-  "Beklediğin değer ile gerçek çıktı arasındaki fark ne?",
-  "Sorunu üç cümleyle özetle — çözüm genelde orada gizli.",
-  "Bugün sadece bir adım ilerle; bu da zaferdir.",
-  "Kodu satır satır okuyunca ne oluyor, adım adım yaz.",
-];
+const DUCK_MODES = {
+  default: { tag: "// ÖRDEK.AI", className: "" },
+  debug: { tag: "// ÖRDEK.AI · DEBUG", className: "cyber-duck-mode-debug" },
+  odak: { tag: "// ÖRDEK.AI · ODAK", className: "cyber-duck-mode-focus" },
+  boss: { tag: "// ÖRDEK.AI · BOSS", className: "cyber-duck-mode-boss" },
+  coach: { tag: "// ÖRDEK.AI · KOÇ", className: "cyber-duck-mode-coach" },
+  welcome: { tag: "// ÖRDEK.AI · MERHABA", className: "cyber-duck-mode-welcome" },
+  alert: { tag: "// ÖRDEK.AI · UYARI", className: "cyber-duck-alert" },
+};
 
-const DUCK_ERROR_MESSAGE = "Hata yakalandı! Kodu bana satır satır anlatmaya ne dersin?";
+const DUCK_LINES = {
+  welcome: [
+    "Ben Siber Ördek — rubber duck debugging partnerin. Takıldığında tıkla; birlikte adım adım ilerleriz.",
+    "Kod laboratuvarında hata alırsan otomatik uyanırım. Sorular sorarım, sen cevaplarsın — çözüm çoğu zaman orada gizlidir.",
+  ],
+  genel: [
+    "Şu an tam olarak hangi satırda takıldın? Satır numarasını netleştirmek, zihni odaklar.",
+    "Kodun ne yapması gerektiğini bana sesli anlatır mısın? Anlatırken genelde hatayı kendin bulursun.",
+    "Derin bir nefes al — bazen tek bir virgül, tırnak veya girinti her şeyi değiştirir.",
+    "Beklediğin değer ile terminalde gördüğün çıktı arasındaki fark ne?",
+    "Sorunu üç cümleyle özetle: girdi → işlem → beklenen çıktı. Çözüm genelde bu özetin içindedir.",
+    "Bugün sadece bir adım ilerlemen yeterli. Küçük ilerleme de gerçek ilerlemedir.",
+    "Kodu satır satır, yorum satırı gibi oku: 'Burada ne oluyor?' diye sor.",
+  ],
+  debug: [
+    "Hata mesajı sana ne anlatmaya çalışıyor? İlk satır genelde en kritik ipucudur.",
+    "En küçük çalışan örnekle başla — sonra parça parça büyüt.",
+    "print() ile ara değerleri görünür kıl: 'Buraya kadar doğru mu?' diye kontrol et.",
+    "Son değiştirdiğin satırı geri al ve tekrar dene. Hata çoğu zaman en son dokunuştadır.",
+    "Değişken isimlerin niyetini yansıtıyor mu? Karışık isimler, karışık düşünce demektir.",
+    "Aynı hatayı tekrar alıyorsan, varsayımını yaz: 'X her zaman Y'dir' — bu doğru mu?",
+  ],
+  kod: [
+    "Fonksiyonun girdisi ve çıktısı net mi? Belirsiz sorumluluk, belirsiz hata demektir.",
+    "Döngünün kaç kez döneceğini ve ne zaman duracağını söyleyebilir misin?",
+    "Koşul ifadenin tüm dallarını test ettin mi? if/else'in her kolu ayrı senaryo ister.",
+    "Sihirli sayılar var mı? Anlamlı sabit veya değişken isimleri kullan.",
+    "Boş liste, tek eleman ve sınır değerlerini denedin mi? Gerçek hatalar çoğu zaman orada çıkar.",
+  ],
+  odak: [
+    "Sayaç aktif — dikkatin dağılmasın. Tek modül, tek görev, tek oturum.",
+    "25 dakika odaklan, 5 dakika mola. Beyin de derleme süresine ihtiyaç duyar.",
+    "Şu anki hedefin sadece bir fonksiyon mu, bir test mi? Hedefi küçült, momentum kazan.",
+    "Telefonu kenara koy, sekmeleri kapat. Derin çalışma, yüzeysel çoklu görevden güçlüdür.",
+  ],
+  boss: [
+    "Boss Fight: önce görev metnini kelime kelime oku. Testler gizli senaryoları kontrol eder.",
+    "Fonksiyon adını ve parametrelerini görevle birebir eşleştir — isim uyuşmazlığı en sık tuzak.",
+    "return değerini unutma. assert sadece dönen sonucu değil, yan etkileri de fark eder.",
+    "Bir test düşerse, o senaryoyu elle düşün: boş liste, negatif sayı, eşit değerler…",
+    "Canavar güçlü görünür ama mantık basittir. Parçala, test et, sonra birleştir.",
+  ],
+  ogrenme: [
+    "Ders notlarını okuduktan sonra kendi cümlelerinle özetle — aktif tekrar kalıcıdır.",
+    "Bilgi kartlarını ezberleme; 'neden?' sorusunu sor. Anlam, ezberden uzun ömürlüdür.",
+    "Modül bitince 3 satırlık mini not bırak: bugün ne öğrendim?",
+    "Pyodide'de küçük denemeler yap — okumak kod yazmaktan daha yavaş öğretir.",
+  ],
+  motivasyon: [
+    "Her ustası olan biri bir zamanlar 'print(hello)' yazmaya başladı. Sen de o yoldasın.",
+    "Hata almak, sistemin sana geri bildirim vermesidir. Sessiz hata daha tehlikelidir.",
+    "Serini koru — günlük 15 dakika bile compound etkisi yaratır.",
+    "Takıldığında durmak değil, yön değiştirmek önemli. Ördek burada tam bunun için.",
+  ],
+};
+
+const DUCK_ERROR_LINES = {
+  generic: [
+    "Hata yakalandı! Kodu bana satır satır anlatmaya ne dersin?",
+    "Terminal kırmızı konuşuyor — hata satırını bul, bana ne yaptığını anlat.",
+    "Çalışmadı ama panik yok. İlk hata satırını oku, sonra kodu o satıra kadar izle.",
+  ],
+  syntax: [
+    "SyntaxError: parantez, iki nokta veya tırnak eksik olabilir. Hata satırının hemen üstüne bak.",
+    "Sözdizimi hatası — genelde eksik `:`, `)` veya yanlış girinti. Satır satır karşılaştır.",
+  ],
+  indent: [
+    "IndentationError: girinti Python'da sözdiziminin parçasıdır. Bloklar aynı hizada mı?",
+    "Girinti tutarsız — sekmeler ve boşlukları karıştırma. Bir stil seç, ona sadık kal.",
+  ],
+  name: [
+    "NameError: tanımsız bir isim kullanılmış. Değişkeni tanımladın mı, doğru yazdın mı?",
+    "Bu isim Python'a tanıdık değil — yazım hatası mı, import eksik mi kontrol et.",
+  ],
+  type: [
+    "TypeError: yanlış tipte işlem yapılıyor. Sayı mı string mi — türleri print() ile doğrula.",
+    "Tür uyuşmazlığı var. Fonksiyona ne gönderdiğini ve ne beklediğini karşılaştır.",
+  ],
+  index: [
+    "Index/KeyError: olmayan bir elemana eriştin. Liste sınırını ve anahtarın varlığını kontrol et.",
+    "Eleman bulunamadı — boş veri veya yanlış indeks. len() ve içeriği incele.",
+  ],
+  value: [
+    "ValueError: değer biçimi uygun değil. Girdiyi dönüştürmeden önce doğrula.",
+    "Geçersiz değer — sayı beklenen yerde metin olabilir. int/float dönüşümünü kontrol et.",
+  ],
+  zero: [
+    "ZeroDivisionError: sıfıra bölme. Payda sıfır olabilir mi — koşulla koru.",
+  ],
+  assert: [
+    "Unit test düşmedi — fonksiyonun dönüş değerini ve kenar durumlarını yeniden gözden geçir.",
+    "Assert başarısız: beklenen ile dönen farklı. print() ile fonksiyon çıktısını gör.",
+    "Canavar hâlâ ayakta — görev metnindeki her koşulu kodunda karşılıyor musun?",
+  ],
+};
+
+let duckLastLine = "";
+let duckWelcomeShown = false;
 
 function buildGenericModule(topicId, section) {
   return {
@@ -716,11 +810,11 @@ async function attackBoss(topicId) {
       if (!output.children.length) {
         output.innerHTML = '<p class="output-line err">Test başarısız — kodunu gözden geçir.</p>';
       }
-      triggerDuckError();
+      triggerDuckError(result.stderr || "", { boss: true });
     }
   } catch (err) {
     output.innerHTML = `<p class="output-line err">${escapeHtml(err.message)}</p>`;
-    triggerDuckError();
+    triggerDuckError(err.message || "", { boss: true });
   } finally {
     btn.disabled = false;
     btn.textContent = "⚔ Kodu Sına / Canavara Saldır";
@@ -1583,10 +1677,109 @@ function renderCodeOutput(result) {
     p.textContent = result.success ? "// Kod başarıyla çalıştı (çıktı yok)" : "// Hata oluştu";
     el.codeOutput.appendChild(p);
   }
-  if (!result.success) triggerDuckError();
+  if (!result.success) triggerDuckError(result.stderr || "");
 }
 
-function typewriteDuck(text) {
+function classifyDuckError(text) {
+  const sample = String(text || "").toLowerCase();
+  if (!sample.trim()) return "generic";
+  if (sample.includes("assertionerror") || sample.includes("assert")) return "assert";
+  if (sample.includes("syntaxerror")) return "syntax";
+  if (sample.includes("indentationerror")) return "indent";
+  if (sample.includes("nameerror")) return "name";
+  if (sample.includes("typeerror")) return "type";
+  if (sample.includes("indexerror") || sample.includes("keyerror")) return "index";
+  if (sample.includes("valueerror")) return "value";
+  if (sample.includes("zerodivisionerror")) return "zero";
+  return "generic";
+}
+
+function pickDuckLine(pool, avoidLast = true) {
+  if (!Array.isArray(pool) || !pool.length) return "";
+  if (pool.length === 1) return pool[0];
+  let line = pool[Math.floor(Math.random() * pool.length)];
+  if (avoidLast && pool.length > 1) {
+    let guard = 0;
+    while (line === duckLastLine && guard < 8) {
+      line = pool[Math.floor(Math.random() * pool.length)];
+      guard += 1;
+    }
+  }
+  duckLastLine = line;
+  return line;
+}
+
+function isModalOpen() {
+  return el.notesModal && !el.notesModal.classList.contains("hidden");
+}
+
+function getDuckScenario() {
+  if (isModalOpen()) {
+    if (activeFocusPanel === "quiz" && activeTopicId && isBossModule(activeTopicId)) return "boss";
+    if (activeFocusPanel === "code") return "debug";
+    if (activeFocusPanel === "flashcards") return "ogrenme";
+    if (activeFocusPanel === "notes") return "ogrenme";
+    if (activeFocusPanel === "quiz") return "debug";
+  }
+  if (getRunningTopicId() !== null) return "odak";
+  return null;
+}
+
+function getDuckModeKey(scenario, isError = false) {
+  if (isError) return "alert";
+  if (scenario === "welcome") return "welcome";
+  if (scenario === "boss") return "boss";
+  if (scenario === "odak") return "odak";
+  if (scenario === "debug" || scenario === "kod") return "debug";
+  if (scenario === "ogrenme") return "coach";
+  return "default";
+}
+
+function setDuckMode(modeKey) {
+  if (!el.cyberDuck) return;
+  el.cyberDuck.classList.remove(
+    "cyber-duck-alert",
+    "cyber-duck-mode-debug",
+    "cyber-duck-mode-focus",
+    "cyber-duck-mode-boss",
+    "cyber-duck-mode-coach",
+    "cyber-duck-mode-welcome",
+  );
+  const mode = DUCK_MODES[modeKey] || DUCK_MODES.default;
+  if (mode.className) el.cyberDuck.classList.add(mode.className);
+  const tagEl = document.getElementById("cyberDuckTag");
+  if (tagEl) tagEl.textContent = mode.tag;
+}
+
+function buildDuckMessage(options = {}) {
+  const scenario = options.scenario || getDuckScenario();
+  if (scenario === "welcome") {
+    return { text: pickDuckLine(DUCK_LINES.welcome), mode: "welcome" };
+  }
+  if (scenario === "boss") {
+    return { text: pickDuckLine(DUCK_LINES.boss), mode: "boss" };
+  }
+  if (scenario === "odak") {
+    return { text: pickDuckLine(DUCK_LINES.odak), mode: "odak" };
+  }
+  if (scenario === "debug") {
+    return { text: pickDuckLine([...DUCK_LINES.debug, ...DUCK_LINES.kod]), mode: "debug" };
+  }
+  if (scenario === "ogrenme") {
+    return { text: pickDuckLine([...DUCK_LINES.ogrenme, ...DUCK_LINES.motivasyon]), mode: "coach" };
+  }
+
+  const pools = [
+    ...DUCK_LINES.genel,
+    ...DUCK_LINES.debug,
+    ...DUCK_LINES.kod,
+    ...DUCK_LINES.motivasyon,
+    ...DUCK_LINES.ogrenme,
+  ];
+  return { text: pickDuckLine(pools), mode: "default" };
+}
+
+function typewriteDuck(text, speed = 22) {
   if (!el.cyberDuckText) return;
   if (duckTypewriterId !== null) {
     clearInterval(duckTypewriterId);
@@ -1602,24 +1795,40 @@ function typewriteDuck(text) {
       clearInterval(duckTypewriterId);
       duckTypewriterId = null;
     }
-  }, 24);
+  }, speed);
+}
+
+function speakDuck(options = {}) {
+  const { text, mode } = buildDuckMessage(options);
+  setDuckMode(mode);
+  typewriteDuck(text);
 }
 
 function speakDuckRandom() {
-  const line = DUCK_REPLIKES[Math.floor(Math.random() * DUCK_REPLIKES.length)];
-  el.cyberDuck?.classList.remove("cyber-duck-alert");
-  typewriteDuck(line);
+  speakDuck();
 }
 
-function triggerDuckError() {
+function triggerDuckError(errorText = "", options = {}) {
   if (!el.cyberDuck) return;
-  el.cyberDuck.classList.add("cyber-duck-alert");
-  typewriteDuck(DUCK_ERROR_MESSAGE);
+  let kind = classifyDuckError(errorText);
+  if (options.boss && kind === "generic") kind = "assert";
+  const pool = DUCK_ERROR_LINES[kind] || DUCK_ERROR_LINES.generic;
+  setDuckMode("alert");
+  typewriteDuck(pickDuckLine(pool, false), 18);
   if (duckAlertTimeoutId !== null) clearTimeout(duckAlertTimeoutId);
   duckAlertTimeoutId = window.setTimeout(() => {
     el.cyberDuck?.classList.remove("cyber-duck-alert");
     duckAlertTimeoutId = null;
-  }, 5000);
+  }, 6500);
+}
+
+function maybeDuckWelcome() {
+  if (duckWelcomeShown) return;
+  duckWelcomeShown = true;
+  window.setTimeout(() => {
+    if (!el.app || el.app.classList.contains("hidden")) return;
+    speakDuck({ scenario: "welcome" });
+  }, 2800);
 }
 
 function initCyberDuck() {
@@ -2837,6 +3046,7 @@ function finishEnterApp(name) {
   if (el.operatorName) el.operatorName.disabled = false;
   enteringApp = false;
   setBootButtonState("idle");
+  maybeDuckWelcome();
 }
 
 function handlePopState(event) {
@@ -2880,6 +3090,7 @@ function tryRestoreAppSession() {
     appInitialized = true;
     loadTopics();
   }
+  maybeDuckWelcome();
   return true;
 }
 
@@ -3250,7 +3461,7 @@ async function handleRunCode(e) {
     renderCodeOutput(result);
   } catch (err) {
     el.codeOutput.innerHTML = `<p class="output-line err">${escapeHtml(err.message)}</p>`;
-    triggerDuckError();
+    triggerDuckError(err.message || "");
   } finally {
     el.runCodeBtn.disabled = false;
     el.runCodeBtn.textContent = "▶️ KODU ATEŞLE";
