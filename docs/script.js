@@ -604,7 +604,7 @@ function getTimeBasedGreeting(name) {
 }
 
 const HERO_SCRAMBLE_POOL = "01#$%&";
-const HERO_SCRAMBLE_MS = 100;
+const HERO_SCRAMBLE_MS = 800;
 let heroTitleScrambleId = null;
 let lastHeroGreetingText = "";
 
@@ -629,7 +629,7 @@ function scrambleHeroTitle(targetEl, finalText, durationMs = HERO_SCRAMBLE_MS) {
       targetEl.textContent = text;
       targetEl.classList.remove("is-decrypting");
       targetEl.classList.add("is-revealed");
-      window.setTimeout(() => targetEl.classList.remove("is-revealed"), 280);
+      window.setTimeout(() => targetEl.classList.remove("is-revealed"), 820);
       heroTitleScrambleId = null;
       return;
     }

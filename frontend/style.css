@@ -6375,7 +6375,7 @@ html[data-theme="light"] .accordion-module {
 }
 
 .cyber-hero-title.is-decrypting {
-  animation: gradientFlow 2.4s ease infinite, heroDecryptPulse 0.1s ease-in-out infinite;
+  animation: gradientFlow 3.2s ease infinite, heroDecryptPulse 0.8s ease-in-out infinite;
 }
 
 .cyber-hero-title.is-revealed {
@@ -6387,7 +6387,7 @@ html[data-theme="light"] .accordion-module {
 }
 
 .cyber-hero-card:hover .cyber-hero-title.is-decrypting {
-  animation: gradientFlow 2.4s ease infinite, heroDecryptPulse 0.1s ease-in-out infinite, glitchShake 0.42s ease;
+  animation: gradientFlow 3.2s ease infinite, heroDecryptPulse 0.8s ease-in-out infinite, glitchShake 0.42s ease;
 }
 
 .cyber-hero-sub {
