@@ -6329,6 +6329,27 @@ html[data-theme="light"] .accordion-module {
   }
 }
 
+@keyframes heroDecryptPulse {
+  0%, 100% {
+    text-shadow:
+      0 0 10px rgba(0, 255, 136, 0.55),
+      0 0 22px rgba(0, 216, 255, 0.38);
+    filter: brightness(1.05);
+  }
+  50% {
+    text-shadow:
+      0 0 18px rgba(0, 255, 136, 0.85),
+      0 0 32px rgba(0, 216, 255, 0.62),
+      0 0 48px rgba(112, 0, 255, 0.28);
+    filter: brightness(1.18);
+  }
+}
+
+@keyframes heroRevealSnap {
+  0% { transform: scale(1.02); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
 .cyber-hero-kicker {
   margin: 0 0 0.45rem;
   font-size: 0.58rem;
@@ -6349,12 +6370,24 @@ html[data-theme="light"] .accordion-module {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientFlow 6s ease infinite, neonBreathing 3s ease-in-out infinite;
-  transition: transform 0.25s ease;
+  animation: gradientFlow 5.6s ease infinite, neonBreathing 2.6s ease-in-out infinite;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.cyber-hero-title.is-decrypting {
+  animation: gradientFlow 2.4s ease infinite, heroDecryptPulse 0.1s ease-in-out infinite;
+}
+
+.cyber-hero-title.is-revealed {
+  animation: gradientFlow 5.6s ease infinite, neonBreathing 2.6s ease-in-out infinite, heroRevealSnap 0.42s ease-out;
 }
 
 .cyber-hero-card:hover .cyber-hero-title {
-  animation: gradientFlow 6s ease infinite, neonBreathing 3s ease-in-out infinite, glitchShake 0.42s ease;
+  animation: gradientFlow 5.6s ease infinite, neonBreathing 2.6s ease-in-out infinite, glitchShake 0.42s ease;
+}
+
+.cyber-hero-card:hover .cyber-hero-title.is-decrypting {
+  animation: gradientFlow 2.4s ease infinite, heroDecryptPulse 0.1s ease-in-out infinite, glitchShake 0.42s ease;
 }
 
 .cyber-hero-sub {

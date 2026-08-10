@@ -604,25 +604,32 @@ function getTimeBasedGreeting(name) {
 }
 
 const HERO_SCRAMBLE_POOL = "01#$%&";
+const HERO_SCRAMBLE_MS = 100;
 let heroTitleScrambleId = null;
 let lastHeroGreetingText = "";
 
-function scrambleHeroTitle(targetEl, finalText, durationMs = 500) {
+function scrambleHeroTitle(targetEl, finalText, durationMs = HERO_SCRAMBLE_MS) {
   if (!targetEl) return;
   const text = String(finalText || "");
   if (!text) {
     targetEl.textContent = "";
+    targetEl.classList.remove("is-decrypting", "is-revealed");
     return;
   }
   if (heroTitleScrambleId !== null) {
     cancelAnimationFrame(heroTitleScrambleId);
     heroTitleScrambleId = null;
   }
+  targetEl.classList.remove("is-revealed");
+  targetEl.classList.add("is-decrypting");
   const start = performance.now();
   const tick = (now) => {
     const progress = Math.min(1, (now - start) / durationMs);
     if (progress >= 1) {
       targetEl.textContent = text;
+      targetEl.classList.remove("is-decrypting");
+      targetEl.classList.add("is-revealed");
+      window.setTimeout(() => targetEl.classList.remove("is-revealed"), 280);
       heroTitleScrambleId = null;
       return;
     }
@@ -644,7 +651,7 @@ function renderCyberHeroPanel() {
 
   if (el.cyberHeroTitle && greeting !== lastHeroGreetingText) {
     lastHeroGreetingText = greeting;
-    scrambleHeroTitle(el.cyberHeroTitle, greeting, 500);
+    scrambleHeroTitle(el.cyberHeroTitle, greeting, HERO_SCRAMBLE_MS);
   }
   if (el.cyberHeroSub) {
     if (nextTopic) {
