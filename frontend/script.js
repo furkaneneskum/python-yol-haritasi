@@ -603,12 +603,49 @@ function getTimeBasedGreeting(name) {
   return getTimeGreetingParts(name).full;
 }
 
+const HERO_SCRAMBLE_POOL = "01#$%&";
+let heroTitleScrambleId = null;
+let lastHeroGreetingText = "";
+
+function scrambleHeroTitle(targetEl, finalText, durationMs = 500) {
+  if (!targetEl) return;
+  const text = String(finalText || "");
+  if (!text) {
+    targetEl.textContent = "";
+    return;
+  }
+  if (heroTitleScrambleId !== null) {
+    cancelAnimationFrame(heroTitleScrambleId);
+    heroTitleScrambleId = null;
+  }
+  const start = performance.now();
+  const tick = (now) => {
+    const progress = Math.min(1, (now - start) / durationMs);
+    if (progress >= 1) {
+      targetEl.textContent = text;
+      heroTitleScrambleId = null;
+      return;
+    }
+    const revealCount = Math.floor(progress * text.length);
+    targetEl.textContent = text.split("").map((ch, i) => {
+      if (i < revealCount) return ch;
+      if (ch === " ") return " ";
+      return HERO_SCRAMBLE_POOL[Math.floor(Math.random() * HERO_SCRAMBLE_POOL.length)];
+    }).join("");
+    heroTitleScrambleId = requestAnimationFrame(tick);
+  };
+  heroTitleScrambleId = requestAnimationFrame(tick);
+}
+
 function renderCyberHeroPanel() {
   const name = getOperatorName();
   const greeting = getTimeBasedGreeting(name);
   const nextTopic = findNextTopic();
 
-  if (el.cyberHeroTitle) el.cyberHeroTitle.textContent = greeting;
+  if (el.cyberHeroTitle && greeting !== lastHeroGreetingText) {
+    lastHeroGreetingText = greeting;
+    scrambleHeroTitle(el.cyberHeroTitle, greeting, 500);
+  }
   if (el.cyberHeroSub) {
     if (nextTopic) {
       el.cyberHeroSub.textContent = `Siber komuta hattı aktif — sıradaki hedef: ${getShortTitle(nextTopic.title)}.`;

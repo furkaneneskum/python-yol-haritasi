@@ -6310,6 +6310,25 @@ html[data-theme="light"] .accordion-module {
   100% { background-position: 0 120%; }
 }
 
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes neonBreathing {
+  0%, 100% {
+    text-shadow:
+      0 0 8px rgba(0, 255, 136, 0.35),
+      0 0 18px rgba(0, 216, 255, 0.22);
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgba(0, 255, 136, 0.62),
+      0 0 28px rgba(0, 216, 255, 0.45),
+      0 0 42px rgba(112, 0, 255, 0.18);
+  }
+}
+
 .cyber-hero-kicker {
   margin: 0 0 0.45rem;
   font-size: 0.58rem;
@@ -6324,13 +6343,18 @@ html[data-theme="light"] .accordion-module {
   font-size: clamp(1.15rem, 2.8vw, 1.65rem);
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--text);
-  transition: text-shadow 0.25s ease, transform 0.25s ease;
+  color: transparent;
+  background: linear-gradient(135deg, #00ff88, #00d8ff, #7000ff);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 6s ease infinite, neonBreathing 3s ease-in-out infinite;
+  transition: transform 0.25s ease;
 }
 
 .cyber-hero-card:hover .cyber-hero-title {
-  text-shadow: 0 0 14px rgba(0, 240, 255, 0.5), 0 0 28px rgba(255, 232, 115, 0.22);
-  animation: glitchShake 0.42s ease;
+  animation: gradientFlow 6s ease infinite, neonBreathing 3s ease-in-out infinite, glitchShake 0.42s ease;
 }
 
 .cyber-hero-sub {
