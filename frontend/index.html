@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=45">
+  <link rel="stylesheet" href="style.css?v=46">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -228,9 +228,9 @@
     <div class="welcome-stage">
       <p class="welcome-alert" id="welcomeAlert">▌ ERİŞİM PROTOKOLÜ BAŞLATILDI</p>
 
-      <div class="welcome-card welcome-card-spectacle">
+      <div class="welcome-card welcome-card-spectacle hero-float">
         <p class="welcome-kicker" id="welcomeKicker">// OTURUM DOĞRULANDI — OPERATÖR TESPİT EDİLDİ</p>
-        <h2 class="welcome-headline welcome-headline-spectacle">
+        <h2 class="welcome-headline welcome-headline-spectacle hero-float">
           <span class="welcome-prefix" id="welcomePrefix"></span><span class="welcome-name glitch-text" id="welcomeName"></span><span class="welcome-cursor" id="welcomeCursor" aria-hidden="true">|</span>
         </h2>
         <p class="welcome-sub" id="welcomeSub">Kimlik çözülüyor...</p>
@@ -333,6 +333,17 @@
 
     <div class="app-body">
     <main class="staircase-wrapper">
+      <!-- Siber Karşılama Hero Paneli -->
+      <section class="cyber-hero-panel hero-float" id="cyberHeroPanel" aria-label="Operatör karşılama">
+        <div class="cyber-hero-card hero-float">
+          <div class="cyber-hero-scanline" aria-hidden="true"></div>
+          <p class="cyber-hero-kicker">// OPERATÖR KARŞILAMA PROTOKOLÜ</p>
+          <h2 class="cyber-hero-title" id="cyberHeroTitle">Günaydın, Furkan ⚡</h2>
+          <p class="cyber-hero-sub" id="cyberHeroSub">Python Akademisi seni bekliyor — holografik komuta hattı aktif.</p>
+          <button type="button" class="cyber-hero-resume" id="cyberHeroResumeBtn">[ ⏩ Kaldığın Yerden Devam Et ]</button>
+        </div>
+      </section>
+
       <div class="staircase-title">
         <h1>🐍 PYTHON AKADEMİSİ</h1>
         <p>Basamak basamak ilerle — İnteraktif Python Öğrenme Merdiveni</p>
@@ -618,10 +629,11 @@
           <p class="orduck-chat-text hidden" id="orduckChatText" aria-hidden="true"></p>
         </div>
 
-        <div class="orduck-chat-compose">
+        <form class="orduck-chat-compose" id="orduckChatForm" autocomplete="off">
           <input type="text" class="orduck-chat-input" id="orduckChatInput" placeholder="Python, kod veya akademi hakkında sor..." maxlength="500" autocomplete="off">
-          <button type="button" class="orduck-chat-send" id="orduckChatSend" aria-label="Mesaj gönder">➤</button>
-        </div>
+          <button type="button" class="orduck-chat-mic" id="orduckChatMic" aria-label="Sesli giriş" title="Sesli sor">🎤</button>
+          <button type="submit" class="orduck-chat-send" id="orduckChatSend" aria-label="Mesaj gönder">➤</button>
+        </form>
         <p class="orduck-chat-hint">Enter ile gönder · Ör: <em>for döngüsü anlat</em> · <em>kodumu incele</em> · <em>ne yapabilirsin?</em></p>
 
         <div class="orduck-chat-actions">
@@ -631,6 +643,12 @@
         </div>
       </div>
     </div>
+
+    <!-- ORDEK.AI Proaktif Hata Toast -->
+    <button type="button" class="orduck-error-toast hidden" id="orduckErrorToast" aria-live="assertive">
+      <span class="orduck-error-toast-icon">🚨</span>
+      <span class="orduck-error-toast-text">Hata tespit edildi! İncelemek için tıkla</span>
+    </button>
 
     <footer class="sys-footer">
       <span>İnteraktif Python Akademisi · Sunucusuz · localStorage + Pyodide</span>
@@ -828,7 +846,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=45"></script>
-  <script src="script.js?v=45"></script>
+  <script src="academy-content.js?v=46"></script>
+  <script src="script.js?v=46"></script>
 </body>
 </html>

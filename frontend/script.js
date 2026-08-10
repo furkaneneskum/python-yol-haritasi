@@ -421,8 +421,14 @@ const orduckAiState = {
 
 let orduckMessageBusy = false;
 const orduckChatHistory = [];
+const conversationHistory = orduckChatHistory;
+const ORDUCK_MEMORY_KEY = "python_yol_orduck_conversation_v1";
 let orduckConversationContext = { lastTopic: null, lastIntent: null };
 let orduckThreadTypewriterId = null;
+let orduckSpeechRecognition = null;
+let orduckMicActive = false;
+let orduckErrorToastTimeoutId = null;
+let orduckErrorPulseTimeoutId = null;
 
 function formatOrduckPlainText(text) {
   return String(text || "")
@@ -450,7 +456,12 @@ function formatOrduckMessageHtml(text) {
 
   return parts.map((part) => {
     if (part.type === "code") {
-      return `<pre class="orduck-code-block"><code>${escapeHtml(part.value)}</code></pre>`;
+      const encoded = encodeURIComponent(part.value);
+      return `<div class="orduck-code-wrap"><pre class="orduck-code-block"><code>${escapeHtml(part.value)}</code></pre>`
+        + `<div class="orduck-code-actions">`
+        + `<button type="button" class="orduck-code-btn" data-orduck-copy="${encoded}">📋 Kopyala</button>`
+        + `<button type="button" class="orduck-code-btn" data-orduck-insert="${encoded}">▶ Editöre Aktar</button>`
+        + `</div></div>`;
     }
     return escapeHtml(part.value).replace(/\n/g, "<br>");
   }).join("");
@@ -472,12 +483,55 @@ function renderOrduckChatThread(activeTypewriterId = null, partialText = null) {
     const isTyping = activeTypewriterId === msg.id;
     const body = isTyping ? formatOrduckMessageHtml(partialText || "") : formatOrduckMessageHtml(msg.text);
     const alertClass = msg.alert ? " is-alert" : "";
+    const speakBtn = msg.role === "assistant" && msg.text
+      ? `<div class="orduck-msg-toolbar"><button type="button" class="orduck-speak-btn" data-orduck-speak="${msg.id}" aria-label="Sesli oku">🔊 Sesli Oku</button></div>`
+      : "";
     return `<article class="orduck-msg orduck-msg--${msg.role}${alertClass}" data-orduck-id="${msg.id}">
       <span class="orduck-msg-label">${msg.role === "user" ? "Sen" : "ORDEK.AI"}</span>
-      <div class="orduck-msg-body">${body}</div>
+      <div class="orduck-msg-body">${body}</div>${speakBtn}
     </article>`;
   }).join("");
   scrollOrduckChatToBottom();
+}
+
+function loadOrduckConversationMemory() {
+  try {
+    const raw = localStorage.getItem(ORDUCK_MEMORY_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.length) return false;
+    orduckChatHistory.length = 0;
+    parsed.slice(-40).forEach((entry) => {
+      if (!entry || !entry.role || !entry.text) return;
+      orduckChatHistory.push({
+        id: entry.id || `m-${entry.ts || Date.now()}`,
+        role: entry.role,
+        text: String(entry.text),
+        alert: Boolean(entry.alert),
+        ts: entry.ts || Date.now(),
+      });
+    });
+    return orduckChatHistory.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function saveOrduckConversationMemory() {
+  try {
+    localStorage.setItem(
+      ORDUCK_MEMORY_KEY,
+      JSON.stringify(
+        orduckChatHistory.map((m) => ({
+          id: m.id,
+          role: m.role,
+          text: m.text,
+          ts: m.ts,
+          alert: m.alert,
+        })),
+      ),
+    );
+  } catch { /* ignore quota */ }
 }
 
 function appendOrduckChatMessage(role, text, options = {}) {
@@ -490,6 +544,7 @@ function appendOrduckChatMessage(role, text, options = {}) {
   };
   orduckChatHistory.push(entry);
   if (orduckChatHistory.length > 40) orduckChatHistory.splice(0, orduckChatHistory.length - 40);
+  saveOrduckConversationMemory();
   if (options.typewriter && role === "assistant" && entry.text) {
     typewriteOrduckThread(entry.id, entry.text, options.speed || 14);
     return entry;
@@ -523,8 +578,165 @@ function seedOrduckWelcomeIfEmpty() {
     "assistant",
     "Merhaba! Ben ORDEK.AI — Python Akademisi'nin siber ördek asistanıyım.\n\n"
     + "Benimle karşılıklı sohbet edebilirsin: Python soruları, kod inceleme, ilerleme takibi, Boss Fight ipuçları.\n"
-    + "Kişilik modunu seç (Mentor / Sert / Sokratik) ve aşağıya sorunu yaz.",
+    + "🎤 Mikrofon ile sesli sor · 🔊 yanıtları sesli dinle · sohbet geçmişin kaydedilir.",
   );
+}
+
+function getTimeGreetingParts(name) {
+  const displayName = name
+    ? name.charAt(0).toUpperCase() + name.slice(1)
+    : "Operatör";
+  const hour = new Date().getHours();
+  if (hour >= 0 && hour < 6) {
+    return { prefix: "İyi Geceler, ", suffix: " 🌙", full: `İyi Geceler, ${displayName} 🌙` };
+  }
+  if (hour >= 6 && hour < 12) {
+    return { prefix: "Günaydın, ", suffix: " ⚡", full: `Günaydın, ${displayName} ⚡` };
+  }
+  if (hour >= 12 && hour < 18) {
+    return { prefix: "Tünaydın, ", suffix: " 🚀", full: `Tünaydın, ${displayName} 🚀` };
+  }
+  return { prefix: "İyi Akşamlar, ", suffix: " 💻", full: `İyi Akşamlar, ${displayName} 💻` };
+}
+
+function getTimeBasedGreeting(name) {
+  return getTimeGreetingParts(name).full;
+}
+
+function renderCyberHeroPanel() {
+  const name = getOperatorName();
+  const greeting = getTimeBasedGreeting(name);
+  const nextTopic = findNextTopic();
+
+  if (el.cyberHeroTitle) el.cyberHeroTitle.textContent = greeting;
+  if (el.cyberHeroSub) {
+    if (nextTopic) {
+      el.cyberHeroSub.textContent = `Siber komuta hattı aktif — sıradaki hedef: ${getShortTitle(nextTopic.title)}.`;
+    } else {
+      el.cyberHeroSub.textContent = "Tüm modüller tamamlandı — ustalaştın! Yine de kod pratiği yapabilirsin.";
+    }
+  }
+  if (el.cyberHeroResumeBtn) {
+    if (nextTopic) {
+      el.cyberHeroResumeBtn.disabled = false;
+      el.cyberHeroResumeBtn.textContent = `[ ⏩ Kaldığın Yerden Devam Et: ${getBolum(nextTopic.title)} ]`;
+    } else {
+      el.cyberHeroResumeBtn.disabled = true;
+      el.cyberHeroResumeBtn.textContent = "[ ✓ Tüm Bölümler Tamamlandı ]";
+    }
+  }
+}
+
+function scrollCyberHeroResume() {
+  const nextTopic = findNextTopic();
+  if (!nextTopic) return;
+  setFocusedTopic(nextTopic.id);
+  scrollToTopic(nextTopic.id);
+}
+
+function copyOrduckCode(encoded) {
+  const code = decodeURIComponent(encoded || "");
+  if (!code) return;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(code).catch(() => {});
+  }
+}
+
+function insertOrduckCodeToEditor(encoded) {
+  const code = decodeURIComponent(encoded || "");
+  if (!code || !el.codeEditor) return;
+  el.codeEditor.value = code;
+  el.codeEditor.focus();
+  if (isModalOpen() && activeFocusPanel !== "code") {
+    switchModalTab("code");
+  }
+}
+
+function speakOrduckText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(formatOrduckPlainText(text));
+  utter.lang = "tr-TR";
+  utter.rate = 0.95;
+  utter.pitch = 1;
+  window.speechSynthesis.speak(utter);
+}
+
+function stopOrduckMic() {
+  orduckMicActive = false;
+  el.orduckChatMic?.classList.remove("is-listening");
+  try {
+    orduckSpeechRecognition?.stop();
+  } catch { /* ignore */ }
+}
+
+function toggleOrduckMic() {
+  if (!orduckSpeechRecognition) return;
+  if (orduckMicActive) {
+    stopOrduckMic();
+    return;
+  }
+  try {
+    orduckMicActive = true;
+    el.orduckChatMic?.classList.add("is-listening");
+    orduckSpeechRecognition.start();
+  } catch {
+    stopOrduckMic();
+  }
+}
+
+function initOrduckSpeechInput() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    if (el.orduckChatMic) {
+      el.orduckChatMic.disabled = true;
+      el.orduckChatMic.title = "Tarayıcı sesli girişi desteklemiyor";
+    }
+    return;
+  }
+  orduckSpeechRecognition = new SR();
+  orduckSpeechRecognition.lang = "tr-TR";
+  orduckSpeechRecognition.interimResults = false;
+  orduckSpeechRecognition.continuous = false;
+  orduckSpeechRecognition.maxAlternatives = 1;
+  orduckSpeechRecognition.onresult = (event) => {
+    const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+    stopOrduckMic();
+    if (!transcript || !el.orduckChatInput) return;
+    el.orduckChatInput.value = transcript;
+    handleOrduckUserMessage();
+  };
+  orduckSpeechRecognition.onerror = () => stopOrduckMic();
+  orduckSpeechRecognition.onend = () => {
+    if (orduckMicActive) stopOrduckMic();
+  };
+}
+
+function showOrduckErrorToast() {
+  if (!el.orduckErrorToast) return;
+  el.orduckErrorToast.classList.remove("hidden");
+  if (orduckErrorToastTimeoutId !== null) clearTimeout(orduckErrorToastTimeoutId);
+  orduckErrorToastTimeoutId = window.setTimeout(() => {
+    el.orduckErrorToast?.classList.add("hidden");
+    orduckErrorToastTimeoutId = null;
+  }, 9000);
+}
+
+function hideOrduckErrorToast() {
+  if (orduckErrorToastTimeoutId !== null) {
+    clearTimeout(orduckErrorToastTimeoutId);
+    orduckErrorToastTimeoutId = null;
+  }
+  el.orduckErrorToast?.classList.add("hidden");
+}
+
+function pulseOrduckErrorState() {
+  el.orduckWidget?.classList.add("is-error-pulse", "is-alert");
+  if (orduckErrorPulseTimeoutId !== null) clearTimeout(orduckErrorPulseTimeoutId);
+  orduckErrorPulseTimeoutId = window.setTimeout(() => {
+    el.orduckWidget?.classList.remove("is-error-pulse");
+    orduckErrorPulseTimeoutId = null;
+  }, 12000);
 }
 
 function buildOrduckCapabilitiesMessage() {
@@ -1744,7 +1956,9 @@ function cacheElements() {
     "bossVictoryOverlay", "bossVictoryClose", "bossVictorySub",
     "orduckWidget", "orduckChatPanel", "orduckChatClose", "orduckChatStatus", "orduckChatText",
     "orduckChatThread", "orduckChatBody",
-    "orduckAiStatus", "orduckChatInput", "orduckChatSend",
+    "orduckAiStatus", "orduckChatInput", "orduckChatSend", "orduckChatMic", "orduckChatForm",
+    "orduckErrorToast",
+    "cyberHeroPanel", "cyberHeroTitle", "cyberHeroSub", "cyberHeroResumeBtn",
     "orduckBtnProgress", "orduckBtnCode", "orduckBtnTip",
     "cyberDuck",
   ];
@@ -2140,6 +2354,7 @@ function renderDevPanel() {
   }
 
   updateMobileGoalBar(nextTopic);
+  renderCyberHeroPanel();
 }
 
 function updateMobileGoalBar(nextTopic) {
@@ -2566,6 +2781,8 @@ function triggerDuckError(errorText = "", options = {}) {
   let kind = classifyDuckError(errorText);
   if (options.boss && kind === "generic") kind = "assert";
   const message = getDuckPersonalityLine(kind);
+  pulseOrduckErrorState();
+  showOrduckErrorToast();
   openDuckChat(false);
   deliverDuckResponse(message, { analyzing: true, alert: true });
   if (duckAlertTimeoutId !== null) clearTimeout(duckAlertTimeoutId);
@@ -2583,7 +2800,16 @@ function maybeDuckWelcome() {
 function initCyberDuck() {
   if (!el.cyberDuck || !el.orduckWidget) return;
 
-  seedOrduckWelcomeIfEmpty();
+  loadOrduckConversationMemory();
+  if (orduckChatHistory.length) renderOrduckChatThread();
+  else seedOrduckWelcomeIfEmpty();
+
+  initOrduckSpeechInput();
+
+  safeOn(el.cyberHeroResumeBtn, "click", (e) => {
+    e.preventDefault();
+    scrollCyberHeroResume();
+  });
 
   safeOn(el.cyberDuck, "click", (e) => {
     e.preventDefault();
@@ -2629,6 +2855,44 @@ function initCyberDuck() {
     e.preventDefault();
     e.stopPropagation();
     deliverDuckResponse(buildDuckTipMessage());
+  });
+
+  safeOn(el.orduckChatForm, "submit", (e) => {
+    e.preventDefault();
+    handleOrduckUserMessage();
+  });
+
+  safeOn(el.orduckChatMic, "click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleOrduckMic();
+  });
+
+  safeOn(el.orduckChatThread, "click", (e) => {
+    const copyBtn = e.target.closest("[data-orduck-copy]");
+    if (copyBtn) {
+      e.preventDefault();
+      copyOrduckCode(copyBtn.getAttribute("data-orduck-copy"));
+      return;
+    }
+    const insertBtn = e.target.closest("[data-orduck-insert]");
+    if (insertBtn) {
+      e.preventDefault();
+      insertOrduckCodeToEditor(insertBtn.getAttribute("data-orduck-insert"));
+      return;
+    }
+    const speakBtn = e.target.closest("[data-orduck-speak]");
+    if (speakBtn) {
+      e.preventDefault();
+      const msg = orduckChatHistory.find((m) => m.id === speakBtn.getAttribute("data-orduck-speak"));
+      if (msg) speakOrduckText(msg.text);
+    }
+  });
+
+  safeOn(el.orduckErrorToast, "click", (e) => {
+    e.preventDefault();
+    hideOrduckErrorToast();
+    openDuckChat(false);
   });
 
   safeOn(el.orduckChatSend, "click", (e) => {
@@ -3616,7 +3880,9 @@ function resetWelcomeAnimation() {
 function runWelcomeReveal(name) {
   resetWelcomeTextAnimation();
   const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-  const prefix = "Hoş geldin, ";
+  const greeting = getTimeGreetingParts(name);
+  const prefix = greeting.prefix;
+  const nameWithEmoji = `${displayName}${greeting.suffix}`;
   let frame = 0;
   const maxFrames = 72;
   let shakeTriggered = false;
@@ -3630,9 +3896,9 @@ function runWelcomeReveal(name) {
     if (el.welcomeName && prefixLen >= prefix.length) {
       const scrambleFrame = frame - prefix.length * 2;
       if (scrambleFrame < 28) {
-        const scrambled = displayName.split("").map((ch, i) => {
+        const scrambled = nameWithEmoji.split("").map((ch, i) => {
           if (ch === " ") return " ";
-          const threshold = (i + 1) / displayName.length;
+          const threshold = (i + 1) / nameWithEmoji.length;
           const progress = scrambleFrame / 28;
           return progress > threshold ? ch : DECRYPT_POOL[Math.floor(Math.random() * DECRYPT_POOL.length)];
         }).join("");
@@ -3641,8 +3907,8 @@ function runWelcomeReveal(name) {
         el.welcomeName.classList.add("glitch-active");
         el.welcomeName.classList.remove("revealed", "glitch-settled");
       } else {
-        el.welcomeName.textContent = displayName;
-        el.welcomeName.setAttribute("data-text", displayName);
+        el.welcomeName.textContent = nameWithEmoji;
+        el.welcomeName.setAttribute("data-text", nameWithEmoji);
         el.welcomeName.classList.remove("glitch-active");
         if (!el.welcomeName.classList.contains("revealed")) {
           el.welcomeName.classList.add("revealed", "glitch-settled");
@@ -3660,8 +3926,8 @@ function runWelcomeReveal(name) {
     } else {
       welcomeRevealId = null;
       if (el.welcomeName) {
-        el.welcomeName.textContent = displayName;
-        el.welcomeName.setAttribute("data-text", displayName);
+        el.welcomeName.textContent = nameWithEmoji;
+        el.welcomeName.setAttribute("data-text", nameWithEmoji);
         el.welcomeName.classList.remove("glitch-active");
         el.welcomeName.classList.add("revealed", "glitch-settled");
       }
