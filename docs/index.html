@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=49">
+  <link rel="stylesheet" href="style.css?v=50">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -600,56 +600,6 @@
     </aside>
     </div>
 
-    <!-- ORDEK.AI — Sol Asistan Paneli -->
-    <div class="orduck-widget" id="orduckWidget">
-      <button type="button" class="cyber-duck" id="cyberDuck" aria-expanded="false" aria-controls="orduckChatPanel" aria-label="ORDEK.AI — sohbeti aç/kapat">
-        <span class="cyber-duck-glow" aria-hidden="true"></span>
-        <span class="cyber-duck-icon" aria-hidden="true">🦆</span>
-      </button>
-
-      <div class="orduck-chat hidden" id="orduckChatPanel" role="dialog" aria-modal="false" aria-labelledby="orduckChatTitle">
-        <div class="orduck-chat-header">
-          <div class="orduck-chat-heading">
-            <span class="orduck-chat-tag">// ORDEK.AI</span>
-            <span class="orduck-chat-title" id="orduckChatTitle">Siber Ördek Asistan</span>
-            <span class="orduck-ai-status" id="orduckAiStatus" aria-live="polite">[ Mod: Kural Motoru ]</span>
-          </div>
-          <button type="button" class="orduck-chat-close" id="orduckChatClose" aria-label="Sohbeti kapat">✖</button>
-        </div>
-
-        <div class="orduck-personality-tabs" role="tablist" aria-label="Kişilik modu">
-          <button type="button" class="orduck-tab active" data-personality="mentor" role="tab" aria-selected="true">🟢 Mentor</button>
-          <button type="button" class="orduck-tab" data-personality="strict" role="tab" aria-selected="false">🔴 Sert İncelemeci</button>
-          <button type="button" class="orduck-tab" data-personality="socratic" role="tab" aria-selected="false">🟡 Sokratik</button>
-        </div>
-
-        <div class="orduck-chat-body" id="orduckChatBody">
-          <div class="orduck-chat-thread" id="orduckChatThread" aria-live="polite" aria-relevant="additions"></div>
-          <p class="orduck-chat-status hidden" id="orduckChatStatus">ORDEK.AI düşünüyor...</p>
-          <p class="orduck-chat-text hidden" id="orduckChatText" aria-hidden="true"></p>
-        </div>
-
-        <form class="orduck-chat-compose" id="orduckChatForm" autocomplete="off">
-          <input type="text" class="orduck-chat-input" id="orduckChatInput" placeholder="Python, kod veya akademi hakkında sor..." maxlength="500" autocomplete="off">
-          <button type="button" class="orduck-chat-mic" id="orduckChatMic" aria-label="Sesli giriş" title="Sesli sor">🎤</button>
-          <button type="submit" class="orduck-chat-send" id="orduckChatSend" aria-label="Mesaj gönder">➤</button>
-        </form>
-        <p class="orduck-chat-hint">Enter ile gönder · Ör: <em>for döngüsü anlat</em> · <em>kodumu incele</em> · <em>ne yapabilirsin?</em></p>
-
-        <div class="orduck-chat-actions">
-          <button type="button" class="orduck-action-btn" id="orduckBtnProgress">🚀 İlerlememi Göster</button>
-          <button type="button" class="orduck-action-btn" id="orduckBtnCode">🐞 Kodumu İncele</button>
-          <button type="button" class="orduck-action-btn" id="orduckBtnTip">💡 İpucu Ver</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ORDEK.AI Proaktif Hata Toast -->
-    <button type="button" class="orduck-error-toast hidden" id="orduckErrorToast" aria-live="assertive">
-      <span class="orduck-error-toast-icon">🚨</span>
-      <span class="orduck-error-toast-text">Hata tespit edildi! İncelemek için tıkla</span>
-    </button>
-
     <footer class="sys-footer">
       <span>İnteraktif Python Akademisi · Sunucusuz · localStorage + Pyodide</span>
       <button type="button" class="sys-footer-link" id="footerShortcutsBtn">⌨ Klavye Kısayolları</button>
@@ -846,7 +796,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=49"></script>
-  <script src="script.js?v=49"></script>
+  <script src="academy-content.js?v=50"></script>
+  <script src="script.js?v=50"></script>
 </body>
 </html>
