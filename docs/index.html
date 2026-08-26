@@ -4,16 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=50">
+  <link rel="stylesheet" href="style.css?v=51">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
   <script>
     (function () {
       try {
         if (localStorage.getItem("python_yol_theme") === "light") {
           document.documentElement.dataset.theme = "light";
+          document.body.classList.add("light-mode");
         }
       } catch (e) { /* ignore */ }
     })();
@@ -57,145 +58,39 @@
       </button>
     </header>
 
-    <div class="landing-inner">
-      <div class="landing-logo">
-        <span class="logo-bracket">[</span>
-        <span class="logo-py">PY</span>
-        <span class="logo-bracket">]</span>
+    <div class="landing-inner landing-inner--v2">
+      <section class="hero-section" aria-label="Karşılama">
+        <div class="hero-emblem" aria-hidden="true">
+          <span class="logo-bracket">[</span>
+          <span class="logo-py">PY</span>
+          <span class="logo-bracket">]</span>
+        </div>
+        <h1 class="hero-title">Öğren. Kodla. Üret.</h1>
+      </section>
+
+      <div class="login-card">
+        <input type="text" id="username" placeholder="👤 İsminizi Girin (Örn: Furkan)" maxlength="24" spellcheck="false" autocomplete="name" required>
+        <button type="button" id="start-btn" class="btn-primary">🚀 SİSTEMİ BAŞLAT</button>
+        <p class="operator-error hidden" id="operatorError">Lütfen en az 2 karakter gir.</p>
       </div>
 
-      <div class="landing-headline">
-        <p class="typewriter" id="typewriter"></p>
-        <span class="typewriter-cursor" id="typewriterCursor">|</span>
-      </div>
-      <p class="landing-sub" id="landingSub">İnteraktif Python Akademisi'ne hoş geldin — dış kaynak yok, tamamen tarayıcında.</p>
-
-      <div class="landing-grid">
-        <div class="landing-panel landing-brief">
-          <div class="panel-header">
-            <span class="panel-tag">BRF-001</span>
-            <span>// BAŞLANGIÇ ÖZETİ</span>
-          </div>
-
-          <p class="brief-lead">👋 <strong>Merhaba!</strong> Python yolculuğun burada başlıyor.</p>
-          <p class="brief-text">32 modüllük dijital merdiveni tırman, ders notlarını oku, Pyodide ile kodunu canlı çalıştır, bilgi kartları ve quizlerle pekiştir. XP kazan, serini koru — hepsi sunucusuz, tamamen senin tarayıcında.</p>
-
-          <div class="landing-modules" id="landingModules">
-            <article class="module-card">
-              <span class="module-icon">🪜</span>
-              <div class="module-body">
-                <strong>Python Merdiveni</strong>
-                <span>32 bölüm · diagonal yol haritası</span>
-              </div>
-            </article>
-            <article class="module-card">
-              <span class="module-icon">⚡</span>
-              <div class="module-body">
-                <strong>XP & Unvan</strong>
-                <span>Başlangıç → Gelişen → Usta</span>
-              </div>
-            </article>
-            <article class="module-card">
-              <span class="module-icon">📖</span>
-              <div class="module-body">
-                <strong>Ders Notları</strong>
-                <span>Profesyonel mini-makaleler · 4 sekme</span>
-              </div>
-            </article>
-            <article class="module-card">
-              <span class="module-icon">💻</span>
-              <div class="module-body">
-                <strong>Kod Laboratuvarı</strong>
-                <span>Pyodide · tarayıcıda Python</span>
-              </div>
-            </article>
-            <article class="module-card">
-              <span class="module-icon">🌌</span>
-              <div class="module-body">
-                <strong>Aktivite Haritası</strong>
-                <span>30 günlük çalışma ısı haritası</span>
-              </div>
-            </article>
-            <article class="module-card">
-              <span class="module-icon">🎯</span>
-              <div class="module-body">
-                <strong>Bilgi Kartları & Quiz</strong>
-                <span>3D kartlar · modül testleri · XP</span>
-              </div>
-            </article>
-          </div>
-
-          <div class="landing-stats">
-            <div class="stat-pill"><span class="stat-num">32</span><span class="stat-lbl">Bölüm</span></div>
-            <div class="stat-pill"><span class="stat-num">3</span><span class="stat-lbl">Unvan</span></div>
-            <div class="stat-pill"><span class="stat-num">∞</span><span class="stat-lbl">Kod Denemesi</span></div>
-            <div class="stat-pill"><span class="stat-num">+XP</span><span class="stat-lbl">XP Sistemi</span></div>
-          </div>
-
-          <div class="operator-boot-module">
-            <div class="operator-field">
-              <label for="operatorName" class="operator-label">// Adın</label>
-              <div class="operator-boot-row">
-                <input type="text" id="operatorName" class="operator-input" maxlength="24" placeholder="Örn: Furkan" spellcheck="false" autocomplete="name" required>
-                <button type="button" class="enter-system-btn boot-start-btn" id="enterSystemBtn">
-                  <span class="enter-glow"></span>
-                  <span class="boot-btn-label" id="bootBtnLabel">[ SİSTEMİ BAŞLAT ]</span>
-                </button>
-              </div>
-              <p class="operator-error hidden" id="operatorError">Lütfen adını gir.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="landing-panel landing-terminal-wrap">
-          <div class="panel-header">
-            <span class="panel-tag">TRM-002</span>
-            <span>// SİSTEM TERMİNALİ</span>
-            <span class="terminal-status" id="terminalStatus">BOOT</span>
-          </div>
-
-          <div class="terminal terminal-compact">
-            <div class="terminal-header">
-              <span class="terminal-dot red"></span>
-              <span class="terminal-dot yellow"></span>
-              <span class="terminal-dot green"></span>
-              <span class="terminal-title">python_yol — bash</span>
-            </div>
-            <div class="terminal-body">
-              <div class="terminal-output" id="terminalOutput"></div>
-
-              <div class="terminal-dock" id="terminalDock">
-                <div class="terminal-dock-header">
-                  <span class="dock-pulse" aria-hidden="true"></span>
-                  <span>CANLI SİSTEM PANELİ</span>
-                </div>
-                <div class="terminal-dock-grid">
-                  <div class="dock-stat">
-                    <span class="dock-label">Operatör</span>
-                    <span class="dock-value" id="terminalOperatorName">—</span>
-                  </div>
-                  <div class="dock-stat">
-                    <span class="dock-label">Modül</span>
-                    <span class="dock-value">32</span>
-                  </div>
-                  <div class="dock-stat">
-                    <span class="dock-label">Bağlantı</span>
-                    <span class="dock-value dock-online">AKTİF</span>
-                  </div>
-                </div>
-                <div class="dock-meter">
-                  <span class="dock-meter-label">Sistem hazırlığı</span>
-                  <div class="dock-meter-track">
-                    <div class="dock-meter-fill" id="terminalMeterFill"></div>
-                  </div>
-                </div>
-                <p class="terminal-dock-hint">▸ Adını gir · <strong>[ SİSTEMİ BAŞLAT ]</strong> veya <kbd>Enter</kbd></p>
-              </div>
-            </div>
-          </div>
-
-          <p class="terminal-footnote">Boot logları canlı akar — [ SİSTEMİ BAŞLAT ] ile komuta merkezine geç.</p>
-        </div>
+      <div class="features-grid">
+        <article class="feature-item">
+          <strong>🐍 32 Modül</strong>
+          <span>İnteraktif Yol</span>
+        </article>
+        <article class="feature-item">
+          <strong>⚡ Canlı Kod Lab</strong>
+          <span>Pyodide Altyapısı</span>
+        </article>
+        <article class="feature-item">
+          <strong>🏆 XP &amp; Unvan</strong>
+          <span>Gelişim Takibi</span>
+        </article>
+        <article class="feature-item">
+          <strong>🧠 Bilgi Kartları</strong>
+          <span>Modül Quizleri</span>
+        </article>
       </div>
     </div>
 
@@ -796,7 +691,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=50"></script>
-  <script src="script.js?v=50"></script>
+  <script src="academy-content.js?v=51"></script>
+  <script src="script.js?v=51"></script>
 </body>
 </html>

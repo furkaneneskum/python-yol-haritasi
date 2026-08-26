@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐍 Python Yol Haritası — Giriş</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem("python_yol_theme") === "light") {
+          document.body.classList.add("light-mode");
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <header class="landing-status-bar">
+    <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
+    <span class="lsb-item"><span class="lsb-label">SİSTEM</span> PYTHON_AKADEMI v4.0</span>
+    <span class="lsb-item lsb-online"><span class="status-dot"></span> BAĞLANTI AKTİF</span>
+    <button type="button" class="theme-switch" id="themeToggle" aria-label="Tema değiştir">☀️ / 🌙 Mod</button>
+  </header>
+
+  <main class="landing-shell">
+    <section class="hero-section">
+      <div class="hero-emblem" aria-hidden="true">
+        <span class="logo-bracket">[</span>
+        <span class="logo-py">PY</span>
+        <span class="logo-bracket">]</span>
+      </div>
+      <h1 class="hero-title">Öğren. Kodla. Üret.</h1>
+    </section>
+
+    <div class="login-card">
+      <input type="text" id="username" placeholder="👤 İsminizi Girin (Örn: Furkan)" maxlength="24" autocomplete="name">
+      <button type="button" id="start-btn" class="btn-primary">🚀 SİSTEMİ BAŞLAT</button>
+      <p class="login-error hidden" id="loginError">Lütfen en az 2 karakter gir.</p>
+    </div>
+
+    <div class="features-grid">
+      <article class="feature-item">
+        <strong>🐍 32 Modül</strong>
+        <span>İnteraktif Yol</span>
+      </article>
+      <article class="feature-item">
+        <strong>⚡ Canlı Kod Lab</strong>
+        <span>Pyodide Altyapısı</span>
+      </article>
+      <article class="feature-item">
+        <strong>🏆 XP &amp; Unvan</strong>
+        <span>Gelişim Takibi</span>
+      </article>
+      <article class="feature-item">
+        <strong>🧠 Bilgi Kartları</strong>
+        <span>Modül Quizleri</span>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    const THEME_KEY = "python_yol_theme";
+    const OPERATOR_KEY = "python_yol_operator";
+    const APP_URL = "docs/index.html";
+
+    function updateClock() {
+      const el = document.getElementById("landingClock");
+      if (!el) return;
+      el.textContent = new Date().toLocaleTimeString("tr-TR", { hour12: false });
+    }
+
+    function applyTheme(light) {
+      document.body.classList.toggle("light-mode", light);
+      try {
+        localStorage.setItem(THEME_KEY, light ? "light" : "dark");
+      } catch (e) { /* ignore */ }
+    }
+
+    document.getElementById("themeToggle")?.addEventListener("click", () => {
+      applyTheme(!document.body.classList.contains("light-mode"));
+    });
+
+    function enterApp() {
+      const input = document.getElementById("username");
+      const error = document.getElementById("loginError");
+      const name = input?.value?.trim() || "";
+      if (name.length < 2) {
+        error?.classList.remove("hidden");
+        input?.classList.add("error");
+        input?.focus();
+        return;
+      }
+      try {
+        localStorage.setItem(OPERATOR_KEY, name);
+      } catch (e) { /* ignore */ }
+      window.location.href = `${APP_URL}#app`;
+    }
+
+    document.getElementById("start-btn")?.addEventListener("click", enterApp);
+    document.getElementById("username")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        enterApp();
+      }
+    });
+    document.getElementById("username")?.addEventListener("input", () => {
+      document.getElementById("loginError")?.classList.add("hidden");
+      document.getElementById("username")?.classList.remove("error");
+    });
+
+    const saved = localStorage.getItem(OPERATOR_KEY);
+    if (saved && saved !== "undefined" && saved !== "null") {
+      const input = document.getElementById("username");
+      if (input) input.value = saved;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+    document.getElementById("username")?.focus();
+  </script>
+</body>
+</html>

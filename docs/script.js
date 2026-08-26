@@ -1074,10 +1074,8 @@ function $(id) {
 
 function cacheElements() {
   const ids = [
-    "landing", "app", "typewriter", "typewriterCursor", "landingSub",
-    "landingClock", "landingBootStatus", "operatorName", "operatorError",
-    "terminalOutput", "terminalStatus", "terminalOperatorName", "terminalMeterFill",
-    "enterSystemBtn", "bootBtnLabel", "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
+    "landing", "app", "landingClock", "landingBootStatus", "username", "operatorError", "start-btn",
+    "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
     "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
@@ -1110,6 +1108,8 @@ function cacheElements() {
   ids.forEach((id) => {
     el[id] = $(id);
   });
+  el.operatorName = el.username;
+  el.enterSystemBtn = el["start-btn"];
 }
 
 function safeOn(target, event, handler, options) {
@@ -2128,19 +2128,18 @@ function updateTerminalOperator(name) {
 
 function setBootButtonState(state) {
   const btn = el.enterSystemBtn;
-  const label = el.bootBtnLabel;
-  if (!btn || !label) return;
+  if (!btn) return;
 
   if (state === "connecting") {
     btn.disabled = true;
     btn.classList.add("is-connecting");
-    label.textContent = "[ BAĞLANTI KURULUYOR... ]";
+    btn.textContent = "⏳ BAĞLANTI KURULUYOR...";
     return;
   }
 
   btn.disabled = false;
   btn.classList.remove("is-connecting");
-  label.textContent = "[ SİSTEMİ BAŞLAT ]";
+  btn.textContent = "🚀 SİSTEMİ BAŞLAT";
 }
 
 function clearLandingBootTimers() {
@@ -2751,6 +2750,7 @@ function refreshParticlesForTheme(theme) {
 function applyTheme(theme, { persist = true, refreshParticles = true } = {}) {
   const nextTheme = theme === "light" ? "light" : "dark";
   document.documentElement.dataset.theme = nextTheme === "light" ? "light" : "";
+  document.body.classList.toggle("light-mode", nextTheme === "light");
   if (persist) {
     try {
       localStorage.setItem(THEME_KEY, nextTheme);
@@ -2960,9 +2960,10 @@ function initLanding() {
   if (appInitialized) return;
 
   startLandingClock();
-  runTypewriter();
-  runBootSequence();
-  setTimeout(() => el.operatorName?.focus(), 800);
+  if (el.landingBootStatus) {
+    el.landingBootStatus.textContent = "Sistem hazır — Giriş bekleniyor";
+  }
+  setTimeout(() => el.operatorName?.focus(), 400);
 }
 
 /* ── Progress HUD ── */

@@ -270,10 +270,207 @@ body {
   animation: blink 1.2s step-end infinite;
 }
 
-.landing-inner {
-  text-align: center;
+/* ===================== LANDING PAGE v4 ===================== */
+.landing-inner--v2 {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
   padding: 1.5rem 1.25rem 5rem;
-  width: min(1100px, 100%);
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 2.5rem auto 1.5rem auto;
+  text-align: center;
+}
+
+.hero-emblem {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.hero-title {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 1rem 0;
+  text-align: center;
+  width: 100%;
+  color: #c9d1d9;
+}
+
+.login-card {
+  max-width: 480px;
+  width: 90%;
+  margin: 0 auto 2.5rem auto;
+  padding: 2rem;
+  background: rgba(22, 27, 34, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.login-card input {
+  height: 52px;
+  padding: 0 1.2rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #fff;
+  outline: none;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.login-card input:focus {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.12);
+}
+
+.login-card .btn-primary,
+.login-card button {
+  height: 54px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  background: #238636;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.login-card .btn-primary:hover,
+.login-card button:hover:not(:disabled) {
+  background: #2ea043;
+  transform: translateY(-1px);
+}
+
+.login-card .btn-primary:disabled,
+.login-card button:disabled {
+  opacity: 0.75;
+  cursor: wait;
+  transform: none;
+}
+
+.login-card .operator-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #ff7b72;
+  text-align: left;
+}
+
+.login-card .operator-error.hidden {
+  display: none;
+}
+
+.login-card input.error {
+  border-color: #ff7b72;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 600px;
+  width: 90%;
+  margin: 0 auto 3rem auto;
+}
+
+.feature-item {
+  padding: 1.2rem;
+  background: rgba(22, 27, 34, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.feature-item strong {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  color: #e6edf3;
+}
+
+.feature-item span {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
+body.light-mode .landing {
+  background: rgba(248, 249, 250, 0.96);
+}
+
+body.light-mode .hero-title {
+  color: #212529;
+}
+
+body.light-mode .login-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .login-card input {
+  background: #f1f3f5;
+  border: 1px solid #dee2e6;
+  color: #212529;
+}
+
+body.light-mode .login-card .btn-primary,
+body.light-mode .login-card button {
+  background: #2b8a3e;
+  color: #ffffff;
+}
+
+body.light-mode .login-card .btn-primary:hover,
+body.light-mode .login-card button:hover:not(:disabled) {
+  background: #2b8a3e;
+}
+
+body.light-mode .feature-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .feature-item strong {
+  color: #212529;
+}
+
+body.light-mode .feature-item span {
+  color: #495057;
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.75rem;
+    letter-spacing: 1px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    width: 94%;
+  }
+
+  .login-card {
+    width: 94%;
+    padding: 1.5rem;
+  }
 }
 
 .landing-logo {
