@@ -2,11 +2,29 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Chakra Petch', system-ui, -apple-system, sans-serif;
     background-color: #0d1117;
     color: #c9d1d9;
     transition: background-color 0.3s ease, color 0.3s ease;
     min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.matrix-stream-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.42;
+}
+
+.landing-status-bar,
+.landing-shell {
+    position: relative;
+    z-index: 1;
 }
 
 .landing-status-bar {
@@ -16,10 +34,11 @@ body {
     justify-content: center;
     gap: 0.75rem 1.25rem;
     padding: 0.75rem 1rem;
-    background: rgba(13, 17, 23, 0.95);
+    background: rgba(13, 17, 23, 0.92);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.72rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 .lsb-item {
@@ -53,6 +72,7 @@ body {
     padding: 0.35rem 0.85rem;
     cursor: pointer;
     font-size: 0.72rem;
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 .landing-shell {
@@ -62,9 +82,10 @@ body {
 }
 
 .hero-emblem {
+    font-family: 'Orbitron', sans-serif;
     font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-weight: 900;
+    letter-spacing: 0.18em;
 }
 
 .logo-bracket { color: #58a6ff; }
@@ -82,12 +103,14 @@ body {
 }
 
 .hero-title {
+    font-family: 'Orbitron', sans-serif;
     font-size: 2.2rem;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     margin: 1rem 0;
     text-align: center;
     width: 100%;
+    text-transform: uppercase;
 }
 
 /* MERKEZ GİRİŞ KARTI */
@@ -96,10 +119,11 @@ body {
     width: 90%;
     margin: 0 auto 2.5rem auto;
     padding: 2rem;
-    background: rgba(22, 27, 34, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(22, 27, 34, 0.82);
+    border: 1px solid rgba(0, 240, 255, 0.12);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
@@ -111,9 +135,10 @@ body {
     font-size: 1rem;
     border-radius: 10px;
     border: 1px solid #30363d;
-    background: #0d1117;
+    background: rgba(13, 17, 23, 0.92);
     color: #fff;
     outline: none;
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 .login-card input.error {
@@ -124,6 +149,7 @@ body {
     margin: 0;
     font-size: 0.85rem;
     color: #ff7b72;
+    font-family: 'Fira Code', monospace;
 }
 
 .login-error.hidden {
@@ -132,7 +158,7 @@ body {
 
 .login-card button {
     height: 54px;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     border-radius: 10px;
     border: none;
@@ -140,6 +166,9 @@ body {
     color: #fff;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.1s ease;
+    font-family: 'Chakra Petch', sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 .login-card button:hover {
@@ -165,21 +194,25 @@ body {
 
 .feature-item {
     padding: 1.2rem;
-    background: rgba(22, 27, 34, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(22, 27, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
+    backdrop-filter: blur(4px);
 }
 
 .feature-item strong {
+    font-family: 'Chakra Petch', sans-serif;
     font-size: 0.95rem;
+    font-weight: 700;
 }
 
 .feature-item span {
-    font-size: 0.8rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.72rem;
     color: #8b949e;
 }
 
@@ -189,8 +222,12 @@ body.light-mode {
     color: #212529;
 }
 
+body.light-mode .matrix-stream-canvas {
+    opacity: 0.28;
+}
+
 body.light-mode .landing-status-bar {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.95);
     border-bottom-color: #e9ecef;
 }
 
@@ -201,7 +238,7 @@ body.light-mode .theme-switch {
 }
 
 body.light-mode .login-card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid #e9ecef;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
@@ -222,7 +259,7 @@ body.light-mode .login-card button:hover {
 }
 
 body.light-mode .feature-item {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid #e9ecef;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
@@ -239,5 +276,11 @@ body.light-mode .feature-item span {
 
     .features-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .matrix-stream-canvas {
+        display: none;
     }
 }

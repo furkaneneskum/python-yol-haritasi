@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <script>
     (function () {
       try {
@@ -19,6 +19,8 @@
   </script>
 </head>
 <body>
+  <canvas class="matrix-stream-canvas" id="matrixStream" aria-hidden="true"></canvas>
+
   <header class="landing-status-bar">
     <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
     <span class="lsb-item"><span class="lsb-label">SİSTEM</span> PYTHON_AKADEMI v4.0</span>
@@ -67,6 +69,63 @@
     const OPERATOR_KEY = "python_yol_operator";
     const APP_URL = "docs/index.html";
 
+    let matrixStreamFrameId = null;
+
+    function isLightTheme() {
+      return document.body.classList.contains("light-mode");
+    }
+
+    function getMatrixColors() {
+      const light = isLightTheme();
+      return {
+        fade: light ? "rgba(248, 249, 250, 0.14)" : "rgba(13, 17, 23, 0.1)",
+        head: light ? "rgba(43, 138, 62, 0.16)" : "rgba(0, 240, 255, 0.2)",
+        trail: light ? "rgba(73, 80, 87, 0.05)" : "rgba(0, 200, 180, 0.06)",
+      };
+    }
+
+    function initMatrixStream() {
+      const canvas = document.getElementById("matrixStream");
+      if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const chars = "01defimportprintforwhilereturnclassifelselambdayieldasyncawaitTrueFalseNone#/:=".split("");
+      const fontSize = 13;
+      let columns = 0;
+      let drops = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        columns = Math.max(1, Math.floor(canvas.width / fontSize));
+        drops = Array.from({ length: columns }, () => Math.random() * -40);
+      }
+
+      function draw() {
+        const colors = getMatrixColors();
+        ctx.fillStyle = colors.fade;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `500 ${fontSize}px "Fira Code", monospace`;
+
+        for (let i = 0; i < drops.length; i += 1) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+          ctx.fillStyle = Math.random() > 0.992 ? colors.head : colors.trail;
+          ctx.fillText(char, x, y);
+          if (y > canvas.height && Math.random() > 0.985) drops[i] = 0;
+          drops[i] += 0.28 + Math.random() * 0.12;
+        }
+        matrixStreamFrameId = requestAnimationFrame(draw);
+      }
+
+      resize();
+      window.addEventListener("resize", resize);
+      draw();
+    }
+
     function updateClock() {
       const el = document.getElementById("landingClock");
       if (!el) return;
@@ -97,6 +156,7 @@
       try {
         localStorage.setItem(OPERATOR_KEY, name);
       } catch (e) { /* ignore */ }
+      if (matrixStreamFrameId !== null) cancelAnimationFrame(matrixStreamFrameId);
       window.location.href = `${APP_URL}#app`;
     }
 
@@ -120,6 +180,7 @@
 
     updateClock();
     setInterval(updateClock, 1000);
+    initMatrixStream();
     document.getElementById("username")?.focus();
   </script>
 </body>
