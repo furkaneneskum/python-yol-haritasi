@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🐍 İnteraktif Python Akademisi</title>
-  <link rel="stylesheet" href="style.css?v=53">
+  <link rel="stylesheet" href="style.css?v=54">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -33,12 +33,20 @@
 
   <!-- Landing Screen -->
   <section class="landing" id="landing">
-    <canvas class="matrix-stream-canvas" id="matrixStream" aria-hidden="true"></canvas>
-    <div class="landing-corner lc-tl" aria-hidden="true"></div>
-    <div class="landing-corner lc-tr" aria-hidden="true"></div>
-    <div class="landing-corner lc-bl" aria-hidden="true"></div>
-    <div class="landing-corner lc-br" aria-hidden="true"></div>
-    <div class="landing-scan-beam" aria-hidden="true"></div>
+    <div class="welcome-spectacle landing-spectacle" aria-hidden="true">
+      <div class="welcome-flash landing-spectacle-flash"></div>
+      <div class="welcome-vignette"></div>
+      <div class="welcome-void-grid"></div>
+      <div class="welcome-scan-sweep"></div>
+      <div class="welcome-rings">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="welcome-particles landing-particles" id="landingParticles"></div>
+      <div class="welcome-corner wc-tl"></div>
+      <div class="welcome-corner wc-tr"></div>
+      <div class="welcome-corner wc-bl"></div>
+      <div class="welcome-corner wc-br"></div>
+    </div>
 
     <header class="landing-status-bar">
       <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
@@ -692,7 +700,7 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-  <script src="academy-content.js?v=53"></script>
-  <script src="script.js?v=53"></script>
+  <script src="academy-content.js?v=54"></script>
+  <script src="script.js?v=54"></script>
 </body>
 </html>

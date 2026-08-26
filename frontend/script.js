@@ -1074,7 +1074,7 @@ function $(id) {
 
 function cacheElements() {
   const ids = [
-    "landing", "app", "landingClock", "landingBootStatus", "username", "operatorError", "start-btn",
+    "landing", "app", "landingClock", "landingBootStatus", "landingParticles", "username", "operatorError", "start-btn",
     "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
@@ -2194,7 +2194,7 @@ function finishLandingBootEnter(name) {
     el.landing.classList.add("exit");
     el.landing.style.pointerEvents = "none";
   }
-  stopMatrixStream();
+  stopLandingSpectacle();
 
   landingEnterTimeoutId = setTimeout(() => {
     landingEnterTimeoutId = null;
@@ -2412,7 +2412,7 @@ function showLandingView() {
   cancelWelcomeProgress();
 
   startLandingClock();
-  initMatrixStream();
+  initLandingSpectacle();
   setTimeout(() => el.operatorName?.focus(), 200);
 }
 
@@ -2961,96 +2961,36 @@ function initLanding() {
   if (appInitialized) return;
 
   startLandingClock();
-  initMatrixStream();
+  initLandingSpectacle();
   if (el.landingBootStatus) {
     el.landingBootStatus.textContent = "Sistem hazır — Giriş bekleniyor";
   }
   setTimeout(() => el.operatorName?.focus(), 400);
 }
 
-/* ── Matrix Canvas Stream (landing) ── */
-let matrixStreamFrameId = null;
-let matrixStreamResizeHandler = null;
-
-function isLandingLightTheme() {
-  return document.body.classList.contains("light-mode")
-    || document.documentElement.dataset.theme === "light";
-}
-
-function getMatrixStreamColors() {
-  const light = isLandingLightTheme();
-  return {
-    fade: light ? "rgba(248, 249, 250, 0.14)" : "rgba(13, 17, 23, 0.1)",
-    head: light ? "rgba(43, 138, 62, 0.16)" : "rgba(0, 240, 255, 0.2)",
-    trail: light ? "rgba(73, 80, 87, 0.05)" : "rgba(0, 200, 180, 0.06)",
-  };
-}
-
-function stopMatrixStream() {
-  if (matrixStreamFrameId !== null) {
-    cancelAnimationFrame(matrixStreamFrameId);
-    matrixStreamFrameId = null;
-  }
-  if (matrixStreamResizeHandler) {
-    window.removeEventListener("resize", matrixStreamResizeHandler);
-    matrixStreamResizeHandler = null;
+function spawnLandingAmbientParticles() {
+  if (!el.landingParticles) return;
+  el.landingParticles.innerHTML = "";
+  const count = 80;
+  for (let i = 0; i < count; i += 1) {
+    const p = document.createElement("span");
+    const variant = i % 7 === 0 ? "red" : i % 4 === 0 ? "purple" : "";
+    p.className = `welcome-particle landing-ambient-particle${variant ? ` ${variant}` : ""}`;
+    p.style.left = `${Math.random() * 100}%`;
+    p.style.top = `${Math.random() * 100}%`;
+    p.style.animationDelay = `${Math.random() * 6}s`;
+    p.style.animationDuration = `${4 + Math.random() * 6}s`;
+    el.landingParticles.appendChild(p);
   }
 }
 
-function initMatrixStream() {
-  const canvas = document.getElementById("matrixStream");
-  const landing = el.landing;
-  if (!canvas || !landing) return;
+function initLandingSpectacle() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  spawnLandingAmbientParticles();
+}
 
-  stopMatrixStream();
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  const chars = "01defimportprintforwhilereturnclassifelselambdayieldasyncawaitTrueFalseNone#/:=".split("");
-  const fontSize = 13;
-  let columns = 0;
-  let drops = [];
-
-  function resizeMatrixCanvas() {
-    const rect = landing.getBoundingClientRect();
-    const width = Math.max(1, Math.floor(rect.width));
-    const height = Math.max(1, Math.floor(rect.height));
-    canvas.width = width;
-    canvas.height = height;
-    columns = Math.max(1, Math.floor(width / fontSize));
-    drops = Array.from({ length: columns }, () => Math.random() * -40);
-  }
-
-  function drawMatrixStream() {
-    if (!el.landing || el.landing.style.display === "none") {
-      stopMatrixStream();
-      return;
-    }
-
-    const colors = getMatrixStreamColors();
-    ctx.fillStyle = colors.fade;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = `500 ${fontSize}px "Fira Code", monospace`;
-
-    for (let i = 0; i < drops.length; i += 1) {
-      const char = chars[Math.floor(Math.random() * chars.length)];
-      const x = i * fontSize;
-      const y = drops[i] * fontSize;
-      ctx.fillStyle = Math.random() > 0.992 ? colors.head : colors.trail;
-      ctx.fillText(char, x, y);
-      if (y > canvas.height && Math.random() > 0.985) drops[i] = 0;
-      drops[i] += 0.28 + Math.random() * 0.12;
-    }
-
-    matrixStreamFrameId = requestAnimationFrame(drawMatrixStream);
-  }
-
-  resizeMatrixCanvas();
-  matrixStreamResizeHandler = resizeMatrixCanvas;
-  window.addEventListener("resize", matrixStreamResizeHandler);
-  drawMatrixStream();
+function stopLandingSpectacle() {
+  if (el.landingParticles) el.landingParticles.innerHTML = "";
 }
 
 /* ── Progress HUD ── */

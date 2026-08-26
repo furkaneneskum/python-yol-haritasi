@@ -19,7 +19,19 @@
   </script>
 </head>
 <body>
-  <canvas class="matrix-stream-canvas" id="matrixStream" aria-hidden="true"></canvas>
+  <div class="landing-page">
+    <div class="welcome-spectacle landing-spectacle" aria-hidden="true">
+      <div class="welcome-flash landing-spectacle-flash"></div>
+      <div class="welcome-vignette"></div>
+      <div class="welcome-void-grid"></div>
+      <div class="welcome-scan-sweep"></div>
+      <div class="welcome-rings"><span></span><span></span><span></span><span></span></div>
+      <div class="welcome-particles" id="landingParticles"></div>
+      <div class="welcome-corner wc-tl"></div>
+      <div class="welcome-corner wc-tr"></div>
+      <div class="welcome-corner wc-bl"></div>
+      <div class="welcome-corner wc-br"></div>
+    </div>
 
   <header class="landing-status-bar">
     <span class="lsb-item"><span class="lsb-label">SAAT</span> <span id="landingClock">--:--:--</span></span>
@@ -63,67 +75,31 @@
       </article>
     </div>
   </main>
+  </div>
 
   <script>
     const THEME_KEY = "python_yol_theme";
     const OPERATOR_KEY = "python_yol_operator";
     const APP_URL = "docs/index.html";
 
-    let matrixStreamFrameId = null;
+    function spawnLandingAmbientParticles() {
+      const container = document.getElementById("landingParticles");
+      if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      container.innerHTML = "";
+      for (let i = 0; i < 80; i += 1) {
+        const p = document.createElement("span");
+        const variant = i % 7 === 0 ? " red" : i % 4 === 0 ? " purple" : "";
+        p.className = `welcome-particle landing-ambient-particle${variant}`;
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.top = `${Math.random() * 100}%`;
+        p.style.animationDelay = `${Math.random() * 6}s`;
+        p.style.animationDuration = `${4 + Math.random() * 6}s`;
+        container.appendChild(p);
+      }
+    }
 
     function isLightTheme() {
       return document.body.classList.contains("light-mode");
-    }
-
-    function getMatrixColors() {
-      const light = isLightTheme();
-      return {
-        fade: light ? "rgba(248, 249, 250, 0.14)" : "rgba(13, 17, 23, 0.1)",
-        head: light ? "rgba(43, 138, 62, 0.16)" : "rgba(0, 240, 255, 0.2)",
-        trail: light ? "rgba(73, 80, 87, 0.05)" : "rgba(0, 200, 180, 0.06)",
-      };
-    }
-
-    function initMatrixStream() {
-      const canvas = document.getElementById("matrixStream");
-      if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const chars = "01defimportprintforwhilereturnclassifelselambdayieldasyncawaitTrueFalseNone#/:=".split("");
-      const fontSize = 13;
-      let columns = 0;
-      let drops = [];
-
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        columns = Math.max(1, Math.floor(canvas.width / fontSize));
-        drops = Array.from({ length: columns }, () => Math.random() * -40);
-      }
-
-      function draw() {
-        const colors = getMatrixColors();
-        ctx.fillStyle = colors.fade;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = `500 ${fontSize}px "Fira Code", monospace`;
-
-        for (let i = 0; i < drops.length; i += 1) {
-          const char = chars[Math.floor(Math.random() * chars.length)];
-          const x = i * fontSize;
-          const y = drops[i] * fontSize;
-          ctx.fillStyle = Math.random() > 0.992 ? colors.head : colors.trail;
-          ctx.fillText(char, x, y);
-          if (y > canvas.height && Math.random() > 0.985) drops[i] = 0;
-          drops[i] += 0.28 + Math.random() * 0.12;
-        }
-        matrixStreamFrameId = requestAnimationFrame(draw);
-      }
-
-      resize();
-      window.addEventListener("resize", resize);
-      draw();
     }
 
     function updateClock() {
@@ -156,7 +132,6 @@
       try {
         localStorage.setItem(OPERATOR_KEY, name);
       } catch (e) { /* ignore */ }
-      if (matrixStreamFrameId !== null) cancelAnimationFrame(matrixStreamFrameId);
       window.location.href = `${APP_URL}#app`;
     }
 
@@ -180,7 +155,7 @@
 
     updateClock();
     setInterval(updateClock, 1000);
-    initMatrixStream();
+    spawnLandingAmbientParticles();
     document.getElementById("username")?.focus();
   </script>
 </body>

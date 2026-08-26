@@ -184,7 +184,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background: rgba(10, 10, 10, 0.78);
+  background: #000;
   overflow-x: hidden;
   overflow-y: auto;
   transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -194,6 +194,40 @@ body {
   opacity: 0;
   transform: translateY(-40px);
   pointer-events: none;
+}
+
+.landing-spectacle {
+  z-index: 0;
+}
+
+.landing-spectacle-flash {
+  opacity: 0.28;
+  animation: landingSpectacleGlow 7s ease-in-out infinite alternate;
+}
+
+@keyframes landingSpectacleGlow {
+  from { opacity: 0.16; transform: scale(1); }
+  to { opacity: 0.34; transform: scale(1.06); }
+}
+
+.landing-particles .landing-ambient-particle {
+  animation: landingAmbientTwinkle 5.5s ease-in-out infinite !important;
+}
+
+@keyframes landingAmbientTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.55); }
+  45% { opacity: 0.9; transform: scale(1); }
+  55% { opacity: 0.75; transform: scale(0.95); }
+}
+
+body.light-mode .landing,
+html[data-theme="light"] .landing {
+  background: rgba(220, 228, 240, 0.72);
+}
+
+body.light-mode .landing-spectacle-flash,
+html[data-theme="light"] .landing-spectacle-flash {
+  opacity: 0.18;
 }
 
 .landing-corner {
@@ -293,26 +327,10 @@ body {
   font-family: inherit;
 }
 
-.matrix-stream-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.42;
-}
-
 .landing-inner--v2,
-.landing-footer,
-.landing-corner,
-.landing-scan-beam {
+.landing-footer {
   position: relative;
-  z-index: 1;
-}
-
-.landing-status-bar {
-  letter-spacing: 0.1em;
+  z-index: 2;
 }
 
 .landing-inner--v2 {
@@ -320,8 +338,6 @@ body {
   max-width: 640px;
   margin: 0 auto;
   padding: 1.5rem 1.25rem 5rem;
-  position: relative;
-  z-index: 1;
 }
 
 .hero-section {
@@ -461,14 +477,6 @@ body {
   letter-spacing: 0.04em;
 }
 
-body.light-mode .matrix-stream-canvas {
-  opacity: 0.28;
-}
-
-body.light-mode .landing {
-  background: rgba(248, 249, 250, 0.96);
-}
-
 body.light-mode .hero-title {
   color: #212529;
 }
@@ -528,7 +536,12 @@ body.light-mode .feature-item span {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .matrix-stream-canvas {
+  .landing-spectacle-flash,
+  .landing-particles,
+  .landing .welcome-scan-sweep,
+  .landing .welcome-void-grid,
+  .landing .welcome-rings span {
+    animation: none !important;
     display: none;
   }
 }
