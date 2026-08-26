@@ -2,7 +2,7 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Chakra Petch', system-ui, -apple-system, sans-serif;
+    font-family: 'Orbitron', sans-serif;
     background-color: #0d1117;
     color: #c9d1d9;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -38,7 +38,7 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.72rem;
     letter-spacing: 0.1em;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: inherit;
 }
 
 .lsb-item {
@@ -72,7 +72,7 @@ body {
     padding: 0.35rem 0.85rem;
     cursor: pointer;
     font-size: 0.72rem;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: inherit;
 }
 
 .landing-shell {
@@ -82,7 +82,6 @@ body {
 }
 
 .hero-emblem {
-    font-family: 'Orbitron', sans-serif;
     font-size: clamp(2rem, 6vw, 3rem);
     font-weight: 900;
     letter-spacing: 0.18em;
@@ -103,7 +102,6 @@ body {
 }
 
 .hero-title {
-    font-family: 'Orbitron', sans-serif;
     font-size: 2.2rem;
     font-weight: 700;
     letter-spacing: 3px;
@@ -138,7 +136,8 @@ body {
     background: rgba(13, 17, 23, 0.92);
     color: #fff;
     outline: none;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: inherit;
+    letter-spacing: 0.06em;
 }
 
 .login-card input.error {
@@ -149,7 +148,7 @@ body {
     margin: 0;
     font-size: 0.85rem;
     color: #ff7b72;
-    font-family: 'Fira Code', monospace;
+    font-family: inherit;
 }
 
 .login-error.hidden {
@@ -166,7 +165,7 @@ body {
     color: #fff;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.1s ease;
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: inherit;
     letter-spacing: 0.12em;
     text-transform: uppercase;
 }
@@ -205,15 +204,16 @@ body {
 }
 
 .feature-item strong {
-    font-family: 'Chakra Petch', sans-serif;
     font-size: 0.95rem;
     font-weight: 700;
+    font-family: inherit;
 }
 
 .feature-item span {
-    font-family: 'Fira Code', monospace;
     font-size: 0.72rem;
     color: #8b949e;
+    font-family: inherit;
+    letter-spacing: 0.04em;
 }
 
 /* AÇIK MOD (LIGHT MODE) SOFT GÖZ DOSTU PALET */

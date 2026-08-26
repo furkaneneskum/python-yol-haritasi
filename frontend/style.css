@@ -271,6 +271,28 @@ body {
 }
 
 /* ===================== LANDING PAGE v4 ===================== */
+.landing {
+  font-family: "Orbitron", var(--font-display), sans-serif;
+}
+
+.landing .lsb-item,
+.landing .lsb-label,
+.landing .hero-emblem,
+.landing .hero-title,
+.landing .login-card,
+.landing .login-card input,
+.landing .login-card button,
+.landing .login-card .operator-error,
+.landing .feature-item,
+.landing .feature-item strong,
+.landing .feature-item span,
+.landing-footer,
+.landing-footer-link,
+.landing .theme-switch,
+.landing .theme-switch-text {
+  font-family: inherit;
+}
+
 .matrix-stream-canvas {
   position: absolute;
   inset: 0;
@@ -290,7 +312,6 @@ body {
 }
 
 .landing-status-bar {
-  font-family: "Chakra Petch", "Segoe UI", sans-serif;
   letter-spacing: 0.1em;
 }
 
@@ -314,14 +335,12 @@ body {
 }
 
 .hero-emblem {
-  font-family: "Orbitron", var(--font-display), sans-serif;
   font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 900;
   letter-spacing: 0.18em;
 }
 
 .hero-title {
-  font-family: "Orbitron", var(--font-display), sans-serif;
   font-size: 2.2rem;
   font-weight: 700;
   letter-spacing: 3px;
@@ -356,8 +375,7 @@ body {
   background: rgba(13, 17, 23, 0.92);
   color: #fff;
   outline: none;
-  font-family: "Chakra Petch", "Segoe UI", sans-serif;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .login-card input:focus {
@@ -376,7 +394,6 @@ body {
   color: #fff;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
-  font-family: "Chakra Petch", "Segoe UI", sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -399,7 +416,7 @@ body {
   font-size: 0.85rem;
   color: #ff7b72;
   text-align: left;
-  font-family: "Fira Code", monospace;
+  letter-spacing: 0.04em;
 }
 
 .login-card .operator-error.hidden {
@@ -432,7 +449,6 @@ body {
 }
 
 .feature-item strong {
-  font-family: "Chakra Petch", "Segoe UI", sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   color: #e6edf3;
@@ -440,10 +456,9 @@ body {
 }
 
 .feature-item span {
-  font-family: "Fira Code", monospace;
   font-size: 0.72rem;
   color: #8b949e;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 body.light-mode .matrix-stream-canvas {
