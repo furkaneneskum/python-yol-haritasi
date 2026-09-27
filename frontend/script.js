@@ -1076,6 +1076,7 @@ function cacheElements() {
   const ids = [
     "landing", "app", "typewriter", "typewriterCursor", "landingSub",
     "landingClock", "landingBootStatus", "landingParticles", "username", "operatorError", "start-btn",
+    "terminalOutput", "terminalStatus", "terminalOperatorName", "terminalMeterFill",
     "bootBtnLabel",
     "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
@@ -2420,6 +2421,7 @@ function showLandingView() {
 
   startLandingClock();
   initLandingSpectacle();
+  runBootSequence();
   setTimeout(() => el.operatorName?.focus(), 200);
 }
 
@@ -2970,6 +2972,7 @@ function initLanding() {
   startLandingClock();
   initLandingSpectacle();
   runTypewriter();
+  runBootSequence();
   if (el.landingBootStatus) {
     el.landingBootStatus.textContent = "Sistem hazır — Giriş bekleniyor";
   }
