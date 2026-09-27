@@ -3083,30 +3083,21 @@ function resetModalFullscreen() {
   setModalFullscreen(false);
 }
 
-const STAIR_BASE_OFFSET = 48;
-const STAIR_ZIGZAG = 72;
-const STAIR_PROGRESS_STEP = 34;
-const STAIR_PROGRESS_CAP = 300;
-const STAIR_PROGRESS_MULT = 0.75;
-const STAIR_MAX_MARGIN = 210;
-const STAIR_STEP_WIDTH = 350;
-
-function getStepMarginLeft(index) {
-  const zigzag = index % 2 === 0 ? 0 : STAIR_ZIGZAG;
-  const progress = Math.min(index * STAIR_PROGRESS_STEP, STAIR_PROGRESS_CAP);
-  const raw = STAIR_BASE_OFFSET + zigzag + progress * STAIR_PROGRESS_MULT;
-  let maxMargin = STAIR_MAX_MARGIN;
-
-  if (el.staircase && el.devPanel && window.innerWidth >= 1101) {
-    const wrapper = el.staircase.closest(".staircase-wrapper");
-    const wrapperW = wrapper?.clientWidth || el.staircase.clientWidth;
-    const stairW = Math.min(760, wrapperW);
-    const reserve = el.devPanel.offsetWidth + 48;
-    const maxFromLayout = Math.max(0, stairW - STAIR_STEP_WIDTH - reserve);
-    maxMargin = Math.min(STAIR_MAX_MARGIN, maxFromLayout);
+function buildStairPath(points) {
+  if (points.length < 2) return "";
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i += 1) {
+    const a = points[i - 1];
+    const b = points[i];
+    const sameRow = Math.abs(b.y - a.y) < 48;
+    if (sameRow) {
+      d += ` L ${b.x} ${b.y}`;
+    } else {
+      const midY = (a.y + b.y) * 0.5;
+      d += ` C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
+    }
   }
-
-  return Math.min(raw, maxMargin);
+  return d;
 }
 
 function createStep(topic, index) {
@@ -3114,12 +3105,11 @@ function createStep(topic, index) {
   step.className = "step";
   step.dataset.topicId = String(topic.id);
   if (topic.is_completed) step.classList.add("completed");
+  step.classList.add(index % 2 === 0 ? "step-zig-left" : "step-zig-right");
   step.style.animationDelay = `${index * 0.04}s`;
-
-  const offsetX = getStepMarginLeft(index);
-  step.style.marginLeft = `${offsetX}px`;
   step.style.zIndex = String(Math.min(index + 1, 10));
-  step.style.transform = `translateZ(${Math.min(index * 2, 24)}px)`;
+  const row = Math.floor(index / 2);
+  step.style.transform = `translateZ(${Math.min(row * 4 + (index % 2) * 2, 28)}px)`;
 
   const platform = document.createElement("div");
   platform.className = "step-platform";
@@ -3196,22 +3186,22 @@ function drawPath() {
     return;
   }
 
-  const wrapperRect = el.staircase.getBoundingClientRect();
+  const anchor = el.staircase.closest(".staircase-wrapper") || el.staircase;
+  const anchorRect = anchor.getBoundingClientRect();
   const points = [];
 
   steps.forEach((step) => {
     const rect = step.getBoundingClientRect();
     points.push({
-      x: rect.left - wrapperRect.left + rect.width * 0.15,
-      y: rect.top - wrapperRect.top + rect.height * 0.5,
+      x: rect.left - anchorRect.left + rect.width * 0.5,
+      y: rect.top - anchorRect.top + rect.height * 0.88,
     });
   });
 
-  const pathD = points.reduce((acc, pt, i) => {
-    return i === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
-  }, "");
+  const pathD = buildStairPath(points);
 
-  el.staircasePath.setAttribute("viewBox", `0 0 ${wrapperRect.width} ${wrapperRect.height}`);
+  el.staircasePath.setAttribute("viewBox", `0 0 ${anchorRect.width} ${anchorRect.height}`);
+  el.staircasePath.setAttribute("preserveAspectRatio", "xMinYMin slice");
   el.staircasePath.innerHTML = `
     <defs>
       <linearGradient id="pathGrad" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -3227,9 +3217,17 @@ function drawPath() {
 function renderStaircase() {
   if (!el.staircase) return;
   el.staircase.innerHTML = "";
-  topics.forEach((topic, i) => {
-    el.staircase.appendChild(createStep(topic, i));
-  });
+  for (let i = 0; i < topics.length; i += 2) {
+    const row = document.createElement("div");
+    row.className = "stair-landing";
+    row.appendChild(createStep(topics[i], i));
+    if (topics[i + 1]) {
+      row.appendChild(createStep(topics[i + 1], i + 1));
+    } else {
+      row.classList.add("stair-landing--solo");
+    }
+    el.staircase.appendChild(row);
+  }
   updateProgress();
   renderDevPanel();
   requestAnimationFrame(() => {
