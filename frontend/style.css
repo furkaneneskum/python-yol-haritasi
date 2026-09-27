@@ -336,8 +336,16 @@ html[data-theme="light"] .landing-spectacle-flash {
 .landing-inner {
   text-align: center;
   padding: 1.5rem 1.25rem 5rem;
-  width: min(1100px, 100%);
+  width: min(720px, 100%);
   margin: 0 auto;
+}
+
+.landing-login-card {
+  text-align: left;
+}
+
+.landing-features-compact {
+  margin-top: 0.5rem;
 }
 
 .hero-section {
