@@ -201,7 +201,7 @@ body {
 }
 
 .landing-spectacle-flash {
-  opacity: 0.28;
+  opacity: 0.38;
   animation: landingSpectacleGlow 7s ease-in-out infinite alternate;
 }
 
@@ -327,17 +327,17 @@ html[data-theme="light"] .landing-spectacle-flash {
   font-family: inherit;
 }
 
-.landing-inner--v2,
+.landing-inner,
 .landing-footer {
   position: relative;
   z-index: 2;
 }
 
-.landing-inner--v2 {
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
+.landing-inner {
+  text-align: center;
   padding: 1.5rem 1.25rem 5rem;
+  width: min(1100px, 100%);
+  margin: 0 auto;
 }
 
 .hero-section {

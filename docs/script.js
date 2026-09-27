@@ -1074,7 +1074,10 @@ function $(id) {
 
 function cacheElements() {
   const ids = [
-    "landing", "app", "landingClock", "landingBootStatus", "landingParticles", "username", "operatorError", "start-btn",
+    "landing", "app", "typewriter", "typewriterCursor", "landingSub",
+    "landingClock", "landingBootStatus", "landingParticles", "username", "operatorError", "start-btn",
+    "terminalOutput", "terminalStatus", "terminalOperatorName", "terminalMeterFill",
+    "bootBtnLabel",
     "welcomeOverlay", "welcomeFlash", "welcomePrefix", "welcomeName", "welcomeCursor", "welcomeProgressFill",
     "welcomeParticles", "welcomeBootFeed", "welcomeSub", "welcomeStatusLabel", "welcomeStatusPct",
     "welcomeWarning", "welcomeAlert", "welcomeKicker",
@@ -2128,18 +2131,23 @@ function updateTerminalOperator(name) {
 
 function setBootButtonState(state) {
   const btn = el.enterSystemBtn;
+  const label = el.bootBtnLabel;
   if (!btn) return;
 
   if (state === "connecting") {
     btn.disabled = true;
     btn.classList.add("is-connecting");
-    btn.textContent = "⏳ BAĞLANTI KURULUYOR...";
+    const text = "⏳ BAĞLANTI KURULUYOR...";
+    if (label) label.textContent = text;
+    else btn.textContent = text;
     return;
   }
 
   btn.disabled = false;
   btn.classList.remove("is-connecting");
-  btn.textContent = "🚀 SİSTEMİ BAŞLAT";
+  const text = "🚀 SİSTEMİ BAŞLAT";
+  if (label) label.textContent = text;
+  else btn.textContent = text;
 }
 
 function clearLandingBootTimers() {
@@ -2413,6 +2421,7 @@ function showLandingView() {
 
   startLandingClock();
   initLandingSpectacle();
+  runBootSequence();
   setTimeout(() => el.operatorName?.focus(), 200);
 }
 
@@ -2962,6 +2971,8 @@ function initLanding() {
 
   startLandingClock();
   initLandingSpectacle();
+  runTypewriter();
+  runBootSequence();
   if (el.landingBootStatus) {
     el.landingBootStatus.textContent = "Sistem hazır — Giriş bekleniyor";
   }
