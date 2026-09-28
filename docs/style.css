@@ -1887,6 +1887,96 @@ body.light-mode .feature-item span {
   z-index: 90;
 }
 
+.dev-panel-compact {
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+  width: min(280px, 100%);
+}
+
+.dev-panel-open-btn {
+  width: 100%;
+  margin-top: 0.15rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  background: linear-gradient(135deg, rgba(48, 105, 152, 0.35), rgba(30, 60, 90, 0.5));
+  color: var(--neon-cyan);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.dev-panel-open-btn:hover {
+  border-color: rgba(255, 232, 115, 0.45);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.dev-panel-open-btn:focus-visible {
+  outline: 2px solid rgba(0, 240, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.dev-panel-modal {
+  width: min(460px, 94vw);
+  max-width: 94vw;
+}
+
+.dev-panel-modal-frame {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: min(88vh, 900px);
+  overflow: hidden;
+}
+
+.dev-panel-modal-header {
+  margin-bottom: 0;
+  padding: 1.15rem 1.25rem 0.85rem;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.dev-panel-modal-header h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  margin: 0;
+}
+
+.dev-panel-live-modal {
+  flex-shrink: 0;
+}
+
+.dev-panel-modal-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.85rem 1.15rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(48, 105, 152, 0.45) transparent;
+}
+
+.dev-profile-ext {
+  text-align: center;
+  padding-top: 0.85rem;
+}
+
+#devPanelModal.modal-overlay {
+  z-index: 1050;
+}
+
 .dev-panel-inner {
   display: flex;
   flex-direction: column;
@@ -2664,8 +2754,8 @@ body.light-mode .feature-item span {
     order: 2;
   }
 
-  .dev-week {
-    display: none;
+  .dev-panel-compact {
+    width: 100%;
   }
 }
 
@@ -2678,8 +2768,17 @@ body.light-mode .feature-item span {
     padding-bottom: 0.5rem;
   }
 
-  .dev-panel {
-    display: none;
+  .dev-panel-compact {
+    display: block;
+    order: 1;
+  }
+
+  .dev-panel-modal {
+    width: min(460px, 96vw);
+  }
+
+  .dev-panel-modal-frame {
+    max-height: min(92vh, 900px);
   }
 
   .mobile-goal-bar {

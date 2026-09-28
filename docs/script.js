@@ -1084,7 +1084,8 @@ function cacheElements() {
     "backToLandingBtn", "openShortcutsBtn", "footerShortcutsBtn", "landingShortcutsBtn",
     "shortcutsModal", "shortcutsFrame", "shortcutsBody", "shortcutsClose",
     "hudUsername", "hudUserChip",
-    "devPanel", "devAvatar", "devAvatarName", "devLevelBadge", "devRingFill",
+    "devPanel", "devPanelOpenBtn", "devPanelModal", "devPanelModalPanel", "devPanelModalFrame", "devPanelClose",
+    "devAvatar", "devAvatarName", "devLevelBadge", "devRingFill",
     "devProgressLabel", "devCompletedCount", "devTodayMinutes", "devTotalXpDisplay",
     "devStreak", "devLevelRank", "devXpText", "devXpFill", "devWeekBars",
     "devGoalCard", "devGoalChapter", "devGoalTopic", "devGoalMeta", "devGoalMotivation",
@@ -2303,9 +2304,23 @@ function validateOperatorName() {
 function closeAllModals() {
   el.notesModal?.classList.add("hidden");
   el.shortcutsModal?.classList.add("hidden");
+  el.devPanelModal?.classList.add("hidden");
   el.celebrationOverlay?.classList.add("hidden");
   closeFocusMode();
   activeTopicId = null;
+}
+
+function openDevPanelModal() {
+  if (!el.devPanelModal) return;
+  bindAccordions();
+  showOverlay(el.devPanelModal);
+  requestAnimationFrame(() => {
+    el.devPanelClose?.focus();
+  });
+}
+
+function closeDevPanelModal() {
+  el.devPanelModal?.classList.add("hidden");
 }
 
 function renderShortcutKey(key) {
@@ -3240,6 +3255,7 @@ function renderStaircase() {
 function openNotesModal(topic) {
   if (!el.notesModal) return;
 
+  closeDevPanelModal();
   closeFocusMode();
   setFocusedTopic(topic.id);
 
@@ -3402,6 +3418,18 @@ function bindAccordions() {
 
 function bindEvents() {
   /* Geliştirici paneli */
+  safeOn(el.devPanelOpenBtn, "click", (e) => {
+    e.preventDefault();
+    openDevPanelModal();
+  });
+  safeOn(el.devPanelClose, "click", (e) => {
+    e.preventDefault();
+    closeDevPanelModal();
+  });
+  safeOn(el.devPanelModalFrame, "click", (e) => e.stopPropagation());
+  safeOn(el.devPanelModal, "click", (e) => {
+    if (e.target === el.devPanelModal) closeDevPanelModal();
+  });
   safeOn(el.devGoalBtn, "click", (e) => {
     e.preventDefault();
     startNextGoal();
@@ -3529,6 +3557,10 @@ function bindEvents() {
         closeShortcutsModal();
         return;
       }
+      if (el.devPanelModal && !el.devPanelModal.classList.contains("hidden")) {
+        closeDevPanelModal();
+        return;
+      }
       if (el.notesModal && !el.notesModal.classList.contains("hidden")) {
         closeNotesModal();
         return;
@@ -3557,7 +3589,8 @@ function bindEvents() {
 
     if (e.altKey && e.key.toLowerCase() === "n" && appInitialized && el.app && !el.app.classList.contains("hidden")) {
       const modalOpen = notesOpen
-        || (el.shortcutsModal && !el.shortcutsModal.classList.contains("hidden"));
+        || (el.shortcutsModal && !el.shortcutsModal.classList.contains("hidden"))
+        || (el.devPanelModal && !el.devPanelModal.classList.contains("hidden"));
       if (!modalOpen && findNextTopic()) {
         e.preventDefault();
         startNextGoal();
